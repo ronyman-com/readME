@@ -1,0 +1,36 @@
+{
+    "name": "readme-framework",
+    "version": "1.0.0",
+    "type": "module",
+    "bin": {
+        "readme": "bin/readme.js"
+    },
+    "dependencies": {
+        "chalk": "4",
+        "commander": "^10.0.1",
+        "fs-extra": "^11.3.0"
+    },
+    "description": "readME is a modern static document generator framework built with Node.js. It provides a Command Line Interface (CLI) to create, manage, and organize website documentation with ease. The framework is designed to streamline the process of generating static websites, folders, and files, while automatically updating the sidebar menu for navigation. It uses the latest CSS and JavaScript practices to ensure a modern and responsive user experience.",
+    "main": "index.js",
+    "scripts": {
+        "test": "test"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/ronyman-com/readME.git"
+    },
+    "keywords": [
+        "readME",
+        "Document",
+        "site",
+        "creator",
+        "Rony",
+        "MAN"
+    ],
+    "author": "Rony MAN",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/ronyman-com/readME/issues"
+    },
+    "homepage": "https://github.com/ronyman-com/readME#readme"
+}
