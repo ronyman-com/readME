@@ -1,6 +1,11 @@
 import fs from 'fs-extra';
 import path from 'path';
 
+/**
+ * Update the sidebar with new files or folders.
+ * @param {string} name - The name of the file or folder.
+ * @param {string} type - The type of item ('file' or 'folder').
+ */
 const updateSidebar = (name, type) => {
   const sidebarPath = path.join(process.cwd(), 'sidebar.json');
   let sidebar = { menu: [] };
@@ -11,18 +16,18 @@ const updateSidebar = (name, type) => {
       sidebar = fs.readJsonSync(sidebarPath);
     }
 
-    // Add file or folder to sidebar
+    // Add the new item to the sidebar
     if (type === 'file') {
       sidebar.menu.push({ title: name, path: name });
     } else if (type === 'folder') {
       sidebar.menu.push({ title: name, children: [] });
     }
 
-    // Save updated sidebar
+    // Save the updated sidebar
     fs.writeJsonSync(sidebarPath, sidebar, { spaces: 2 });
     console.log('Sidebar updated successfully!');
   } catch (error) {
-    console.error(chalk.red(`Error updating sidebar: ${error.message}`));
+    console.error('Error updating sidebar:', error);
   }
 };
 

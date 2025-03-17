@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ReadME Framework</title>
+  <link rel="stylesheet" href="/assets/css/theme.css">
+</head>
+<body>
+  <!-- Navbar -->
+  <header class="navbar">
+    <div class="navbar-brand">
+      <img src="/assets/images/logo.png" alt="ReadME Logo">
+      <span>ReadME Framework</span>
+    </div>
+    <div class="theme-switcher">
+      <button id="theme-light">Light</button>
+      <button id="theme-dark">Dark</button>
+      <button id="theme-system">System</button>
+    </div>
+  </header>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-resizer" id="sidebar-resizer"></div>
+    <nav>
+      <ul>
+        <% sidebar.menu.forEach(item => { %>
+          <% if (item.children) { %>
+            <li class="folder">
+              <details>
+                <summary><%= item.title %></summary>
+                <ul>
+                  <% item.children.forEach(child => { %>
+                    <li><a href="/<%= child.path %>.html"><%= child.title %></a></li>
+                  <% }) %>
+                </ul>
+              </details>
+            </li>
+          <% } else { %>
+            <li><a href="/<%= item.path %>.html"><%= item.title %></a></li>
+          <% } %>
+        <% }) %>
+      </ul>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="content" id="content">
+    <% pages.forEach(page => { %>
+      <section>
+        <h1><%= page.name %></h1>
+        <div><%- page.content %></div>
+      </section>
+    <% }) %>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>&copy; <%= new Date().getFullYear() %> ReadME Framework. All rights reserved.</p> <!-- Updated to dynamically show the current year -->
+  </footer>
+
+  <!-- JavaScript -->
+  <script src="/assets/js/themes.js"></script>
+  <script src="/assets/js/sidebar.js"></script>
+</body>
+</html>

@@ -9,7 +9,7 @@ const addFile = (fileName) => {
   try {
     // Create the file
     fs.ensureFileSync(filePath);
-    console.log(chalk.green(`File "${fileName}" created successfully!`));
+    console.log(chalk.green(`readME "${fileName}" File, created successfully!`));
 
     // Update sidebar
     updateSidebar(fileName, 'file');

@@ -1,0 +1,23 @@
+<p>const fs = require(&#39;fs-extra&#39;);
+const path = require(&#39;path&#39;);
+const chalk = require(&#39;chalk&#39;);
+const { fetchRepoChanges } = require(&#39;../utils/github&#39;);</p>
+<p>const generateChangeLog = async (owner, repo, token) =&gt; {
+  const changes = await fetchRepoChanges(owner, repo, token);</p>
+<p>  if (changes.length === 0) {
+    console.log(chalk.yellow(&#39;No changes found.&#39;));
+    return;
+  }</p>
+<p>  // Generate Markdown content
+  let markdownContent = &#39;# Change Log\n\n&#39;;
+  markdownContent += &#39;| Type      | Path               | Commit Message       | Timestamp           |\n&#39;;
+  markdownContent += &#39;|-----------|--------------------|----------------------|---------------------|\n&#39;;</p>
+<p>  changes.forEach((change) =&gt; {
+    markdownContent += <code>| ${change.type} | ${change.path} | ${change.commitMessage} | ${change.timestamp} |\n</code>;
+  });</p>
+<p>  // Write to changelog.md
+  const changelogPath = path.join(process.cwd(), &#39;changelog.md&#39;);
+  fs.writeFileSync(changelogPath, markdownContent);</p>
+<p>  console.log(chalk.green(&#39;Change log generated successfully!&#39;));
+};</p>
+<p>module.exports = { generateChangeLog };</p>

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ReadME Framework</title>
+  <link rel="stylesheet" href="/assets/css/theme.css">
+</head>
+<body>
+  <!-- Navbar -->
+  <header class="navbar">
+    <div class="navbar-brand">
+      <img src="/assets/images/logo.png" alt="ReadME Logo">
+      <span>ReadME Framework</span>
+    </div>
+    <div class="theme-switcher">
+      <button id="theme-light">Light</button>
+      <button id="theme-dark">Dark</button>
+      <button id="theme-system">System</button>
+    </div>
+  </header>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-resizer" id="sidebar-resizer"></div>
+    <nav>
+      <ul>
+        
+          
+            <li><a href="/index.html">index</a></li>
+          
+        
+          
+            <li><a href="/README.html">README</a></li>
+          
+        
+          
+            <li><a href="/getting-started.html">getting-started</a></li>
+          
+        
+          
+            <li><a href="/features.html">features</a></li>
+          
+        
+      </ul>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="content" id="content">
+    
+      <section>
+        <h1>README</h1>
+        <div><h1 id="readme-framework">ReadME Framework</h1>
+<p>This is a static website generated using the ReadME Framework.</p>
+<p>ReadMe/<br>├── bin/<br>│   └── readme.js<br>├── src/<br>│   ├── commands/<br>│   │   ├── create.js<br>│   │   ├── addFile.js<br>│   │   ├── addFolder.js<br>│   │   ├── changelog.js<br>│   │   └── theme.js \<br>│   ├── utils/<br>│   │   ├── sidebar.js<br>│   │   ├── github.js<br>│   │   └── theme.js\<br>│   └── index.js<br>├── templates/<br>│   ├── index.md<br>│   ├── README.md<br>│   ├── sidebar.json<br>│   ├── changelog.md<br>│   └── themes/<br>│       ├── system.json \<br>│       ├── light.json \<br>│       └── custom.json \<br>│   ├── css/\
+│   │   └── themes.css\ \<br>│   └── js/<br>│       └── themes.js\<br>├── package.json<br>└── README.md</p>
+</div>
+      </section>
+    
+      <section>
+        <h1>changelog</h1>
+        <div><p>const fs = require(&#39;fs-extra&#39;);
+const path = require(&#39;path&#39;);
+const chalk = require(&#39;chalk&#39;);
+const { fetchRepoChanges } = require(&#39;../utils/github&#39;);</p>
+<p>const generateChangeLog = async (owner, repo, token) =&gt; {
+  const changes = await fetchRepoChanges(owner, repo, token);</p>
+<p>  if (changes.length === 0) {
+    console.log(chalk.yellow(&#39;No changes found.&#39;));
+    return;
+  }</p>
+<p>  // Generate Markdown content
+  let markdownContent = &#39;# Change Log\n\n&#39;;
+  markdownContent += &#39;| Type      | Path               | Commit Message       | Timestamp           |\n&#39;;
+  markdownContent += &#39;|-----------|--------------------|----------------------|---------------------|\n&#39;;</p>
+<p>  changes.forEach((change) =&gt; {
+    markdownContent += <code>| ${change.type} | ${change.path} | ${change.commitMessage} | ${change.timestamp} |\n</code>;
+  });</p>
+<p>  // Write to changelog.md
+  const changelogPath = path.join(process.cwd(), &#39;changelog.md&#39;);
+  fs.writeFileSync(changelogPath, markdownContent);</p>
+<p>  console.log(chalk.green(&#39;Change log generated successfully!&#39;));
+};</p>
+<p>module.exports = { generateChangeLog };</p>
+</div>
+      </section>
+    
+      <section>
+        <h1>features</h1>
+        <div></div>
+      </section>
+    
+      <section>
+        <h1>getting-started</h1>
+        <div><h1 id="getting-started">Getting Started</h1>
+<h2 id="install-readme-from-npm">Install readME from npm</h2>
+<pre><code class="language-bash">npm install -g readme-framework
+</code></pre>
+</div>
+      </section>
+    
+      <section>
+        <h1>index</h1>
+        <div><h1 id="welcome-to-your-website">Welcome to Your Website</h1>
+<p>This is the homepage of your static website.</p>
+</div>
+      </section>
+    
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>&copy; 2025 ReadME Framework. All rights reserved.</p> <!-- Updated to dynamically show the current year -->
+  </footer>
+
+  <!-- JavaScript -->
+  <script src="/assets/js/themes.js"></script>
+  <script src="/assets/js/sidebar.js"></script>
+</body>
+</html>

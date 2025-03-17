@@ -9,7 +9,7 @@ const addFolder = (folderName) => {
   try {
     // Create the folder
     fs.ensureDirSync(folderPath);
-    console.log(chalk.green(`Folder "${folderName}" created successfully!`));
+    console.log(chalk.green(`readME "${folderName}"Folder, created successfully!`));
 
     // Update sidebar
     updateSidebar(folderName, 'folder');

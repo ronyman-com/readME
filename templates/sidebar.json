@@ -1,5 +1,20 @@
 {
-    "menu": [
-      { "title": "Home", "path": "index.md" }
-    ]
-  }
+  "menu": [
+    {
+      "title": "index",
+      "path": "index"
+    },
+    {
+      "title": "README",
+      "path": "README"
+    },
+    {
+      "title": "getting-started",
+      "path": "getting-started"
+    },
+    {
+      "title": "features",
+      "path": "features"
+    }
+  ]
+}
