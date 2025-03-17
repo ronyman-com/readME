@@ -1,12 +1,15 @@
-const { applyTheme, createCustomTheme } = require('../utils/theme');
+import { applyTheme, createCustomTheme } from '../utils/theme.js';
 
+// Function to switch themes
 const switchTheme = (themeName) => {
   applyTheme(themeName);
 };
 
+// Function to create custom themes
 const createTheme = (themeName, primary, background, text) => {
   const colors = { primary, background, text };
   createCustomTheme(themeName, colors);
 };
 
-module.exports = { switchTheme, createTheme };
+// Export both functions
+export { switchTheme, createTheme };

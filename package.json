@@ -5,15 +5,19 @@
     "bin": {
         "readme": "bin/readme.js"
     },
+    
     "dependencies": {
+        "axios": "^1.8.3",
         "chalk": "4",
         "commander": "^10.0.1",
+        "express": "^4.21.2",
         "fs-extra": "^11.3.0"
     },
     "description": "readME is a modern static document generator framework built with Node.js. It provides a Command Line Interface (CLI) to create, manage, and organize website documentation with ease. The framework is designed to streamline the process of generating static websites, folders, and files, while automatically updating the sidebar menu for navigation. It uses the latest CSS and JavaScript practices to ensure a modern and responsive user experience.",
     "main": "index.js",
     "scripts": {
-        "test": "test"
+        "test": "test",
+        "start": "node server.js"
     },
     "repository": {
         "type": "git",

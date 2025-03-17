@@ -1,7 +1,7 @@
 import fs from 'fs-extra';
 import path from 'path';
 import chalk from 'chalk';
-import { fetchRepoChanges } from '../utils/github.js';
+import { fetchRepoChanges } from '../utils/github.js'; // Correct import
 
 const generateChangeLog = async (owner, repo, token) => {
   const changes = await fetchRepoChanges(owner, repo, token);

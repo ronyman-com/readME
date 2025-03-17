@@ -1,5 +1,5 @@
-const axios = require('axios');
-const chalk = require('chalk');
+import axios from 'axios';
+import chalk from 'chalk';
 
 const fetchRepoChanges = async (owner, repo, token) => {
   try {
@@ -39,4 +39,5 @@ const fetchRepoChanges = async (owner, repo, token) => {
   }
 };
 
-module.exports = { fetchRepoChanges };
+// Export the function
+export { fetchRepoChanges };

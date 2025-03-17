@@ -2,6 +2,7 @@ import fs from 'fs-extra';
 import path from 'path';
 import chalk from 'chalk';
 
+// Function to apply a theme
 const applyTheme = (themeName) => {
   const themePath = path.join(process.cwd(), 'themes', `${themeName}.json`);
   const cssPath = path.join(process.cwd(), 'assets/css/themes.css');
@@ -24,6 +25,7 @@ const applyTheme = (themeName) => {
   console.log(chalk.green(`Theme "${themeName}" applied successfully!`));
 };
 
+// Function to create a custom theme
 const createCustomTheme = (themeName, colors) => {
   const customThemePath = path.join(process.cwd(), 'themes', `${themeName}.json`);
   const templatePath = path.join(__dirname, '../../templates/themes/custom.json');
@@ -41,4 +43,5 @@ const createCustomTheme = (themeName, colors) => {
   console.log(chalk.green(`Custom theme "${themeName}" created successfully!`));
 };
 
-module.exports = { applyTheme, createCustomTheme };
+// Export both functions
+export { applyTheme, createCustomTheme };

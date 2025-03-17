@@ -4,7 +4,7 @@ import { createWebsite } from '../src/commands/create.js';
 import { addFile } from '../src/commands/addFile.js';
 import { addFolder } from '../src/commands/addFolder.js';
 import { generateChangeLog } from '../src/commands/changelog.js';
-import { switchTheme, createTheme } from '../src/commands/theme.js';
+import { switchTheme, createTheme } from '../src/commands/theme.js'; // Correct import
 
 program
   .version('1.0.0')
