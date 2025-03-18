@@ -26,32 +26,31 @@ const build = async (websiteName) => {
     const files = await fs.readdir(websitePath);
     const markdownFiles = files.filter((file) => file.endsWith('.md'));
 
-    // Convert Markdown to HTML
-    const pages = [];
+    // Load the sidebar
+    const sidebarPath = path.join(websitePath, 'sidebar.json');
+    const sidebar = await fs.readJson(sidebarPath);
+
+    // Load the shared template
+    const templatePath = path.join(templatesPath, 'index.ejs');
+    const template = await fs.readFile(templatePath, 'utf-8');
+
+    // Convert Markdown to HTML and render using the shared template
     for (const file of markdownFiles) {
       const filePath = path.join(websitePath, file);
       const content = await fs.readFile(filePath, 'utf-8');
       const htmlContent = marked(content);
 
-      pages.push({
-        name: file.replace('.md', ''),
+      // Render the page using the shared template
+      const renderedHtml = ejs.render(template, {
+        title: file.replace('.md', ''),
+        sidebar: sidebar,
         content: htmlContent,
       });
 
       // Write HTML file to dist
-      await fs.writeFile(path.join(distPath, `${file.replace('.md', '.html')}`), htmlContent);
+      const outputFileName = file.replace('.md', '.html');
+      await fs.writeFile(path.join(distPath, outputFileName), renderedHtml);
     }
-
-    // Load the sidebar
-    const sidebarPath = path.join(websitePath, 'sidebar.json');
-    const sidebar = fs.readJsonSync(sidebarPath);
-
-    // Render index.html using EJS template
-    const template = await fs.readFile(path.join(templatesPath, 'index.ejs'), 'utf-8');
-    const renderedHtml = ejs.render(template, { pages, sidebar });
-
-    // Write index.html to dist
-    await fs.writeFile(path.join(distPath, 'index.html'), renderedHtml);
 
     console.log(`Build for "${websiteName}" completed successfully!`);
   } catch (error) {

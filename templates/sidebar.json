@@ -15,6 +15,11 @@
     {
       "title": "features",
       "path": "features"
+    },
+    {
+      "title": "Cli",
+      "path": "cli"
     }
   ]
 }
+

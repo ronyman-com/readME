@@ -1,6 +1,6 @@
 /* General Styles */
 :root {
-  --primary-color: #007BFF;
+  --primary-color: #202020;
   --background-color: #FFFFFF;
   --text-color: #000000;
   --sidebar-width: 250px;
@@ -11,7 +11,6 @@ body {
   margin: 0;
   padding: 0;
   display: flex;
-  flex-direction: column;
   min-height: 100vh;
   background-color: var(--background-color);
   color: var(--text-color);
@@ -25,6 +24,11 @@ body {
   padding: 1rem;
   background-color: var(--primary-color);
   color: white;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
 }
 
 .navbar-brand {
@@ -57,12 +61,17 @@ body {
 /* Sidebar */
 .sidebar {
   width: var(--sidebar-width);
+  min-width: 150px; /* Minimum width */
+  max-width: 400px; /* Maximum width */
   background-color: #f8f9fa;
   padding: 1rem;
   position: fixed;
   height: 100vh;
   overflow-y: auto;
   border-right: 1px solid #ddd;
+  top: 60px; /* Adjusted for navbar height */
+  left: 0;
+  z-index: 999;
 }
 
 .sidebar-resizer {
@@ -101,12 +110,53 @@ body {
 .sidebar nav ul li.folder ul {
   margin-left: 1rem;
 }
+/* Theme Switcher Dropdown */
+.theme-switcher select {
+  padding: 0.5rem 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: var(--background-color);
+  color: var(--text-color);
+  cursor: pointer;
+}
+
+/* Theme Styles */
+body[data-theme="light"] {
+  --primary-color: #202020;
+  --background-color: #FFFFFF;
+  --text-color: #000000;
+}
+
+body[data-theme="dark"] {
+  --primary-color: #FFFFFF;
+  --background-color: #202020;
+  --text-color: #FFFFFF;
+}
+
+body[data-theme="system"] {
+  /* Use system preferences */
+  --primary-color: #202020;
+  --background-color: #FFFFFF;
+  --text-color: #000000;
+}
+
+@media (prefers-color-scheme: dark) {
+  body[data-theme="system"] {
+    --primary-color: #FFFFFF;
+    --background-color: #202020;
+    --text-color: #FFFFFF;
+  }
+}
+
 
 /* Main Content */
 .content {
-  margin-left: var(--sidebar-width);
-  padding: 1rem;
-  flex: 1;
+  margin-left: var(--sidebar-width); /* Dynamically adjust based on sidebar width */
+  padding: 20px;
+  overflow-y: auto;
+  margin-top: 60px; /* Adjusted for navbar height */
+  width: calc(100% - var(--sidebar-width)); /* Ensure full width */
+  transition: margin-left 0.3s ease; /* Smooth transition */
 }
 
 /* Footer */
@@ -115,4 +165,74 @@ body {
   padding: 1rem;
   background-color: var(--primary-color);
   color: white;
+  position: fixed;
+  bottom: 0;
+  left: var(--sidebar-width); /* Adjusted for sidebar width */
+  right: 0;
+  z-index: 1000;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    position: relative;
+    top: 0;
+  }
+
+  .content {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .footer {
+    left: 0;
+  }
+}
+
+
+
+/* GitHub Buttons Container */
+.github-buttons {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Source Code Link */
+.source-code-link {
+  padding: 8px 16px;
+  background-color: #24292e;
+  color: white;
+  text-decoration: none;
+  border-radius: 6px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  transition: background-color 0.3s ease;
+}
+
+.source-code-link:hover {
+  background-color: #1c1f23;
+}
+
+/* GitHub Star Button Adjustments */
+.github-button {
+  margin: 0 !important; /* Override default margin */
+}
+
+
+/* Project Owner Link */
+.footer .project-owner {
+  position: absolute;
+  right: 20px;
+  bottom: 10px;
+  color: white;
+  text-decoration: none;
+}
+
+.footer .project-owner:hover {
+  text-decoration: underline;
 }

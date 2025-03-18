@@ -1,4 +1,133 @@
-<h1 id="getting-started">Getting Started</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>getting-started</title>
+  <link rel="stylesheet" href="/assets/css/theme.css">
+  <!-- GitHub Buttons CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-buttons/2.21.0/buttons.min.css">
+</head>
+<body>
+  <!-- Navbar -->
+  <header class="navbar">
+    <div class="navbar-brand">
+      <img src="/assets/images/logo.jpg" alt="ReadME Logo">
+      < <span>ReadME Framework <span id="readme-version">v1.0.0</span></span>
+    </div>
+    <div class="github-buttons">
+      <!-- GitHub Star Button -->
+      <a
+        class="github-button"
+        href="https://github.com/ronyman-com/readME"
+        data-icon="octicon-star"
+        data-size="large"
+        data-show-count="true"
+        aria-label="Star your-username/your-repo on GitHub"
+      >
+        Star
+      </a>
+      <!-- Link to Source Code -->
+      <a
+        href="https://github.com/ronyman-com/readME"
+        class="source-code-link"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Source Code
+      </a>
+    </div>
+  </header>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-resizer" id="sidebar-resizer"></div>
+    <nav>
+      <ul>
+        
+          
+            <li><a href="/index.html">index</a></li>
+          
+        
+          
+            <li><a href="/README.html">README</a></li>
+          
+        
+          
+            <li><a href="/getting-started.html">getting-started</a></li>
+          
+        
+          
+            <li><a href="/features.html">features</a></li>
+          
+        
+          
+            <li><a href="/cli.html">Cli</a></li>
+          
+        
+      </ul>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="content" id="content">
+    <h1 id="getting-started">Getting Started</h1>
 <h2 id="install-readme-from-npm">Install readME from npm</h2>
 <pre><code class="language-bash">npm install -g readme-framework
+
+
+
+
+
+---
+
+### **Copy-to-Clipboard Function**
+To add the **copy-to-clipboard functionality**, include the following JavaScript in your `README.md` file:
+
+```html
+&lt;script&gt;
+  function copyCode(code) {
+    navigator.clipboard.writeText(code).then(() =&gt; {
+      alert(&#39;Copied to clipboard: &#39; + code);
+    });
+  }
+&lt;/script&gt;
 </code></pre>
+
+  </main>
+
+  <!-- Footer -->
+<footer class="footer">
+  <p>&copy; 2025 ReadME Framework. All rights reserved.</p>
+  <a class="project-owner" href="https://www.ronyman.com/" target="_blank" rel="noopener noreferrer">
+    readME,Project owned by: Rony MAN
+  </a>
+</footer>
+
+  <!-- JavaScript -->
+  <script src="/assets/js/sidebar.js"></script>
+  <!-- GitHub Buttons Script -->
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+</body>
+</html>
+
+
+ <!-- Fetch ReadME Version -->
+ <script>
+  async function fetchReadMEVersion() {
+    try {
+      const response = await fetch('https://registry.npmjs.org/readme-document-page-builder/latest');
+      const data = await response.json();
+      const version = data.version;
+
+      const versionElement = document.getElementById('readme-version');
+      if (versionElement) {
+        versionElement.textContent = `v${version}`;
+      }
+    } catch (error) {
+      console.error('Failed to fetch ReadME version:', error);
+    }
+  }
+
+  fetchReadMEVersion();
+</script>
