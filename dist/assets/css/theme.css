@@ -149,15 +149,6 @@ body[data-theme="system"] {
 }
 
 
-/* Main Content */
-.content {
-  margin-left: var(--sidebar-width); /* Dynamically adjust based on sidebar width */
-  padding: 20px;
-  overflow-y: auto;
-  margin-top: 60px; /* Adjusted for navbar height */
-  width: calc(100% - var(--sidebar-width)); /* Ensure full width */
-  transition: margin-left 0.3s ease; /* Smooth transition */
-}
 
 /* Footer */
 .footer {
@@ -234,5 +225,160 @@ body[data-theme="system"] {
 }
 
 .footer .project-owner:hover {
-  text-decoration: underline;
+  text-decoration: burlywood;
+}
+
+
+:root {
+  --sidebar-width: 250px; /* Default sidebar width */
+  --sidebar-min-width: 200px; /* Minimum sidebar width */
+  --sidebar-max-width: 400px; /* Maximum sidebar width */
+  --sidebar-gap: 30px; /* Gap between sidebar and main content */
+}
+
+/* Sidebar Styles */
+.sidebar {
+  width: var(--sidebar-width); /* Use CSS variable for width */
+  min-width: var(--sidebar-min-width); /* Minimum width */
+  max-width: var(--sidebar-max-width); /* Maximum width */
+  background-color: #2c3e50; /* Dark background color */
+  color: #ecf0f1; /* Light text color */
+  height: 100vh; /* Full height */
+  position: fixed; /* Fixed position */
+  top: 0;
+  left: 0;
+  overflow-y: auto; /* Enable scrolling if content overflows */
+  padding: 20px;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
+  resize: horizontal; /* Allow horizontal resizing */
+  overflow: auto; /* Ensure content doesn't overflow */
+}
+
+/* Main Content */
+.content {
+  margin-left: calc(var(--sidebar-width) + var(--sidebar-gap)); /* Add gap to margin-left */
+  padding: 20px;
+  overflow-y: auto;
+  margin-top: 60px; /* Adjusted for navbar height */
+  width: calc(100% - var(--sidebar-width) - var(--sidebar-gap)); /* Ensure full width with gap */
+  transition: margin-left 0.3s ease, width 0.3s ease; /* Smooth transition */
+}
+
+/* Sidebar Links */
+.sidebar nav ul {
+  list-style: none; /* Remove bullet points */
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar nav ul li {
+  margin: 15px 0;
+}
+
+.sidebar nav ul li a {
+  color: #ecf0f1; /* Light text color */
+  text-decoration: none; /* Remove underline */
+  font-size: 16px;
+  display: block;
+  padding: 10px;
+  border-radius: 4px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.sidebar nav ul li a:hover {
+  background-color: #34495e; /* Darker background on hover */
+  color: #ffffff; /* Brighter text on hover */
+}
+
+/* Folder Styles */
+.sidebar nav ul li.folder summary {
+  font-weight: bold;
+  cursor: pointer;
+  padding: 10px;
+  border-radius: 4px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.sidebar nav ul li.folder summary:hover {
+  background-color: #34495e; /* Darker background on hover */
+  color: #ffffff; /* Brighter text on hover */
+}
+
+.sidebar nav ul li.folder ul {
+  margin-left: 20px; /* Indent child items */
+}
+
+/* Active Link Style */
+.sidebar nav ul li a.active {
+  background-color: #3498db; /* Highlight active link */
+  color: #ffffff;
+}
+
+/* Sidebar Resizer */
+.sidebar-resizer {
+  width: 5px;
+  background-color: #34495e; /* Resizer color */
+  cursor: ew-resize; /* Resize cursor */
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+}
+
+
+/* Footer Styles */
+.footer {
+  position: fixed;
+  bottom: 0;
+  left: var(--sidebar-width); /* Position under the sidebar */
+  width: calc(100% - var(--sidebar-width)); /* Adjust width to fit beside the sidebar */
+  background: linear-gradient(135deg, #3498db, #2c3e50); /* Gradient background */
+  color: white;
+  text-align: center;
+  padding: 5px 10px 5px 20px; /* Smaller padding */
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000; /* Ensure footer is above other content */
+  font-size: 10px; /* Smaller font size */
+}
+
+.footer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -15px; /* Position the shape outside the footer */
+  width: 30px; /* Smaller width for the shape */
+  height: 100%; /* Full height of the footer */
+  background: linear-gradient(135deg, #3498db, #2c3e50); /* Matching gradient */
+  clip-path: polygon(
+    0% 0%, /* Top-left corner */
+    100% 10%, /* Top-right corner */
+    100% 90%, /* Bottom-right corner */
+    0% 100% /* Bottom-left corner */
+  );
+  z-index: -1;
+}
+
+.footer-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+/* Ensure the logo size is applied */
+.footer img {
+  width: 20px !important; /* Smaller logo size */
+  height: auto !important; /* Maintain aspect ratio */
+}
+
+.footer a {
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 10px; /* Smaller text size */
+  transition: opacity 0.3s ease;
+}
+
+.footer a:hover {
+  opacity: 0.8;
 }

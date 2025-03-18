@@ -1,7 +1,7 @@
 {
   "menu": [
     {
-      "title": "index",
+      "title": "Index",
       "path": "index"
     },
     {
@@ -9,17 +9,24 @@
       "path": "README"
     },
     {
-      "title": "getting-started",
+      "title": "Getting Started",
       "path": "getting-started"
     },
     {
-      "title": "features",
+      "title": "Features",
       "path": "features"
     },
     {
-      "title": "Cli",
+      "title": "CLI",
       "path": "cli"
+    },
+    {
+      "title": "Distribution",
+      "path": "distribute"
+    },
+    {
+      "title": "Join the Team",
+      "path": "team"
     }
   ]
 }
-

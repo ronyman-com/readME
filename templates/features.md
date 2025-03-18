@@ -1,20 +1,17 @@
 
 ---
 
-### **Key Elements of the Welcome Message**
-1. **Friendly Tone**:
-   - Use emojis and a warm tone to make the message inviting.
+### **Key Elements of readME**
+1. **Markdown Friendly**:
+   - Full write your code as text in Markdown file and autogenerate HTML to the browser.
 
-2. **Clear Introduction**:
-   - Explain what the tool is and its purpose.
+2. **Why readME on your website  document or general site**:
+   - Fast build and responsive web broser and easy to use.
 
 3. **Getting Started Guide**:
-   - Provide a quick guide to help users set up and use the tool.
+   - To get start to the left sidebar button and click on getting-startted and you will be there to start your journey.
 
-4. **Links to Key Resources**:
-   - Include links to the getting started guide, features page, and source code.
-
-5. **Support Information**:
+4. **Support Information**:
    - Let users know how they can get help if they encounter issues.
 
 ---
@@ -52,6 +49,25 @@ To get started, follow these simple steps:
 
 1. **Install the Tool**: Clone the repository and install the dependencies.
    ```bash
-   git clone https://github.com/your-username/your-repo.git
-   cd your-repo
+   git clone https://github.com/ronyman-com/readME
+   cd readME
    npm install
+
+
+2. **Install from npm or yarn**: .
+   ```bash
+   mkdir yoursitename
+   cd yoursitename
+   npm init
+
+
+   npm i readme-framework
+
+
+
+
+3. **Install by CLI**: or got to CLI page.
+   ```bash
+
+   npm i readme-framework
+   -readme create <Your Website name>

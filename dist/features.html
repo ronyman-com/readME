@@ -13,7 +13,7 @@
   <header class="navbar">
     <div class="navbar-brand">
       <img src="/assets/images/logo.jpg" alt="ReadME Logo">
-      < <span>ReadME Framework <span id="readme-version">v1.0.0</span></span>
+      <span>ReadME Framework <span id="readme-version" style="color: rgb(249, 253, 13);">v${version}</span></span>
     </div>
     <div class="github-buttons">
       <!-- GitHub Star Button -->
@@ -37,6 +37,23 @@
         Source Code
       </a>
     </div>
+
+    <style>
+      /* Style for copy buttons */
+      button {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-left: 10px;
+      }
+  
+      button:hover {
+        background-color: #0056b3;
+      }
+    </style>
   </header>
 
   <!-- Sidebar -->
@@ -46,7 +63,7 @@
       <ul>
         
           
-            <li><a href="/index.html">index</a></li>
+            <li><a href="/index.html">Index</a></li>
           
         
           
@@ -54,15 +71,23 @@
           
         
           
-            <li><a href="/getting-started.html">getting-started</a></li>
+            <li><a href="/getting-started.html">Getting Started</a></li>
           
         
           
-            <li><a href="/features.html">features</a></li>
+            <li><a href="/features.html">Features</a></li>
           
         
           
-            <li><a href="/cli.html">Cli</a></li>
+            <li><a href="/cli.html">CLI</a></li>
+          
+        
+          
+            <li><a href="/distribute.html">Distribution</a></li>
+          
+        
+          
+            <li><a href="/team.html">Join the Team</a></li>
           
         
       </ul>
@@ -72,26 +97,21 @@
   <!-- Main Content -->
   <main class="content" id="content">
     <hr>
-<h3 id="key-elements-of-the-welcome-message"><strong>Key Elements of the Welcome Message</strong></h3>
+<h3 id="key-elements-of-readme"><strong>Key Elements of readME</strong></h3>
 <ol>
-<li><p><strong>Friendly Tone</strong>:</p>
+<li><p><strong>Markdown Friendly</strong>:</p>
 <ul>
-<li>Use emojis and a warm tone to make the message inviting.</li>
+<li>Full write your code as text in Markdown file and autogenerate HTML to the browser.</li>
 </ul>
 </li>
-<li><p><strong>Clear Introduction</strong>:</p>
+<li><p><strong>Why readME on your website  document or general site</strong>:</p>
 <ul>
-<li>Explain what the tool is and its purpose.</li>
+<li>Fast build and responsive web broser and easy to use.</li>
 </ul>
 </li>
 <li><p><strong>Getting Started Guide</strong>:</p>
 <ul>
-<li>Provide a quick guide to help users set up and use the tool.</li>
-</ul>
-</li>
-<li><p><strong>Links to Key Resources</strong>:</p>
-<ul>
-<li>Include links to the getting started guide, features page, and source code.</li>
+<li>To get start to the left sidebar button and click on getting-startted and you will be there to start your journey.</li>
 </ul>
 </li>
 <li><p><strong>Support Information</strong>:</p>
@@ -125,9 +145,27 @@
 <h3 id="getting-started"><strong>Getting Started</strong></h3>
 <p>To get started, follow these simple steps:</p>
 <ol>
-<li><strong>Install the Tool</strong>: Clone the repository and install the dependencies.<pre><code class="language-bash">git clone https://github.com/your-username/your-repo.git
-cd your-repo
+<li><p><strong>Install the Tool</strong>: Clone the repository and install the dependencies.</p>
+<pre><code class="language-bash">git clone https://github.com/ronyman-com/readME
+cd readME
 npm install
+</code></pre>
+</li>
+<li><p><strong>Install from npm or yarn</strong>: .</p>
+<pre><code class="language-bash">mkdir yoursitename
+cd yoursitename
+npm init
+
+
+npm i readme-framework
+
+
+</code></pre>
+</li>
+<li><p><strong>Install by CLI</strong>: or got to CLI page.</p>
+<pre><code class="language-bash">
+npm i readme-framework
+-readme create &lt;Your Website name&gt;
 </code></pre>
 </li>
 </ol>
@@ -140,6 +178,9 @@ npm install
   <a class="project-owner" href="https://www.ronyman.com/" target="_blank" rel="noopener noreferrer">
     readME,Project owned by: Rony MAN
   </a>
+    <img src="/assets/images/logo.jpg" alt="ReadME Logo">
+    <span>Built with <a href="https://readme.ronyman.com" target="_blank" rel="noopener noreferrer">ReadME</a></span>
+  </div>
 </footer>
 
   <!-- JavaScript -->
@@ -154,7 +195,10 @@ npm install
  <script>
   async function fetchReadMEVersion() {
     try {
-      const response = await fetch('https://registry.npmjs.org/readme-document-page-builder/latest');
+      const response = await fetch('https://registry.npmjs.org/readme-framework/latest');
+      if (!response.ok) {
+        throw new Error('Failed to fetch version');
+      }
       const data = await response.json();
       const version = data.version;
 
@@ -164,8 +208,79 @@ npm install
       }
     } catch (error) {
       console.error('Failed to fetch ReadME version:', error);
+      const versionElement = document.getElementById('readme-version');
+      if (versionElement) {
+        versionElement.textContent = 'v1.0.0'; // Fallback version
+      }
     }
   }
 
   fetchReadMEVersion();
+
+   // for copu clipboard fuunction
+    function copyCode(code) {
+      if (navigator.clipboard) {
+        // Use Clipboard API if supported
+        navigator.clipboard.writeText(code).then(() => {
+          alert('Copied to clipboard:\n' + code);
+        }).catch((error) => {
+          console.error('Failed to copy:', error);
+        });
+      } else {
+        // Fallback for older browsers
+        const textarea = document.createElement('textarea');
+        textarea.value = code;
+        document.body.appendChild(textarea);
+        textarea.select();
+        try {
+          document.execCommand('copy');
+          alert('Copied to clipboard:\n' + code);
+        } catch (error) {
+          console.error('Failed to copy:', error);
+        }
+        document.body.removeChild(textarea);
+      }
+    }
+  
+  
+  // Highlight the active link in the sidebar
+  document.addEventListener('DOMContentLoaded', () => {
+    const currentPath = window.location.pathname.split('/').pop() || 'index.html';
+    const links = document.querySelectorAll('.sidebar nav ul li a');
+
+    links.forEach(link => {
+      const linkPath = link.getAttribute('href').split('/').pop();
+      if (linkPath === currentPath) {
+        link.classList.add('active');
+      }
+    });
+  });
+
+
+  // Function to inject the footer
+  function injectFooter() {
+    const footerHTML = `
+      <footer class="footer">
+        <div class="footer-content">
+          <img src="/assets/images/logo.jpg" alt="ReadME Logo">
+          <span>Built with <a href="https://readme.ronyman.com" target="_blank" rel="noopener noreferrer">ReadME</a></span>
+        </div>
+      </footer>
+    `;
+
+    // Append the footer to the body
+    document.body.insertAdjacentHTML('beforeend', footerHTML);
+  }
+
+  // Inject the footer on page load
+  injectFooter();
+
+  // Protect the footer from being removed
+  setInterval(() => {
+    const footer = document.querySelector('.footer');
+    if (!footer) {
+      injectFooter(); // Re-inject the footer if it's removed
+    }
+  }, 1000); // Check every second
+  
 </script>

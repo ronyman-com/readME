@@ -2,23 +2,31 @@
 
 ## Install readME from npm
 
-```bash <button onclick="copyCode('readme init')">Copy</button>
+```bash
+mkdir Mydoc
+cd Mydoc
+npm init
+```
+
+
+## Install readME from npm
+
+```bash
 npm install -g readme-framework
 
+```
+## Install readME from GitHub.
+To get started, clone the repository and install the dependencies:
 
+```bash
+git clone https://github.com/ronyman-com/readME
+cd readME
+npm install
+```
 
+## Build and Start Server.
 
-
----
-
-### **Copy-to-Clipboard Function**
-To add the **copy-to-clipboard functionality**, include the following JavaScript in your `README.md` file:
-
-```html
-<script>
-  function copyCode(code) {
-    navigator.clipboard.writeText(code).then(() => {
-      alert('Copied to clipboard: ' + code);
-    });
-  }
-</script>
+```bash
+readme build templates
+readme start
+```

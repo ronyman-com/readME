@@ -58,4 +58,11 @@ const build = async (websiteName) => {
   }
 };
 
+
+    // Configure marked to allow raw HTML
+    marked.setOptions({
+      sanitize: false, // Allow raw HTML
+      html: true, // Allow raw HTML
+    });
+
 export { build };

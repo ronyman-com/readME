@@ -60,14 +60,3 @@ ReadMe/\
 ├── package.json\
 └── README.md
 
-
-
-
-```html
-<script>
-  function copyCode(code) {
-    navigator.clipboard.writeText(code).then(() => {
-      alert('Copied to clipboard: ' + code);
-    });
-  }
-</script>

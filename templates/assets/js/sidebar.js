@@ -12,9 +12,10 @@ sidebarResizer.addEventListener('mousedown', (e) => {
 
 function resizeSidebar(e) {
   if (isResizing) {
-    const newWidth = e.clientX;
-    sidebar.style.width = `${newWidth}px`;
-    content.style.marginLeft = `${newWidth}px`;
+    const newWidth = e.clientX - sidebar.getBoundingClientRect().left;
+    if (newWidth >= 200 && newWidth <= 400) { // Respect min and max width
+      document.documentElement.style.setProperty('--sidebar-width', `${newWidth}px`);
+    }
   }
 }
 

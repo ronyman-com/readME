@@ -105,3 +105,15 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () 
 
 // Load the saved theme on page load
 loadTheme();
+
+
+
+
+function copyCode(code) {
+  navigator.clipboard.writeText(code).then(() => {
+    alert('Copied to clipboard:\n' + code);
+  }).catch((error) => {
+    console.error('Failed to copy:', error);
+  });
+}
+
