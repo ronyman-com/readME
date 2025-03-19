@@ -7,8 +7,7 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
+
 dist-ssr
 *.local
 
@@ -22,6 +21,3 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-# npm & yarn 
-yarn.lock
-node_modules
