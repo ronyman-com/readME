@@ -1,4 +1,3 @@
-
 ---
 
 ### **Key Elements of readME**
@@ -54,20 +53,7 @@ To get started, follow these simple steps:
    npm install
 
 
-2. **Install from npm or yarn**: .
-   ```bash
-   mkdir yoursitename
-   cd yoursitename
-   npm init
-
-
-   npm i readme-framework
 
 
 
-
-3. **Install by CLI**: or got to CLI page.
-   ```bash
-
-   npm i readme-framework
-   -readme create <Your Website name>
+---

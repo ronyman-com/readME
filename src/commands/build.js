@@ -8,6 +8,7 @@ import { marked } from 'marked';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+
 const build = async (websiteName) => {
   const distPath = path.join(process.cwd(), 'dist');
   const websitePath = path.join(process.cwd(), websiteName);
@@ -51,9 +52,26 @@ const build = async (websiteName) => {
       const outputFileName = file.replace('.md', '.html');
       await fs.writeFile(path.join(distPath, outputFileName), renderedHtml);
     }
+    // Convert Markdown to HTML and render using the shared template
+    for (const file of markdownFiles) {
+      const filePath = path.join(websitePath, file);
+      const content = await fs.readFile(filePath, 'utf-8');
+      const htmlContent = marked(content);
+    // Add copy buttons to code blocks
+    const renderedHtml = htmlContent.replace(
+      /<pre><code class="language-(\w+)">([\s\S]*?)<\/code><\/pre>/g,
+      (match, lang, code) => {
+        return `
+          <div class="code-block">
+            <pre><code class="language-${lang}">${code}</code></pre>
+            <button class="copy-button" onclick="copyCode(this)">Copy</button>
+          </div>
+        `;
+      }
+    );
 
     console.log(`Build for "${websiteName}" completed successfully!`);
-  } catch (error) {
+  }} catch (error) {
     console.error(`Error during build for "${websiteName}":`, error);
   }
 };
