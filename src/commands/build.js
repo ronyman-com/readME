@@ -1,4 +1,3 @@
-// src/commands/build.js
 import fs from 'fs-extra';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -16,81 +15,114 @@ const getTemplatePath = async (templateName, websitePath) => {
     return localTemplatePath;
   } catch {
     // Fall back to package template
-    return path.join(__dirname, '../../templates', templateName);
+    const packagePath = path.join(__dirname, '../../templates', templateName);
+    await fs.access(packagePath); // Verify package template exists
+    return packagePath;
   }
 };
-
-
-
-
 
 const build = async (websiteName) => {
   const distPath = path.join(process.cwd(), 'dist');
   const websitePath = path.join(process.cwd(), websiteName);
-  const templatesPath = path.join(websitePath, 'templates'); // Local templates first
+  
+  // Generate cache-busting timestamp
+  const timestamp = Date.now();
 
   try {
-    // Clear the dist folder
-    await fs.remove(distPath);
-    await fs.ensureDir(distPath);
+    // Verify website directory exists
+    if (!await fs.pathExists(websitePath)) {
+      throw new Error(`Website directory not found: ${websitePath}`);
+    }
 
-    // Copy assets (CSS, JS, themes)
-    await fs.copy(path.join(websitePath, 'assets'), path.join(distPath, 'assets'));
-    await fs.copy(path.join(websitePath, 'themes'), path.join(distPath, 'themes'));
+    // Clear the dist folder
+    await fs.emptyDir(distPath);
+
+    // Copy assets (CSS, JS, themes) if they exist
+    const assetsPath = path.join(websitePath, 'assets');
+    const themesPath = path.join(websitePath, 'themes');
+    
+    if (await fs.pathExists(assetsPath)) {
+      await fs.copy(assetsPath, path.join(distPath, 'assets'));
+    }
+    if (await fs.pathExists(themesPath)) {
+      await fs.copy(themesPath, path.join(distPath, 'themes'));
+    }
 
     // Read all Markdown files
     const files = await fs.readdir(websitePath);
     const markdownFiles = files.filter((file) => file.endsWith('.md'));
 
-    // Load the sidebar
-    const sidebarPath = path.join(websitePath, 'sidebar.json');
-    const sidebar = await fs.readJson(sidebarPath);
+    if (markdownFiles.length === 0) {
+      console.warn('No markdown files found in website directory');
+    }
 
-    // Load the shared template (check local first, then fall back to package)
+    // Load the sidebar if it exists
+    let sidebar = { menu: [] };
+    const sidebarPath = path.join(websitePath, 'sidebar.json');
+    if (await fs.pathExists(sidebarPath)) {
+      sidebar = await fs.readJson(sidebarPath);
+    }
+
+    // Get template path (local or package)
     const templatePath = await getTemplatePath('index.ejs', websitePath);
     const template = await fs.readFile(templatePath, 'utf-8');
 
-    // Configure marked
+    // Configure marked with safer defaults
     marked.setOptions({
       sanitize: false,
       html: true,
+      breaks: true,
+      gfm: true,
+      headerIds: true,
+      headerPrefix: 'section-'
     });
 
-    // Convert Markdown to HTML and render using the shared template
+    // Process each markdown file
     for (const file of markdownFiles) {
-      const filePath = path.join(websitePath, file);
-      const content = await fs.readFile(filePath, 'utf-8');
-      let htmlContent = marked(content);
+      try {
+        const filePath = path.join(websitePath, file);
+        const content = await fs.readFile(filePath, 'utf-8');
+        let htmlContent = marked(content);
 
-      // Add copy buttons to code blocks
-      htmlContent = htmlContent.replace(
-        /<pre><code class="language-(\w+)">([\s\S]*?)<\/code><\/pre>/g,
-        (match, lang, code) => {
-          return `
-            <div class="code-block">
-              <pre><code class="language-${lang}">${code}</code></pre>
-              <button class="copy-button" onclick="copyCode(this)">Copy</button>
-            </div>
-          `;
-        }
-      );
+        // Add copy buttons to code blocks
+        htmlContent = htmlContent.replace(
+          /<pre><code class="language-(\w+)">([\s\S]*?)<\/code><\/pre>/g,
+          (match, lang, code) => {
+            return `
+              <div class="code-block">
+                <pre><code class="language-${lang}">${code}</code></pre>
+                <button class="copy-button" onclick="copyCode(this)">Copy</button>
+              </div>
+            `;
+          }
+        );
 
-      // Render the page using the shared template
-      const renderedHtml = ejs.render(template, {
-        title: file.replace('.md', ''),
-        sidebar: sidebar,
-        content: htmlContent,
-        version: timestamp, // Add this line to update version of build
-      });
+        // Render with template
+        const renderedHtml = ejs.render(template, {
+          title: path.basename(file, '.md'),
+          sidebar: sidebar,
+          content: htmlContent,
+          version: timestamp,
+          currentPage: path.basename(file, '.md'),
+          buildTime: new Date().toISOString()
+        });
 
-      // Write HTML file to dist
-      const outputFileName = file.replace('.md', '.html');
-      await fs.writeFile(path.join(distPath, outputFileName), renderedHtml);
+        // Write to dist with proper HTML extension
+        const outputFileName = file.endsWith('.md') ? 
+          file.replace('.md', '.html') : 
+          `${file}.html`;
+        
+        await fs.writeFile(path.join(distPath, outputFileName), renderedHtml);
+      } catch (fileError) {
+        console.error(`Error processing file ${file}:`, fileError);
+      }
     }
 
     console.log(`Build for "${websiteName}" completed successfully!`);
+    return true;
   } catch (error) {
     console.error(`Error during build for "${websiteName}":`, error);
+    throw error; // Re-throw to allow calling code to handle
   }
 };
 
