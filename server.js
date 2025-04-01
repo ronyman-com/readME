@@ -29,6 +29,15 @@ const start = () => {
       .then(() => console.log('readME start successfully!'))
       .catch((err) => console.error('Failed to open browser:', err));
   });
+
+    // Add this before your static file middleware
+  app.use((req, res, next) => {
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
+    res.set('Surrogate-Control', 'no-store');
+    next();
+  });
 };
 
 export { start };

@@ -20,6 +20,10 @@ const getTemplatePath = async (templateName, websitePath) => {
   }
 };
 
+
+
+
+
 const build = async (websiteName) => {
   const distPath = path.join(process.cwd(), 'dist');
   const websitePath = path.join(process.cwd(), websiteName);
@@ -76,6 +80,7 @@ const build = async (websiteName) => {
         title: file.replace('.md', ''),
         sidebar: sidebar,
         content: htmlContent,
+        version: timestamp, // Add this line to update version of build
       });
 
       // Write HTML file to dist
