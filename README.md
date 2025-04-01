@@ -62,12 +62,16 @@ ReadMe/\
 
 
 
+```bash
 
-```html
-<script>
-  function copyCode(code) {
-    navigator.clipboard.writeText(code).then(() => {
-      alert('Copied to clipboard: ' + code);
-    });
-  }
-</script>
+
+## Custom Templates
+
+You can override any template file by placing it in your project's `templates/` directory. The build system will prioritize these files over the default ones included in the package.
+
+For example, to customize the main template:
+1. Create a `templates/` directory in your project
+2. Copy the file you want to modify from `node_modules/readme-framework/templates/` to your local `templates/` directory
+3. Make your modifications
+4. Run the build command - your local version will be used
+
