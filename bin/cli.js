@@ -6,6 +6,7 @@ import { createServer } from 'http';
 import chalk from 'chalk';
 import ejs from 'ejs';
 import { marked } from 'marked';
+import { fetchRepoChanges } from '../src/utils/github.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -19,6 +20,86 @@ const logSuccess = (msg) => console.log(chalk.green(`✓ ${msg}`));
 const logError = (msg) => console.log(chalk.red(`✗ ${msg}`));
 const logInfo = (msg) => console.log(chalk.blue(`ℹ ${msg}`));
 
+
+// Get version from package.json
+const packageJsonPath = path.join(__dirname, '../package.json');
+const packageJson = JSON.parse(await fs.readFile(packageJsonPath, 'utf-8'));
+const VERSION = packageJson.version;
+
+
+const showVersion = () => {
+  console.log(chalk.blue.bold(`ReadME Framework v${VERSION}`));
+  console.log(chalk.gray(`Copyright © ${new Date().getFullYear()} ReadME Framework`));
+};
+
+
+// Generate markdown changelog in specified format
+async function generateChangelogMD() {
+  try {
+    const changes = await fetchRepoChanges(GITHUB_OWNER, GITHUB_REPO, GITHUB_TOKEN);
+    
+    if (!changes || changes.length === 0) {
+      return '# Change Log\n\nNo changes recorded yet.';
+    }
+
+    let mdContent = '# Change Log\n\n';
+    mdContent += '| Type | Path | Commit Message | Timestamp |\n';
+    mdContent += '|------|------|----------------|-----------|\n';
+    
+    // Get unique changes (by path) and limit to 50 most recent
+    const uniqueChanges = [...new Map(changes.map(item => [item.path, item])).values()]
+      .slice(0, 50);
+    
+    uniqueChanges.forEach(change => {
+      mdContent += `| ${change.type} | ${change.path} | ${change.commitMessage.split('\n')[0]} | ${change.timestamp} |\n`;
+    });
+
+    // Save to changelog.md in default template
+    const changelogPath = path.join(DEFAULT_TEMPLATE, 'changelog.md');
+    await fs.writeFile(changelogPath, mdContent);
+    logSuccess(`Generated changelog.md in default template`);
+    
+    return mdContent;
+  } catch (error) {
+    logError(`Failed to generate changelog: ${error.message}`);
+    return '# Change Log\n\nError generating changelog.';
+  }
+}
+// Enhanced changelog functionality with markdown output option
+async function fetchEnhancedChangelog(format = 'console') {
+  try {
+    logInfo('Fetching changelog from GitHub...');
+    
+    const changes = await fetchRepoChanges(GITHUB_OWNER, GITHUB_REPO, GITHUB_TOKEN);
+    
+    if (format === 'markdown') {
+      return await generateChangelogMD();
+    }
+
+    // Console format output
+    let changelog = chalk.blue.bold(`ReadME Framework Changelog\n`);
+    changelog += chalk.gray(`Generated: ${new Date().toLocaleString()}\n\n`);
+
+    if (changes.length > 0) {
+      changelog += `${chalk.underline.bold('Recent Changes:')}\n`;
+      const uniqueChanges = [...new Map(changes.map(item => [item.path, item])).values()];
+      
+      for (const change of uniqueChanges.slice(0, 20)) {
+        changelog += `\n${chalk.gray(change.timestamp)} [${change.type.toUpperCase()}] ${change.path}\n`;
+        changelog += `  ${chalk.italic(change.commitMessage.split('\n')[0])}\n`;
+      }
+    } else {
+      changelog += '\nNo recent changes found.\n';
+    }
+
+    return changelog;
+  } catch (error) {
+    logError(`Failed to fetch changelog: ${error.message}`);
+    return format === 'markdown' 
+      ? '# Change Log\n\nError generating changelog.'
+      : 'Could not fetch changelog. Please check your internet connection and GitHub token.';
+  }
+}
 // Ensure default template exists
 async function ensureDefaultTemplate() {
   try {
@@ -159,7 +240,8 @@ async function build() {
         content: marked(content),
         sidebar: sidebarData,
         currentPage: path.basename(mdFile, '.md'),
-        theme: 'default' // Can be customized
+        theme: 'default', // Can be customized
+        version: VERSION // Add version to template context
       });
 
       await fs.writeFile(path.join(DIST_DIR, outputFile), html);
@@ -181,6 +263,9 @@ async function build() {
     process.exit(1);
   }
 }
+
+
+
 
 // Start Server Command
 async function startServer() {
@@ -240,9 +325,36 @@ async function startServer() {
   }
 }
 
-// CLI Routing
+
+
+
+// CLI Routing with enhanced changelog options
 async function main() {
-  const [command, ...args] = process.argv.slice(2);
+  const args = process.argv.slice(2);
+
+  // Handle --version flag
+  if (args.includes('--version') || args.includes('-v')) {
+    showVersion();
+    process.exit(0);
+  }
+
+  // Handle changelog flags
+  if (args.includes('--changelog') || args.includes('-c')) {
+    showVersion();
+    
+    const format = args.includes('--md') ? 'markdown' : 'console';
+    const changelog = await fetchEnhancedChangelog(format);
+    
+    if (format === 'markdown') {
+      logSuccess('Markdown changelog generated in templates/default/changelog.md');
+    } else {
+      console.log('\n' + changelog);
+    }
+    
+    process.exit(0);
+  }
+
+  const [command] = args;
 
   switch (command) {
     case 'build':
@@ -253,41 +365,45 @@ async function main() {
       break;
     case 'help':
       console.log(`
-ReadME Framework CLI - Available commands:
+ReadME Framework CLI v${VERSION}
 
-  Main Commands:
-    readme build    Build the site from templates
-    readme start    Start the development server
+Available commands:
+  readme build         Build the site (includes changelog generation)
+  readme start         Start the development server
+  readme help          Show this help message
+  readme --version     Show version information
+  readme --changelog   Show console changelog
+  readme --changelog --md  Generate markdown changelog
 
-  Directory Structure:
-    templates/default/   - Contains all template files
-      index.ejs          - Main template
-      content.md         - Main content (becomes index.html)
-      *.md               - Additional pages
-      sidebar.json       - Navigation structure
-      assets/            - Static files
-    
-    themes/             - CSS theme files
-      default.css        - Default theme
-      *.css              - Additional themes
+GitHub Integration:
+  Set GITHUB_TOKEN environment variable for full functionality
 
-    dist/               - Output directory
+Changelog Format:
+  Generated in templates/default/changelog.md with format:
+  | Type | Path | Commit Message | Timestamp |
+  |------|------|----------------|-----------|
+  | modified | path/to/file | commit message | timestamp |
 `);
       break;
     default:
       console.log(`
-ReadME Framework CLI
+ReadME Framework CLI v${VERSION}
 
 Available commands:
   readme build
   readme start
   readme help
+  readme --version
+  readme --changelog [--md]
 
 Run 'readme help' for more information
       `);
       if (!command) process.exit(1);
   }
 }
+
+// Display version on CLI start
+console.log(chalk.blue.bold(`ReadME Framework CLI v${VERSION}`));
 
 main().catch((error) => {
   logError(`Error: ${error.message}`);
