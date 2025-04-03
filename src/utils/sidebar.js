@@ -29,6 +29,12 @@ const updateSidebar = (name, type) => {
   } catch (error) {
     console.error('Error updating sidebar:', error);
   }
+
+  // Add Change Log to sidebar
+  const changelogExists = sidebar.menu.some((item) => item.path === 'changelog.md');
+  if (!changelogExists) {
+    sidebar.menu.push({ title: 'Change Log', path: 'changelog.md' });
+  }
 };
 
 export { updateSidebar };

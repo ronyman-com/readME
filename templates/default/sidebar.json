@@ -1,0 +1,36 @@
+{
+  "menu": [
+    {
+      "title": "Index",
+      "path": "index"
+    },
+    {
+      "title": "README",
+      "path": "README"
+    },
+    {
+      "title": "Getting Started",
+      "path": "getting-started"
+    },
+    {
+      "title": "Features",
+      "path": "features"
+    },
+    {
+      "title": "CLI",
+      "path": "cli"
+    },
+    {
+      "title": "Distribution",
+      "path": "distribute"
+    },
+    {
+      "title": "Install From NPM",
+      "path": "npm"
+    },
+    {
+      "title": "Change Log",
+      "path": "changelog"
+    }
+  ]
+}

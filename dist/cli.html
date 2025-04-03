@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <link rel="icon" type="icon" href="/favicon.ico" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <!-- Facebook Open Graph meta tags
   documentation: https://developers.facebook.com/docs/sharing/opengraph -->
@@ -12,9 +11,6 @@
   <meta property="og:image" content="https://www.facebook.com/photo?fbid=1083789523766912&set=a.1080639904081874." />
   <meta property="og:site_name" content="https://readme-framework.org/." />
   <meta property="og:description" content="ReadME Document Page Builder! This tool is designed to help you create beautiful, organized, and responsive documentation pages with ease. Whether you're building a project wiki, API documentation, or a personal knowledge base, this tool has got you covered.." />
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <meta http-equiv="Pragma" content="no-cache">
-  <meta http-equiv="Expires" content="0">
 
   <!-- Twitter Summary card
   documentation: https://dev.twitter.com/cards/getting-started
@@ -22,7 +18,8 @@
   <meta name="twitter:card" content="summary" />
   <meta name="twitter:site" content="@ronymancom" />
   <title>cli | readME Framework</title>
-  <link rel="stylesheet" href="/assets/css/theme.css">
+   <!-- Cache-busted assets -->
+   <link rel="stylesheet" href="/assets/css/theme.css">
   <!-- GitHub Buttons CSS -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-buttons/2.21.0/buttons.min.css">
   <!-- Prism.js JavaScript -->
@@ -30,6 +27,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  
 </head>
 <body>
   <!-- Navbar -->
@@ -97,7 +95,11 @@
           
         
           
-            <li><a href="/team.html">Join the Team</a></li>
+            <li><a href="/npm.html">Install From NPM</a></li>
+          
+        
+          
+            <li><a href="/changelog.html">Change Log</a></li>
           
         
       </ul>
@@ -135,7 +137,11 @@
           
         
           
-            <li><a href="/team.html">Join the Team</a></li>
+            <li><a href="/npm.html">Install From NPM</a></li>
+          
+        
+          
+            <li><a href="/changelog.html">Change Log</a></li>
           
         
       </ul>
@@ -144,51 +150,47 @@
 
   <!-- Main Content -->
   <main class="content" id="content">
-    <h1 id="section-readme-cli-documentation-📜">ReadME CLI Documentation 📜</h1>
+    <h1 id="readme-cli-documentation-📜">ReadME CLI Documentation 📜</h1>
 <p>The <strong>ReadME CLI</strong> is a powerful command-line tool that helps you generate and manage documentation for your projects. Below is a list of all available CLI commands and how to use them.</p>
 <hr>
-<h2 id="section-available-commands">Available Commands</h2>
-<h3 id="section-1-npm-init">1. <code>npm init</code></h3>
-<p>Initializes a new ReadME project in the current directory.</p>
-<h3 id="section-2-npm-install-readme-framework">2. <code>npm install readme-framework</code></h3>
-<p>Initializes a new ReadME project in the current directory.</p>
-<p><strong>Usage</strong>:</p>
+<h2 id="available-commands">Available Commands</h2>
+<h3 id="1-initializes-a-new-readme-project-in-the-current-directory">1. Initializes a new ReadME project in the current directory.</h3>
+<pre><code class="language-bash">npm init
 
-              <div class="code-block">
-                <pre><code class="language-bash">readme build templates
-</code></pre>
-                <button class="copy-button" onclick="copyCode(this)">Copy</button>
-              </div>
-            
+### 2. 
 
-              <div class="code-block">
-                <pre><code class="language-bash">readme start
-</code></pre>
-                <button class="copy-button" onclick="copyCode(this)">Copy</button>
-              </div>
-            
+```bash
+npm install -g readme-framework
 
-              <div class="code-block">
-                <pre><code class="language-bash">readme add page getting-start.md
-</code></pre>
-                <button class="copy-button" onclick="copyCode(this)">Copy</button>
-              </div>
-            
 
-              <div class="code-block">
-                <pre><code class="language-bash">readme add file
-</code></pre>
-                <button class="copy-button" onclick="copyCode(this)">Copy</button>
-              </div>
-            
 
-              <div class="code-block">
-                <pre><code class="language-bash">readme add folder
+**Usage**:
+
+
+```bash
+readme build templates
+
+
+```bash
+readme start or npm run serve
+
+
+```bash
+readme add page getting-start.md
+
+
+
+```bash
+readme add file
+
+
+```bash
+readme add folder
+
+
+
+
 </code></pre>
-                <button class="copy-button" onclick="copyCode(this)">Copy</button>
-              </div>
-            
-<hr>
 
   </main>
 
@@ -202,18 +204,19 @@
       <img src="/assets/images/logo.jpg" alt="ReadME Logo">
       <span>Built with <a href="https://readme.ronyman.com" target="_blank" rel="noopener noreferrer">ReadME</a></span>
     </div>
-
-    <!-- In your footer or header -->
-<p>Built at: 02/04/2025, 3:28:53 pm</p>
-<p>Version: 1743568133510</p>
   </footer>
 
   <!-- JavaScript -->
   <script src="/assets/js/sidebar.js"></script>
+  <script src="/assets/js/theme.js"></script>
+  
   <!-- GitHub Buttons Script -->
   <script async defer src="https://buttons.github.io/buttons.js"></script>
 
   <script>
+
+
+
     // Fetch ReadME Version
     async function fetchReadMEVersion() {
       try {
@@ -343,5 +346,22 @@
       }
     });
   </script>
+
+<script>
+ // Replace the version check with:
+const CURRENT_VERSION = '1743670464356';
+if (localStorage.templateVersion !== CURRENT_VERSION) {
+  localStorage.setItem('templateVersion', CURRENT_VERSION);
+  window.location.reload(true);
+}
+  
+  // Additional cache busting for CDN assets
+  document.querySelectorAll('link[href*="cdn"], script[src*="cdn"]').forEach(el => {
+    if (el.href) el.href += `?v=${CURRENT_VERSION}`;
+    if (el.src) el.src += `?v=${CURRENT_VERSION}`;
+  });
+</script>
+
+
 </body>
 </html>

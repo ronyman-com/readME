@@ -1,43 +1,69 @@
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import open from 'open';
+import fs from 'fs/promises';
 
-// Convert import.meta.url to __dirname equivalent
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const start = () => {
+export async function startServer() {
   const app = express();
-  const PORT = 3000;
+  const port = 3000;
+  const distPath = path.join(__dirname, '../dist');
 
-  // Serve static files from the "dist" folder
-  const distPath = path.join(__dirname, 'dist');
-  app.use(express.static(distPath));
+  // 1. Verify dist directory exists
+  try {
+    await fs.access(distPath);
+  } catch (error) {
+    console.error(`Error: dist directory not found at ${distPath}`);
+    console.error('Please run the build command first:');
+    console.error('  node bin/cli.js build');
+    process.exit(1);
+  }
 
-  // Route all requests to index.html (for single-page applications)
+  // 2. Disable caching for development
+  app.use((req, res, next) => {
+    res.set({
+      'Cache-Control': 'no-store, no-cache, must-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0'
+    });
+    next();
+  });
+
+  // 3. Serve static files with version headers
+  app.use(express.static(distPath, {
+    etag: false,
+    lastModified: false,
+    setHeaders: (res, filePath) => {
+      const fileHash = fs.statSync(filePath).mtimeMs;
+      res.set('x-file-version', fileHash.toString());
+    }
+  }));
+
+  // 4. Handle SPA routing
   app.get('*', (req, res) => {
     res.sendFile(path.join(distPath, 'index.html'));
   });
 
-  // Start the server
-  app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
-
-    // Open the browser automatically
-    open(`http://localhost:${PORT}`)
-      .then(() => console.log('readME start successfully!'))
-      .catch((err) => console.error('Failed to open browser:', err));
+  // 5. Start the server
+  const server = app.listen(port, () => {
+    console.log(`
+    🚀 Server running at: http://localhost:${port}
+    📂 Serving from: ${distPath}
+    `);
   });
 
-    // Add this before your static file middleware
-  app.use((req, res, next) => {
-    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-    res.set('Pragma', 'no-cache');
-    res.set('Expires', '0');
-    res.set('Surrogate-Control', 'no-store');
-    next();
-  });
-};
+  // 6. Handle shutdown gracefully
+  const shutdown = () => {
+    server.close(() => {
+      console.log('Server closed');
+      process.exit(0);
+    });
+  };
 
-export { start };
+  process.on('SIGTERM', shutdown);
+  process.on('SIGINT', shutdown);
+
+  return server;
+}

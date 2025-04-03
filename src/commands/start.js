@@ -1,34 +1,23 @@
+import { buildWebsite } from '../../src/build.js';
 import express from 'express';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import open from 'open';
 
-// Convert import.meta.url to __dirname equivalent
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const start = () => {
-  const app = express();
-  const PORT = 3000;
-
-  // Serve static files from the "dist" folder
-  const distPath = path.join(__dirname, '../../dist');
-  app.use(express.static(distPath));
-
-  // Serve the index.html file for all routes
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(distPath, 'index.html'));
-  });
-
-  // Start the server
-  app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
-
-    // Open the browser automatically
-    open(`http://localhost:${PORT}`)
-      .then(() => console.log('readME Start successfully!'))
-      .catch((err) => console.error('Failed to open browser:', err));
-  });
-};
-
-export { start };
+export async function start() {
+  try {
+    // 1. Force fresh build
+    await buildWebsite();
+    
+    // 2. Start NO-CACHE server
+    const app = express();
+    app.use((req, res, next) => {
+      res.set('Cache-Control', 'no-store');
+      next();
+    });
+    app.use(express.static('dist'));
+    app.listen(3000, () => {
+      console.log('🚀 Server running FRESH at http://localhost:3000');
+    });
+  } catch (error) {
+    console.error('🔥 CRITICAL FAILURE:', error);
+    process.exit(1);
+  }
+}

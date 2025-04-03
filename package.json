@@ -1,25 +1,30 @@
 {
     "name": "readme-framework",
-    "version": "1.0.9",
+    "version": "1.1.0",
     "type": "module",
     "bin": {
-        "readme": "bin/readme.js"
+       "readme": "./bin/cli.js"
     },
     "dependencies": {
         "axios": "^1.8.3",
         "chalk": "4",
         "commander": "^10.0.1",
+        "cross-env": "^7.0.3",
         "ejs": "^3.1.10",
         "express": "^4.21.2",
+        "fs": "^0.0.1-security",
         "fs-extra": "^11.3.0",
         "marked": "^4.3.0",
-        "open": "^10.1.0"
+        "open": "^10.1.0",
+        "rimraf": "^5.0.5",
+        "serve": "^14.2.4"
     },
     "description": "readME is a modern static document generator framework built with Node.js. It provides a Command Line Interface (CLI) to create, manage, and organize website documentation with ease. The framework is designed to streamline the process of generating static websites, folders, and files, while automatically updating the sidebar menu for navigation. It uses the latest CSS and JavaScript practices to ensure a modern and responsive user experience.",
     "main": "index.js",
     "scripts": {
-        "test": "test",
-        "build": "readme build",
+        "nuke": "rimraf dist node_modules package-lock.json",
+        "reset": "npm run nuke && npm install",
+        "build": "readme build templates",
         "start": "readme start",
         "serve": "serve dist"
     },
@@ -27,6 +32,25 @@
         "type": "git",
         "url": "git+https://github.com/ronyman-com/readME.git"
     },
+    "cleanUrls": true,
+    "public": "dist",
+    "rewrites": [
+        {
+            "source": "**",
+            "destination": "/index.html"
+        }
+    ],
+    "headers": [
+        {
+            "source": "**/*",
+            "headers": [
+                {
+                    "key": "Cache-Control",
+                    "value": "no-store, max-age=0"
+                }
+            ]
+        }
+    ],
     "keywords": [
         "readME",
         "Document",

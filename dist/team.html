@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <link rel="icon" type="icon" href="/favicon.ico" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <!-- Facebook Open Graph meta tags
   documentation: https://developers.facebook.com/docs/sharing/opengraph -->
@@ -12,9 +11,6 @@
   <meta property="og:image" content="https://www.facebook.com/photo?fbid=1083789523766912&set=a.1080639904081874." />
   <meta property="og:site_name" content="https://readme-framework.org/." />
   <meta property="og:description" content="ReadME Document Page Builder! This tool is designed to help you create beautiful, organized, and responsive documentation pages with ease. Whether you're building a project wiki, API documentation, or a personal knowledge base, this tool has got you covered.." />
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <meta http-equiv="Pragma" content="no-cache">
-  <meta http-equiv="Expires" content="0">
 
   <!-- Twitter Summary card
   documentation: https://dev.twitter.com/cards/getting-started
@@ -22,7 +18,8 @@
   <meta name="twitter:card" content="summary" />
   <meta name="twitter:site" content="@ronymancom" />
   <title>team | readME Framework</title>
-  <link rel="stylesheet" href="/assets/css/theme.css">
+   <!-- Cache-busted assets -->
+   <link rel="stylesheet" href="/assets/css/theme.css">
   <!-- GitHub Buttons CSS -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-buttons/2.21.0/buttons.min.css">
   <!-- Prism.js JavaScript -->
@@ -30,6 +27,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  
 </head>
 <body>
   <!-- Navbar -->
@@ -97,7 +95,11 @@
           
         
           
-            <li><a href="/team.html">Join the Team</a></li>
+            <li><a href="/npm.html">Install From NPM</a></li>
+          
+        
+          
+            <li><a href="/changelog.html">Change Log</a></li>
           
         
       </ul>
@@ -135,7 +137,11 @@
           
         
           
-            <li><a href="/team.html">Join the Team</a></li>
+            <li><a href="/npm.html">Install From NPM</a></li>
+          
+        
+          
+            <li><a href="/changelog.html">Change Log</a></li>
           
         
       </ul>
@@ -144,15 +150,15 @@
 
   <!-- Main Content -->
   <main class="content" id="content">
-    <h1 id="section-join-the-readme-team-👥">Join the ReadME Team 👥</h1>
+    <h1 id="join-the-readme-team-👥">Join the ReadME Team 👥</h1>
 <p>We&#39;re always looking for talented and passionate individuals to join the <strong>ReadME team</strong>! Whether you&#39;re a developer, designer, or documentation enthusiast, there&#39;s a place for you in our community.</p>
-<h2 id="section-how-to-join">How to Join</h2>
+<h2 id="how-to-join">How to Join</h2>
 <ol>
 <li><strong>Visit Our Stack Overflow Teams Page</strong>: Head over to our <a href="https://stackoverflowteams.com/c/readme">Stack Overflow Teams page</a> to learn more about the team and how to get involved.</li>
 <li><strong>Introduce Yourself</strong>: Share a brief introduction about yourself and your interests in the <strong>ReadME project</strong>.</li>
 <li><strong>Start Contributing</strong>: Once you&#39;re part of the team, you can start contributing to the project by picking up issues, suggesting improvements, or helping with documentation.</li>
 </ol>
-<h2 id="section-why-join-us">Why Join Us?</h2>
+<h2 id="why-join-us">Why Join Us?</h2>
 <ul>
 <li><strong>Collaborate with Like-Minded Individuals</strong>: Work with a team of passionate developers and designers.</li>
 <li><strong>Learn and Grow</strong>: Gain experience by contributing to a real-world open-source project.</li>
@@ -174,18 +180,19 @@
       <img src="/assets/images/logo.jpg" alt="ReadME Logo">
       <span>Built with <a href="https://readme.ronyman.com" target="_blank" rel="noopener noreferrer">ReadME</a></span>
     </div>
-
-    <!-- In your footer or header -->
-<p>Built at: 02/04/2025, 3:28:53 pm</p>
-<p>Version: 1743568133510</p>
   </footer>
 
   <!-- JavaScript -->
   <script src="/assets/js/sidebar.js"></script>
+  <script src="/assets/js/theme.js"></script>
+  
   <!-- GitHub Buttons Script -->
   <script async defer src="https://buttons.github.io/buttons.js"></script>
 
   <script>
+
+
+
     // Fetch ReadME Version
     async function fetchReadMEVersion() {
       try {
@@ -315,5 +322,22 @@
       }
     });
   </script>
+
+<script>
+ // Replace the version check with:
+const CURRENT_VERSION = '1743670464564';
+if (localStorage.templateVersion !== CURRENT_VERSION) {
+  localStorage.setItem('templateVersion', CURRENT_VERSION);
+  window.location.reload(true);
+}
+  
+  // Additional cache busting for CDN assets
+  document.querySelectorAll('link[href*="cdn"], script[src*="cdn"]').forEach(el => {
+    if (el.href) el.href += `?v=${CURRENT_VERSION}`;
+    if (el.src) el.src += `?v=${CURRENT_VERSION}`;
+  });
+</script>
+
+
 </body>
 </html>

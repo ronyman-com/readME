@@ -1,8 +1,0 @@
-{
-    "name": "system",
-    "colors": {
-      "primary": "#007BFF",
-      "background": "var(--system-background)",
-      "text": "var(--system-text)"
-    }
-  }

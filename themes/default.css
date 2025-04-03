@@ -1,0 +1,37 @@
+/* Default Theme */
+:root {
+  --primary-color: #3498db;
+  --secondary-color: #2ecc71;
+  --text-color: #333;
+  --bg-color: #fff;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  color: var(--text-color);
+  background: var(--bg-color);
+  line-height: 1.6;
+  margin: 0;
+  padding: 20px;
+}
+
+.sidebar {
+  position: fixed;
+  width: 200px;
+  padding: 20px;
+}
+
+.sidebar a {
+  display: block;
+  padding: 8px 0;
+  color: var(--primary-color);
+}
+
+.sidebar a.active {
+  font-weight: bold;
+}
+
+.content {
+  margin-left: 240px;
+  max-width: 800px;
+}
