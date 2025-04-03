@@ -8,13 +8,19 @@ import ejs from 'ejs';
 import { marked } from 'marked';
 import { exec } from 'child_process';
 import os from 'os';
+import { 
+  ensureTemplatesDir,
+  createFile,
+  createFolder,
+  createTemplate
+} from '../src/commands/functions.js';
 import { fetchRepoChanges } from '../src/utils/github.js';
 
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-//const TEMPLATES_DIR = path.join(__dirname, '../templates');
-//const DEFAULT_TEMPLATE = path.join(TEMPLATES_DIR, 'default');
+const TEMPLATES_DIR = path.join(__dirname, '../templates');
+const DEFAULT_TEMPLATE = path.join(TEMPLATES_DIR, 'default');
 // Get local project paths (not from node_modules)
 const PROJECT_ROOT = path.join(__dirname, '../');
 const LOCAL_TEMPLATES_DIR = path.join(PROJECT_ROOT, 'templates');
@@ -22,17 +28,16 @@ const LOCAL_DEFAULT_TEMPLATE = path.join(LOCAL_TEMPLATES_DIR, 'default');
 const THEMES_DIR = path.join(PROJECT_ROOT, 'themes');
 const DIST_DIR = path.join(PROJECT_ROOT, 'dist');
 
-
+// Helper Functions
+const logSuccess = (msg) => console.log(chalk.green(`✓ ${msg}`));
+const logError = (msg) => console.log(chalk.red(`✗ ${msg}`));
+const logInfo = (msg) => console.log(chalk.blue(`ℹ ${msg}`));
 
 // GitHub Configuration
 const GITHUB_OWNER = 'ronyman-com';
 const GITHUB_REPO = 'readME';
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN || '';
 
-// Helper Functions
-const logSuccess = (msg) => console.log(chalk.green(`✓ ${msg}`));
-const logError = (msg) => console.log(chalk.red(`✗ ${msg}`));
-const logInfo = (msg) => console.log(chalk.blue(`ℹ ${msg}`));
 
 
 // Open browser function (cross-platform)
@@ -124,105 +129,6 @@ async function fetchEnhancedChangelog(format = 'console') {
 }
 
 
-
-
-// Ensure default template exists
-async function ensureDefaultTemplate() {
-  try {
-    await fs.access(DEFAULT_TEMPLATE);
-  } catch {
-    await fs.mkdir(DEFAULT_TEMPLATE, { recursive: true });
-    
-    const defaultFiles = {
-      'index.ejs': `<!DOCTYPE html>
-<html>
-<head>
-  <title><%= title %></title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="/themes/<%= theme || 'default' %>.css">
-</head>
-<body>
-  <nav class="sidebar">
-    <% sidebar.menu.forEach(item => { %>
-      <a href="<%= item.path %>.html" class="<%= currentPage === item.path ? 'active' : '' %>">
-        <%= item.title %>
-      </a>
-    <% }) %>
-  </nav>
-  
-  <main class="content">
-    <%- content %>
-  </main>
-</body>
-</html>`,
-      'content.md': `# Welcome to ReadME Framework\n\nThis is default content.`,
-      'sidebar.json': `{
-  "menu": [
-    { "title": "Home", "path": "index" },
-    { "title": "About", "path": "about" },
-    { "title": "Contact", "path": "contact" }
-  ]
-}`
-    };
-
-    await Promise.all(Object.entries(defaultFiles).map(async ([file, content]) => {
-      await fs.writeFile(path.join(DEFAULT_TEMPLATE, file), content);
-    }));
-    
-    logSuccess(`Created default template in ${DEFAULT_TEMPLATE}`);
-  }
-}
-
-// Ensure themes directory exists
-async function ensureThemesDir() {
-  try {
-    await fs.access(THEMES_DIR);
-  } catch {
-    await fs.mkdir(THEMES_DIR, { recursive: true });
-    
-    // Create default theme
-    const defaultTheme = `/* Default Theme */
-:root {
-  --primary-color: #3498db;
-  --secondary-color: #2ecc71;
-  --text-color: #333;
-  --bg-color: #fff;
-}
-
-body {
-  font-family: Arial, sans-serif;
-  color: var(--text-color);
-  background: var(--bg-color);
-  line-height: 1.6;
-  margin: 0;
-  padding: 20px;
-}
-
-.sidebar {
-  position: fixed;
-  width: 200px;
-  padding: 20px;
-}
-
-.sidebar a {
-  display: block;
-  padding: 8px 0;
-  color: var(--primary-color);
-}
-
-.sidebar a.active {
-  font-weight: bold;
-}
-
-.content {
-  margin-left: 240px;
-  max-width: 800px;
-}`;
-
-    await fs.writeFile(path.join(THEMES_DIR, 'default.css'), defaultTheme);
-    logSuccess(`Created default theme in ${THEMES_DIR}`);
-  }
-}
 
 
 // Enhanced Build Command (uses local templates)
@@ -372,55 +278,90 @@ function getIPAddress() {
   return 'localhost';
 }
 
-// CLI Routing with enhanced changelog options
+
+// CLI Routing
 async function main() {
-  const args = process.argv.slice(2);
-
-  // Handle --version flag
-  if (args.includes('--version') || args.includes('-v')) {
-    showVersion();
-    process.exit(0);
-  }
-
-  // Handle changelog flags
-  if (args.includes('--changelog') || args.includes('-c')) {
-    showVersion();
+  try {
+    // Ensure templates directory exists
+    await ensureTemplatesDir(TEMPLATES_DIR);
     
-    const format = args.includes('--md') ? 'markdown' : 'console';
-    const changelog = await fetchEnhancedChangelog(format);
-    
-    if (format === 'markdown') {
-      logSuccess('Markdown changelog generated in templates/default/changelog.md');
-    } else {
-      console.log('\n' + changelog);
+    const args = process.argv.slice(2);
+
+    // Handle --version flag
+    if (args.includes('--version') || args.includes('-v')) {
+      showVersion();
+      process.exit(0);
     }
-    
-    process.exit(0);
-  }
 
-  const [command] = args;
+    // Handle changelog flags
+    if (args.includes('--changelog') || args.includes('-c')) {
+      showVersion();
+      
+      if (!GITHUB_TOKEN) {
+        logInfo('Note: Running without GitHub token. Some features may be limited.');
+      }
+      
+      const format = args.includes('--md') ? 'markdown' : 'console';
+      const changelog = await fetchEnhancedChangelog(format);
+      
+      if (format === 'markdown') {
+        logSuccess('Markdown changelog generated in templates/default/changelog.md');
+      } else {
+        console.log('\n' + changelog);
+      }
+      
+      process.exit(0);
+    }
 
-  switch (command) {
-    case 'build':
-      await build();
-      break;
-    case 'start':
-      await startServer();
-      break;
-    case 'help':
-      console.log(`
+    const [command, ...commandArgs] = args;
+
+    switch (command) {
+      case 'create-file':
+        await createFile(commandArgs[0]);
+        break;
+      case 'create-folder':
+        await createFolder(commandArgs[0]);
+        break;
+      case 'create-template':
+        await createTemplate(commandArgs[0], TEMPLATES_DIR);
+        break;
+      case 'build':
+        await build();
+        break;
+      case 'start':
+        await startServer();
+        break;
+      case 'help':
+        console.log(`
 ReadME Framework CLI v${VERSION}
 
 Available commands:
-  readme build         Build the site (includes changelog generation)
-  readme start         Start the development server
-  readme help          Show this help message
-  readme --version     Show version information
-  readme --changelog   Show console changelog
-  readme --changelog --md  Generate markdown changelog
+  Template Management:
+    readme create-template <name>  Create a new template
+    readme build                  Build from templates to dist/
+
+  File Operations:
+    readme create-file <name>     Create a new file
+    readme create-folder <name>   Create a new folder
+
+  Development:
+    readme start                 Start development server (auto-opens browser)
+    readme help                  Show this help message
+    readme --version             Show version information
+    readme --changelog           Show console changelog
+    readme --changelog --md      Generate markdown changelog
+
+Default Template:
+  The 'default' template in templates/ directory is used as the main template.
+  It should contain:
+  - index.ejs (main template)
+  - content.md (main content)
+  - sidebar.json (navigation)
+  - *.md (additional pages)
+  - assets/ (optional static files)
 
 GitHub Integration:
-  Set GITHUB_TOKEN environment variable for full functionality
+  Set GITHUB_TOKEN environment variable for full changelog functionality
 
 Changelog Format:
   Generated in templates/default/changelog.md with format:
@@ -428,26 +369,30 @@ Changelog Format:
   |------|------|----------------|-----------|
   | modified | path/to/file | commit message | timestamp |
 `);
-      break;
-    default:
-      console.log(`
+        break;
+      default:
+        console.log(`
 ReadME Framework CLI v${VERSION}
 
 Available commands:
+  readme create-file <name>
+  readme create-folder <name>
+  readme create-template <name>
   readme build
   readme start
   readme help
   readme --version
   readme --changelog [--md]
 
-Run 'readme help' for more information
-      `);
-      if (!command) process.exit(1);
+Run 'readme help' for detailed information
+        `);
+        if (!command) process.exit(1);
+    }
+  } catch (error) {
+    logError(`Error: ${error.message}`);
+    process.exit(1);
   }
 }
-
-
-
 
 
 
