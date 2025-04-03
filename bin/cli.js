@@ -6,20 +6,42 @@ import { createServer } from 'http';
 import chalk from 'chalk';
 import ejs from 'ejs';
 import { marked } from 'marked';
+import { exec } from 'child_process';
+import os from 'os';
 import { fetchRepoChanges } from '../src/utils/github.js';
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const TEMPLATES_DIR = path.join(__dirname, '../templates');
-const DEFAULT_TEMPLATE = path.join(TEMPLATES_DIR, 'default');
-const THEMES_DIR = path.join(__dirname, '../themes');
-const DIST_DIR = path.join(process.cwd(), 'dist');
+//const TEMPLATES_DIR = path.join(__dirname, '../templates');
+//const DEFAULT_TEMPLATE = path.join(TEMPLATES_DIR, 'default');
+// Get local project paths (not from node_modules)
+const PROJECT_ROOT = path.join(__dirname, '../');
+const LOCAL_TEMPLATES_DIR = path.join(PROJECT_ROOT, 'templates');
+const LOCAL_DEFAULT_TEMPLATE = path.join(LOCAL_TEMPLATES_DIR, 'default');
+const THEMES_DIR = path.join(PROJECT_ROOT, 'themes');
+const DIST_DIR = path.join(PROJECT_ROOT, 'dist');
+
+
+
+// GitHub Configuration
+const GITHUB_OWNER = 'ronyman-com';
+const GITHUB_REPO = 'readME';
+const GITHUB_TOKEN = process.env.GITHUB_TOKEN || '';
 
 // Helper Functions
 const logSuccess = (msg) => console.log(chalk.green(`✓ ${msg}`));
 const logError = (msg) => console.log(chalk.red(`✗ ${msg}`));
 const logInfo = (msg) => console.log(chalk.blue(`ℹ ${msg}`));
 
+
+// Open browser function (cross-platform)
+const openBrowser = (url) => {
+  const opener = process.platform === 'win32' ? 'start' : 'open';
+  exec(`${opener} ${url}`, (error) => {
+    if (error) logError(`Could not open browser: ${error.message}`);
+  });
+};
 
 // Get version from package.json
 const packageJsonPath = path.join(__dirname, '../package.json');
@@ -100,6 +122,10 @@ async function fetchEnhancedChangelog(format = 'console') {
       : 'Could not fetch changelog. Please check your internet connection and GitHub token.';
   }
 }
+
+
+
+
 // Ensure default template exists
 async function ensureDefaultTemplate() {
   try {
@@ -198,66 +224,71 @@ body {
   }
 }
 
-// Enhanced Build Command
+
+// Enhanced Build Command (uses local templates)
 async function build() {
-  await ensureDefaultTemplate();
-  await ensureThemesDir();
-  
+  showVersion();
   try {
+    // Verify local templates exist
+    try {
+      await fs.access(LOCAL_DEFAULT_TEMPLATE);
+    } catch {
+      throw new Error(`Local templates not found at ${LOCAL_DEFAULT_TEMPLATE}`);
+    }
+
     // Clean and create dist directory
     await fs.rm(DIST_DIR, { recursive: true, force: true });
     await fs.mkdir(DIST_DIR, { recursive: true });
     logSuccess(`Created clean dist directory at ${DIST_DIR}`);
 
-    // Copy themes to dist
-    await fs.cp(THEMES_DIR, path.join(DIST_DIR, 'themes'), { recursive: true });
-    logSuccess('Copied themes to dist directory');
-
-    // Read template files
-    const [templateContent, sidebarData, themeFiles] = await Promise.all([
-      fs.readFile(path.join(DEFAULT_TEMPLATE, 'index.ejs'), 'utf-8'),
-      fs.readFile(path.join(DEFAULT_TEMPLATE, 'sidebar.json'), 'utf-8')
-        .then(JSON.parse)
-        .catch(() => ({ menu: [] })),
-      fs.readdir(DEFAULT_TEMPLATE)
-    ]);
-
-    // Process all markdown files
-    const markdownFiles = themeFiles.filter(file => file.endsWith('.md'));
-    
+    // Process local default template
+    const templateFiles = await fs.readdir(LOCAL_DEFAULT_TEMPLATE);
+    // Convert markdown files
+    const markdownFiles = templateFiles.filter(file => file.endsWith('.md'));
     for (const mdFile of markdownFiles) {
-      const mdPath = path.join(DEFAULT_TEMPLATE, mdFile);
+      const mdPath = path.join(LOCAL_DEFAULT_TEMPLATE, mdFile);
       const content = await fs.readFile(mdPath, 'utf-8');
+      const htmlContent = marked(content);
       
-      // Determine output filename
-      const outputFile = mdFile === 'content.md' 
+      const outputFile = path.join(DIST_DIR, mdFile === 'content.md' 
         ? 'index.html' 
-        : `${path.basename(mdFile, '.md')}.html`;
+        : mdFile.replace('.md', '.html'));
       
-      // Render template with markdown content
-      const html = ejs.render(templateContent, {
-        title: path.basename(mdFile, '.md').replace(/-/g, ' '),
-        content: marked(content),
-        sidebar: sidebarData,
-        currentPage: path.basename(mdFile, '.md'),
-        theme: 'default', // Can be customized
-        version: VERSION // Add version to template context
-      });
-
-      await fs.writeFile(path.join(DIST_DIR, outputFile), html);
-      logSuccess(`Generated ${outputFile} from ${mdFile}`);
+      await fs.writeFile(outputFile, htmlContent);
+      logSuccess(`Converted ${mdFile} to ${path.basename(outputFile)}`);
     }
 
-    // Copy assets if they exist
+    // Process main template
+    if (templateFiles.includes('index.ejs') && templateFiles.includes('content.md')) {
+      const [template, content, sidebar] = await Promise.all([
+        fs.readFile(path.join(LOCAL_DEFAULT_TEMPLATE, 'index.ejs'), 'utf-8'),
+        fs.readFile(path.join(LOCAL_DEFAULT_TEMPLATE, 'content.md'), 'utf-8'),
+        fs.readFile(path.join(LOCAL_DEFAULT_TEMPLATE, 'sidebar.json'), 'utf-8')
+          .then(JSON.parse)
+          .catch(() => ({ menu: [] }))
+      ]);
+
+      const html = ejs.render(template, {
+        title: "ReadME Framework",
+        content: marked(content),
+        sidebar: sidebar,
+        version: VERSION
+      });
+      await fs.writeFile(path.join(DIST_DIR, 'index.html'), html);
+      logSuccess('Generated index.html from local template');
+    }
+
+    // Copy assets
     try {
-      const assetsPath = path.join(DEFAULT_TEMPLATE, 'assets');
+      const assetsPath = path.join(LOCAL_DEFAULT_TEMPLATE, 'assets');
       await fs.access(assetsPath);
       await fs.cp(assetsPath, path.join(DIST_DIR, 'assets'), { recursive: true });
-      logSuccess('Copied assets to dist directory');
+      logSuccess('Copied assets from local template');
     } catch {
-      logInfo('No assets directory found - skipping');
+      logInfo('No assets directory found in local template');
     }
 
+    logSuccess(`Build completed successfully (v${VERSION})`);
   } catch (error) {
     logError(`Build failed: ${error.message}`);
     process.exit(1);
@@ -266,9 +297,9 @@ async function build() {
 
 
 
-
-// Start Server Command
+// Enhanced Start Server Command with browser opening
 async function startServer() {
+  showVersion();
   const port = process.env.PORT || 3000;
   
   try {
@@ -276,8 +307,6 @@ async function startServer() {
     const server = createServer(async (req, res) => {
       try {
         let filePath = path.join(DIST_DIR, req.url === '/' ? 'index.html' : req.url);
-        
-        // Default to .html extension if path doesn't exist
         try {
           await fs.access(filePath);
         } catch {
@@ -287,8 +316,6 @@ async function startServer() {
         }
 
         const data = await fs.readFile(filePath);
-        
-        // Set Content-Type
         let contentType = 'text/html';
         if (filePath.endsWith('.css')) contentType = 'text/css';
         if (filePath.endsWith('.js')) contentType = 'application/javascript';
@@ -312,9 +339,15 @@ async function startServer() {
     });
 
     server.listen(port, () => {
-      logSuccess(`Server running at http://localhost:${port}`);
-      logInfo(`Serving files from ${DIST_DIR}`);
-      logInfo('Press Ctrl+C to stop the server');
+      const localURL = `http://localhost:${port}`;
+      const networkURL = `http://${getIPAddress()}:${port}`;
+      
+      logSuccess(`Server running at:
+  - Local: ${chalk.underline.blue(localURL)}
+  - Network: ${chalk.underline.blue(networkURL)}`);
+      
+      logInfo('Opening browser to local URL...');
+      openBrowser(localURL);
     });
 
     return server;
@@ -326,7 +359,18 @@ async function startServer() {
 }
 
 
-
+// Get local IP address
+function getIPAddress() {
+  const interfaces = os.networkInterfaces();
+  for (const name of Object.keys(interfaces)) {
+    for (const iface of interfaces[name]) {
+      if (iface.family === 'IPv4' && !iface.internal) {
+        return iface.address;
+      }
+    }
+  }
+  return 'localhost';
+}
 
 // CLI Routing with enhanced changelog options
 async function main() {
@@ -401,6 +445,11 @@ Run 'readme help' for more information
       if (!command) process.exit(1);
   }
 }
+
+
+
+
+
 
 // Display version on CLI start
 console.log(chalk.blue.bold(`ReadME Framework CLI v${VERSION}`));
