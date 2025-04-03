@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 import fs from 'fs/promises';
 import path from 'path';
+import { program } from 'commander';
+import dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
 import { createServer } from 'http';
 import chalk from 'chalk';
@@ -15,6 +17,8 @@ import {
   createTemplate
 } from '../src/commands/functions.js';
 import { fetchRepoChanges } from '../src/utils/github.js';
+import { generateChangeLog } from '../src/commands/changelog.js';
+
 
 
 const __filename = fileURLToPath(import.meta.url);
@@ -33,10 +37,24 @@ const logSuccess = (msg) => console.log(chalk.green(`✓ ${msg}`));
 const logError = (msg) => console.log(chalk.red(`✗ ${msg}`));
 const logInfo = (msg) => console.log(chalk.blue(`ℹ ${msg}`));
 
-// GitHub Configuration
-const GITHUB_OWNER = 'ronyman-com';
-const GITHUB_REPO = 'readME';
-const GITHUB_TOKEN = process.env.GITHUB_TOKEN || '';
+// Load env FIRST
+dotenv.config({ path: path.join(__dirname, '../.env') });
+
+
+
+
+program
+  .command('changelog <owner> <repo> <token>')
+  .description('Generate a change log page using GitHub API')
+  .action(generateChangeLog);
+
+  program
+  .command('theme switch <theme-name>') // Define the theme switch command
+  .description('Switch to a specific theme (system, dark, light, or custom)')
+  .action((themeName) => {
+    switchTheme(themeName); // Pass the theme-name argument directly
+  });
+
 
 
 
@@ -60,44 +78,41 @@ const showVersion = () => {
 };
 
 
-// Generate markdown changelog in specified format
+// Then modify your changelog generation:
 async function generateChangelogMD() {
   try {
-    const changes = await fetchRepoChanges(GITHUB_OWNER, GITHUB_REPO, GITHUB_TOKEN);
+    const changes = await fetchRepoChanges(); // No parameters!
     
-    if (!changes || changes.length === 0) {
+    if (!changes?.length) {
       return '# Change Log\n\nNo changes recorded yet.';
     }
 
     let mdContent = '# Change Log\n\n';
-    mdContent += '| Type | Path | Commit Message | Timestamp |\n';
-    mdContent += '|------|------|----------------|-----------|\n';
+    mdContent += '| Commit | Author | Message | Date |\n';
+    mdContent += '|--------|--------|---------|------|\n';
     
-    // Get unique changes (by path) and limit to 50 most recent
-    const uniqueChanges = [...new Map(changes.map(item => [item.path, item])).values()]
-      .slice(0, 50);
-    
-    uniqueChanges.forEach(change => {
-      mdContent += `| ${change.type} | ${change.path} | ${change.commitMessage.split('\n')[0]} | ${change.timestamp} |\n`;
+    changes.forEach(change => {
+      mdContent += `| [${change.sha.slice(0,7)}](${change.url}) ` +
+                   `| ${change.author} ` +
+                   `| ${change.message.split('\n')[0]} ` +
+                   `| ${change.date} |\n`;
     });
 
-    // Save to changelog.md in default template
-    const changelogPath = path.join(DEFAULT_TEMPLATE, 'changelog.md');
-    await fs.writeFile(changelogPath, mdContent);
-    logSuccess(`Generated changelog.md in default template`);
-    
     return mdContent;
   } catch (error) {
-    logError(`Failed to generate changelog: ${error.message}`);
+    console.error(chalk.red('Changelog Error:'), error.message);
     return '# Change Log\n\nError generating changelog.';
   }
 }
+
+
 // Enhanced changelog functionality with markdown output option
 async function fetchEnhancedChangelog(format = 'console') {
   try {
     logInfo('Fetching changelog from GitHub...');
     
-    const changes = await fetchRepoChanges(GITHUB_OWNER, GITHUB_REPO, GITHUB_TOKEN);
+    //const changes = await fetchRepoChanges(GITHUB_OWNER, GITHUB_REPO, GITHUB_TOKEN);
+    const changes = await fetchRepoChanges();
     
     if (format === 'markdown') {
       return await generateChangelogMD();
@@ -349,7 +364,7 @@ Available commands:
     readme help                  Show this help message
     readme --version             Show version information
     readme --changelog           Show console changelog
-    readme --changelog --md      Generate markdown changelog
+    readme changelog [your username] [repo] your_github_pat_token
 
 Default Template:
   The 'default' template in templates/ directory is used as the main template.
@@ -382,7 +397,7 @@ Available commands:
   readme start
   readme help
   readme --version
-  readme --changelog [--md]
+  readme changelog [your username] [repo] your_github_pat_token
 
 Run 'readme help' for detailed information
         `);
@@ -403,3 +418,5 @@ main().catch((error) => {
   logError(`Error: ${error.message}`);
   process.exit(1);
 });
+
+program.parse(process.argv);

@@ -21,7 +21,7 @@ const generateChangeLog = async (owner, repo, token) => {
   });
 
   // Write to changelog.md
-  const changelogPath = path.join(process.cwd(), 'changelog.md');
+  const changelogPath = path.join(process.cwd(), 'templates/default/changelog.md');
   fs.writeFileSync(changelogPath, markdownContent);
 
   console.log(chalk.green('Change log generated successfully!'));
