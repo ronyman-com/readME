@@ -14,10 +14,13 @@ import {
   ensureTemplatesDir,
   createFile,
   createFolder,
-  createTemplate
+  createTemplate,
+  saveChangelog, 
+  generateChangelogMD
 } from '../src/commands/functions.js';
+import { logSuccess, logError, logInfo } from '../src/utils/logger.js';
 import { fetchRepoChanges } from '../src/utils/github.js';
-import { generateChangeLog } from '../src/commands/changelog.js';
+
 
 
 
@@ -32,29 +35,8 @@ const LOCAL_DEFAULT_TEMPLATE = path.join(LOCAL_TEMPLATES_DIR, 'default');
 const THEMES_DIR = path.join(PROJECT_ROOT, 'themes');
 const DIST_DIR = path.join(PROJECT_ROOT, 'dist');
 
-// Helper Functions
-const logSuccess = (msg) => console.log(chalk.green(`✓ ${msg}`));
-const logError = (msg) => console.log(chalk.red(`✗ ${msg}`));
-const logInfo = (msg) => console.log(chalk.blue(`ℹ ${msg}`));
-
 // Load env FIRST
 dotenv.config({ path: path.join(__dirname, '../.env') });
-
-
-
-
-program
-  .command('changelog <owner> <repo> <token>')
-  .description('Generate a change log page using GitHub API')
-  .action(generateChangeLog);
-
-  program
-  .command('theme switch <theme-name>') // Define the theme switch command
-  .description('Switch to a specific theme (system, dark, light, or custom)')
-  .action((themeName) => {
-    switchTheme(themeName); // Pass the theme-name argument directly
-  });
-
 
 
 
@@ -76,73 +58,6 @@ const showVersion = () => {
   console.log(chalk.blue.bold(`ReadME Framework v${VERSION}`));
   console.log(chalk.gray(`Copyright © ${new Date().getFullYear()} ReadME Framework`));
 };
-
-
-// Then modify your changelog generation:
-async function generateChangelogMD() {
-  try {
-    const changes = await fetchRepoChanges(); // No parameters!
-    
-    if (!changes?.length) {
-      return '# Change Log\n\nNo changes recorded yet.';
-    }
-
-    let mdContent = '# Change Log\n\n';
-    mdContent += '| Commit | Author | Message | Date |\n';
-    mdContent += '|--------|--------|---------|------|\n';
-    
-    changes.forEach(change => {
-      mdContent += `| [${change.sha.slice(0,7)}](${change.url}) ` +
-                   `| ${change.author} ` +
-                   `| ${change.message.split('\n')[0]} ` +
-                   `| ${change.date} |\n`;
-    });
-
-    return mdContent;
-  } catch (error) {
-    console.error(chalk.red('Changelog Error:'), error.message);
-    return '# Change Log\n\nError generating changelog.';
-  }
-}
-
-
-// Enhanced changelog functionality with markdown output option
-async function fetchEnhancedChangelog(format = 'console') {
-  try {
-    logInfo('Fetching changelog from GitHub...');
-    
-    //const changes = await fetchRepoChanges(GITHUB_OWNER, GITHUB_REPO, GITHUB_TOKEN);
-    const changes = await fetchRepoChanges();
-    
-    if (format === 'markdown') {
-      return await generateChangelogMD();
-    }
-
-    // Console format output
-    let changelog = chalk.blue.bold(`ReadME Framework Changelog\n`);
-    changelog += chalk.gray(`Generated: ${new Date().toLocaleString()}\n\n`);
-
-    if (changes.length > 0) {
-      changelog += `${chalk.underline.bold('Recent Changes:')}\n`;
-      const uniqueChanges = [...new Map(changes.map(item => [item.path, item])).values()];
-      
-      for (const change of uniqueChanges.slice(0, 20)) {
-        changelog += `\n${chalk.gray(change.timestamp)} [${change.type.toUpperCase()}] ${change.path}\n`;
-        changelog += `  ${chalk.italic(change.commitMessage.split('\n')[0])}\n`;
-      }
-    } else {
-      changelog += '\nNo recent changes found.\n';
-    }
-
-    return changelog;
-  } catch (error) {
-    logError(`Failed to fetch changelog: ${error.message}`);
-    return format === 'markdown' 
-      ? '# Change Log\n\nError generating changelog.'
-      : 'Could not fetch changelog. Please check your internet connection and GitHub token.';
-  }
-}
-
 
 
 
@@ -308,24 +223,22 @@ async function main() {
       process.exit(0);
     }
 
-    // Handle changelog flags
+    // In your CLI command handling section
     if (args.includes('--changelog') || args.includes('-c')) {
       showVersion();
       
-      if (!GITHUB_TOKEN) {
+      if (!process.env.GITHUB_TOKEN) {
         logInfo('Note: Running without GitHub token. Some features may be limited.');
       }
       
-      const format = args.includes('--md') ? 'markdown' : 'console';
-      const changelog = await fetchEnhancedChangelog(format);
-      
-      if (format === 'markdown') {
-        logSuccess('Markdown changelog generated in templates/default/changelog.md');
+      if (args.includes('--md')) {
+        const success = await saveChangelog();
+        process.exit(success ? 0 : 1);
       } else {
+        const changelog = await generateChangelogMD();
         console.log('\n' + changelog);
+        process.exit(0);
       }
-      
-      process.exit(0);
     }
 
     const [command, ...commandArgs] = args;
@@ -364,7 +277,7 @@ Available commands:
     readme help                  Show this help message
     readme --version             Show version information
     readme --changelog           Show console changelog
-    readme changelog [your username] [repo] your_github_pat_token
+    readme --changelog --md      Generate changelog
 
 Default Template:
   The 'default' template in templates/ directory is used as the main template.
@@ -397,7 +310,7 @@ Available commands:
   readme start
   readme help
   readme --version
-  readme changelog [your username] [repo] your_github_pat_token
+  readme --changelog --md
 
 Run 'readme help' for detailed information
         `);
@@ -419,4 +332,3 @@ main().catch((error) => {
   process.exit(1);
 });
 
-program.parse(process.argv);

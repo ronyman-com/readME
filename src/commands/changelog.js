@@ -1,30 +1,28 @@
-import fs from 'fs-extra';
-import path from 'path';
+import { fetchRepoChanges } from '../utils/github.js';
 import chalk from 'chalk';
-import { fetchRepoChanges } from '../utils/github.js'; // Correct import
 
-const generateChangeLog = async (owner, repo, token) => {
-  const changes = await fetchRepoChanges(owner, repo, token);
+export async function generateChangeLog() {  // Note: Corrected function name
+  try {
+    const changes = await fetchRepoChanges();
+    
+    if (!changes?.length) {
+      return '# Change Log\n\nNo changes recorded yet.';
+    }
 
-  if (changes.length === 0) {
-    console.log(chalk.yellow('No changes found.'));
-    return;
+    let mdContent = '# Change Log\n\n';
+    mdContent += '| Commit | Author | Message | Date |\n';
+    mdContent += '|--------|--------|---------|------|\n';
+    
+    changes.forEach(change => {
+      mdContent += `| [${change.sha.slice(0,7)}](${change.url}) ` +
+                 `| ${change.author} ` +
+                 `| ${change.message.split('\n')[0]} ` +
+                 `| ${change.date} |\n`;
+    });
+
+    return mdContent;
+  } catch (error) {
+    console.error(chalk.red('Changelog Error:'), error.message);
+    return '# Change Log\n\nError generating changelog.';
   }
-
-  // Generate Markdown content
-  let markdownContent = '# Change Log\n\n';
-  markdownContent += '| Type      | Path               | Commit Message       | Timestamp           |\n';
-  markdownContent += '|-----------|--------------------|----------------------|---------------------|\n';
-
-  changes.forEach((change) => {
-    markdownContent += `| ${change.type} | ${change.path} | ${change.commitMessage} | ${change.timestamp} |\n`;
-  });
-
-  // Write to changelog.md
-  const changelogPath = path.join(process.cwd(), 'templates/default/changelog.md');
-  fs.writeFileSync(changelogPath, markdownContent);
-
-  console.log(chalk.green('Change log generated successfully!'));
-};
-
-export { generateChangeLog };
+}

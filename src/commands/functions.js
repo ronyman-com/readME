@@ -3,14 +3,15 @@ import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import chalk from 'chalk';
+export { generateChangeLog } from './changelog.js';
+import { logSuccess, logError, logInfo } from '../utils/logger.js';
+import { fetchRepoChanges } from '../utils/github.js'; // Correct relative path
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Helper Functions
-const logSuccess = (msg) => console.log(chalk.green(`✓ ${msg}`));
-const logError = (msg) => console.log(chalk.red(`✗ ${msg}`));
-const logInfo = (msg) => console.log(chalk.blue(`ℹ ${msg}`));
+
 
 // Ensure templates directory exists
 export async function ensureTemplatesDir(TEMPLATES_DIR) {
@@ -123,3 +124,58 @@ export async function createTemplate(templateName, TEMPLATES_DIR) {
     logError(`Failed to create template: ${error.message}`);
   }
 }
+
+
+// Changelog functions
+export async function generateChangelogMD() {
+  try {
+
+     // Get GitHub credentials from environment
+     const owner = process.env.GITHUB_OWNER;
+     const repo = process.env.GITHUB_REPO;
+     const token = process.env.GITHUB_TOKEN;
+ 
+     if (!owner || !repo) {
+       throw new Error('GitHub owner/repo not configured');
+     }
+ 
+     const changes = await fetchRepoChanges(owner, repo, token);
+    
+    if (!changes?.length) {
+      return '# Change Log\n\nNo changes recorded yet.';
+    }
+
+    let mdContent = '# Change Log\n\n';
+    mdContent += '| Commit | Author | Message | Date |\n';
+    mdContent += '|--------|--------|---------|------|\n';
+    
+    changes.forEach(change => {
+      mdContent += `| [${change.sha.slice(0,7)}](${change.url}) ` +
+                   `| ${change.author} ` +
+                   `| ${change.message.split('\n')[0]} ` +
+                   `| ${change.date} |\n`;
+    });
+
+    return mdContent;
+  } catch (error) {
+    logError(`Changelog Error: ${error.message}`); // Using the defined logError
+    return '# Change Log\n\nError generating changelog.';
+  }
+}
+
+export async function saveChangelog() {
+  try {
+    const changelogContent = await generateChangelogMD();
+    const changelogPath = path.join(process.cwd(), 'templates/default/changelog.md');
+    
+    await fs.mkdir(path.dirname(changelogPath), { recursive: true });
+    await fs.writeFile(changelogPath, changelogContent);
+    
+    logSuccess('Changelog generated successfully at templates/default/changelog.md');
+    return true;
+  } catch (error) {
+    logError(`Failed to save changelog: ${error.message}`);
+    return false;
+  }
+}
+
