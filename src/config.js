@@ -57,6 +57,8 @@ export const PATHS = {
   // For templates - always look in project's templates directory first
   TEMPLATES_DIR: path.join(process.cwd(), 'templates'),
   DEFAULT_TEMPLATE: path.join(process.cwd(), 'templates/default'),
+  LOCAL_DEFAULT_TEMPLATE: path.join(process.cwd(), 'templates/default'),
+  //LOCAL_DEFAULT_TEMPLATE: path.join(__dirname, 'templates/default'),
   
   // For framework files (when needed)
   FRAMEWORK_ROOT: BASE_PATH,
@@ -76,3 +78,5 @@ export const DEFAULT_FILES = {
   'content.md': `# Welcome...`, // Your default content
   'sidebar.json': `{"menu": [...]}` // Your sidebar config
 };
+
+
