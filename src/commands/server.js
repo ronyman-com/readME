@@ -1,16 +1,26 @@
 // src/commands/server.js
 import fs from 'fs/promises';
 import path from 'path';
-import chalk from 'chalk';
-import express from 'express';
+import { fileURLToPath } from 'url';
 import { createServer } from 'http';
+import express from 'express';
+import chalk from 'chalk';
 import { PATHS } from '../config.js';
 import { logSuccess, logError, logInfo, showVersion } from '../utils/logger.js';
 import { openBrowser, getIPAddress } from '../utils/helpers.js';
 import { build } from './build.js';
-import { PORT, GITHUB_TOKEN } from '../config/env.js';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
+async function fileExists(filePath) {
+  try {
+    await fs.access(filePath);
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 export async function startServer() {
   showVersion();
@@ -37,23 +47,56 @@ export async function startServer() {
 
     // Serve static files from dist directory
     app.use(express.static(PATHS.DIST_DIR, {
-      etag: false, // Disable etag generation
-      lastModified: false // Disable last-modified header
+      etag: false,
+      lastModified: false,
+      extensions: ['html'], // Auto-add .html extension
+      index: 'index.html'   // Default index file
     }));
 
-    // 404 handler
-    app.use((req, res) => {
-      res.status(404).send(`
-        <!DOCTYPE html>
-        <html>
-        <head><title>404 Not Found</title></head>
-        <body>
-          <h1>404 Not Found</h1>
-          <p>The requested URL ${req.url} was not found.</p>
-        </body>
-        </html>
-      `);
-      logError(`404: ${req.url}`);
+    // Handle all other routes (including extensionless URLs)
+    app.get('*', async (req, res) => {
+      try {
+        let filePath = path.join(PATHS.DIST_DIR, req.path);
+        
+        // Check if path exists as file
+        if (!path.extname(filePath)) {
+          const htmlPath = `${filePath}.html`;
+          if (await fileExists(htmlPath)) {
+            filePath = htmlPath;
+          } else if (await fileExists(path.join(filePath, 'index.html'))) {
+            filePath = path.join(filePath, 'index.html');
+          }
+        }
+
+        const content = await fs.readFile(filePath);
+        
+        // Set proper content type
+        const ext = path.extname(filePath);
+        const mimeTypes = {
+          '.html': 'text/html',
+          '.css': 'text/css',
+          '.js': 'application/javascript',
+          '.json': 'application/json',
+          '.png': 'image/png',
+          '.jpg': 'image/jpeg',
+          '.svg': 'image/svg+xml'
+        };
+        
+        res.type(mimeTypes[ext] || 'text/plain');
+        res.send(content);
+      } catch (error) {
+        res.status(404).send(`
+          <!DOCTYPE html>
+          <html>
+          <head><title>404 Not Found</title></head>
+          <body>
+            <h1>404 Not Found</h1>
+            <p>The requested URL ${req.path} was not found.</p>
+          </body>
+          </html>
+        `);
+        logError(`404: ${req.path}`);
+      }
     });
 
     // Create HTTP server
@@ -72,7 +115,7 @@ export async function startServer() {
       openBrowser(localURL);
     });
 
-    // Handle server errors
+    // Error handling
     server.on('error', (error) => {
       if (error.code === 'EADDRINUSE') {
         logError(`Port ${port} is already in use`);
@@ -83,7 +126,7 @@ export async function startServer() {
       process.exit(1);
     });
 
-    // Handle process termination
+    // Graceful shutdown
     process.on('SIGINT', () => {
       logInfo('\nShutting down server...');
       server.close();
