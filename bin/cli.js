@@ -14,36 +14,32 @@ import { startServer } from '../src/commands/server.js';
 import { saveChangelog, generateChangelogMD } from '../src/commands/changelog.js';
 import { PATHS } from '../src/config.js';
 import { logSuccess, logError, logInfo, showVersion } from '../src/utils/logger.js';
-
 import { resolvePath } from '#utils/paths';
+import { 
+  CLI_BANNER, 
+  HELP_TEXT,
+  ENV_COMMENTS,
+  MAIN_COMMENTS 
+} from '../src/utils/comments.js';
 
-
-
-// .env
-dotenv.config({ 
-  path: resolvePath(import.meta.url, '../.env') 
-});
-
-
+// Load environment variables
+dotenv.config({ path: resolvePath(import.meta.url, '../.env') });
 
 async function main() {
   try {
     await ensureTemplatesDir(PATHS.TEMPLATES_DIR);
-    
     const args = process.argv.slice(2);
 
-    // Handle --version flag
     if (args.includes('--version') || args.includes('-v')) {
       showVersion(VERSION);
       process.exit(0);
     }
 
-    // Handle changelog commands
     if (args.includes('--changelog') || args.includes('-c')) {
       showVersion(VERSION);
       
       if (!process.env.GITHUB_TOKEN) {
-        logInfo('Note: Running without GitHub token. Some features may be limited.');
+        logInfo(MAIN_COMMENTS.githubTokenWarning);
       }
       
       if (args.includes('--md')) {
@@ -75,54 +71,10 @@ async function main() {
         await startServer();
         break;
       case 'help':
-        console.log(`
-ReadME Framework CLI v${VERSION}
-
-Available commands:
-  Template Management:
-    readme create-template <name>  Create a new template
-    readme build                  Build from templates to dist/
-
-  File Operations:
-    readme create-file <name>     Create a new file
-    readme create-folder <name>   Create a new folder
-
-  Development:
-    readme start                 Start development server (auto-opens browser)
-    readme help                  Show this help message
-    readme --version             Show version information
-    readme --changelog           Show console changelog
-    readme --changelog --md      Generate changelog
-
-Default Template:
-  The 'default' template in templates/ directory is used as the main template.
-  It should contain:
-  - index.ejs (main template)
-  - content.md (main content)
-  - sidebar.json (navigation)
-  - *.md (additional pages)
-  - assets/ (optional static files)
-
-GitHub Integration:
-  Set GITHUB_TOKEN environment variable for full changelog functionality
-`);
+        console.log(HELP_TEXT(VERSION).main);
         break;
       default:
-        console.log(`
-ReadME Framework CLI v${VERSION}
-
-Available commands:
-  readme create-file <name>
-  readme create-folder <name>
-  readme create-template <name>
-  readme build
-  readme start
-  readme help
-  readme --version
-  readme --changelog --md
-
-Run 'readme help' for detailed information
-        `);
+        console.log(HELP_TEXT(VERSION).brief);
         if (!command) process.exit(1);
     }
   } catch (error) {
@@ -131,8 +83,7 @@ Run 'readme help' for detailed information
   }
 }
 
-// Display version on CLI start
-console.log(chalk.blue.bold(`ReadME Framework CLI v${VERSION}`));
+console.log(chalk.blue.bold(CLI_BANNER(VERSION)));
 main().catch((error) => {
   logError(`Error: ${error.message}`);
   process.exit(1);

@@ -2,6 +2,19 @@
 
 | Commit | Author | Message | Date |
 |--------|--------|---------|------|
+| [7af9e25](https://github.com/ronyman-com/readME/commit/7af9e25fbf0700277a43252258cfa225b13127a8) | Rony MAN | release v1.2.0 | 2025-04-04T19:17:51Z |
+| [7af9e25](https://github.com/ronyman-com/readME/commit/7af9e25fbf0700277a43252258cfa225b13127a8) | Rony MAN | release v1.2.0 | 2025-04-04T19:17:51Z |
+| [d1e3707](https://github.com/ronyman-com/readME/commit/d1e3707600994d6b92c6427d5800129fdc9a82da) | Rony MAN | update dist path | 2025-04-04T19:15:25Z |
+| [d1e3707](https://github.com/ronyman-com/readME/commit/d1e3707600994d6b92c6427d5800129fdc9a82da) | Rony MAN | update dist path | 2025-04-04T19:15:25Z |
+| [d1e3707](https://github.com/ronyman-com/readME/commit/d1e3707600994d6b92c6427d5800129fdc9a82da) | Rony MAN | update dist path | 2025-04-04T19:15:25Z |
+| [d1e3707](https://github.com/ronyman-com/readME/commit/d1e3707600994d6b92c6427d5800129fdc9a82da) | Rony MAN | update dist path | 2025-04-04T19:15:25Z |
+| [d1e3707](https://github.com/ronyman-com/readME/commit/d1e3707600994d6b92c6427d5800129fdc9a82da) | Rony MAN | update dist path | 2025-04-04T19:15:25Z |
+| [d1e3707](https://github.com/ronyman-com/readME/commit/d1e3707600994d6b92c6427d5800129fdc9a82da) | Rony MAN | update dist path | 2025-04-04T19:15:25Z |
+| [d1e3707](https://github.com/ronyman-com/readME/commit/d1e3707600994d6b92c6427d5800129fdc9a82da) | Rony MAN | update dist path | 2025-04-04T19:15:25Z |
+| [d1e3707](https://github.com/ronyman-com/readME/commit/d1e3707600994d6b92c6427d5800129fdc9a82da) | Rony MAN | update dist path | 2025-04-04T19:15:25Z |
+| [d1e3707](https://github.com/ronyman-com/readME/commit/d1e3707600994d6b92c6427d5800129fdc9a82da) | Rony MAN | update dist path | 2025-04-04T19:15:25Z |
+| [d1e3707](https://github.com/ronyman-com/readME/commit/d1e3707600994d6b92c6427d5800129fdc9a82da) | Rony MAN | update dist path | 2025-04-04T19:15:25Z |
+| [d1e3707](https://github.com/ronyman-com/readME/commit/d1e3707600994d6b92c6427d5800129fdc9a82da) | Rony MAN | update dist path | 2025-04-04T19:15:25Z |
 | [17aacea](https://github.com/ronyman-com/readME/commit/17aaceacdc898b2c3d1628788d6b986b26624a5c) | Rony MAN | update server | 2025-04-04T05:36:39Z |
 | [17aacea](https://github.com/ronyman-com/readME/commit/17aaceacdc898b2c3d1628788d6b986b26624a5c) | Rony MAN | update server | 2025-04-04T05:36:39Z |
 | [17aacea](https://github.com/ronyman-com/readME/commit/17aaceacdc898b2c3d1628788d6b986b26624a5c) | Rony MAN | update server | 2025-04-04T05:36:39Z |

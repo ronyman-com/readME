@@ -140,4 +140,3 @@ export async function createTemplate(templateName, templatesDir = PATHS.TEMPLATE
     throw error;
   }
 }
-

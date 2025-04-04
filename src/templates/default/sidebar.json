@@ -1,0 +1,6 @@
+{
+  "menu": [
+    { "title": "Home", "path": "index" },
+    { "title": "About", "path": "about" }
+  ]
+}

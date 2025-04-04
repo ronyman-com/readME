@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { existsSync } from 'fs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -26,15 +27,49 @@ export default Object.freeze(GITHUB_CONFIG);
 
 
 
+// Helper function to determine the correct base path
+function getBasePath() {
+  // Check if we're running from global installation
+  const possibleGlobalPaths = [
+    path.join(process.cwd(), 'node_modules', 'readme-framework'),
+    path.dirname(fileURLToPath(import.meta.url)) // Fallback to module location
+  ];
+  
+  for (const possiblePath of possibleGlobalPaths) {
+    if (existsSync(path.join(possiblePath, 'package.json'))) {
+      return possiblePath;
+    }
+  }
+  
+  // Default to current working directory for local development
+  return process.cwd();
+}
+
+const BASE_PATH = getBasePath();
+
+// Environment configuration
+dotenv.config({ 
+  path: path.join(BASE_PATH, '.env'), 
+  override: true 
+});
+
 export const PATHS = {
-  TEMPLATES_DIR: path.join(__dirname, '../templates'),
-  DEFAULT_TEMPLATE: path.join(__dirname, '../templates/default'),
-  PROJECT_ROOT: path.join(__dirname, '../'),
-  LOCAL_TEMPLATES_DIR: path.join(__dirname, '../templates'),
-  LOCAL_DEFAULT_TEMPLATE: path.join(__dirname, '../templates/default'),
-  THEMES_DIR: path.join(__dirname, '../themes'),
-  DIST_DIR: path.join(__dirname, '../dist')
+  // For templates - always look in project's templates directory first
+  TEMPLATES_DIR: path.join(process.cwd(), 'templates'),
+  DEFAULT_TEMPLATE: path.join(process.cwd(), 'templates/default'),
+  
+  // For framework files (when needed)
+  FRAMEWORK_ROOT: BASE_PATH,
+  FRAMEWORK_TEMPLATES: path.join(BASE_PATH, 'templates'),
+  FRAMEWORK_DEFAULT_TEMPLATE: path.join(BASE_PATH, 'templates/default'),
+  
+  // Output directory - always in project's dist folder
+  DIST_DIR: path.join(process.cwd(), 'dist'),
+  
+  // Other paths
+  THEMES_DIR: path.join(BASE_PATH, 'themes')
 };
+
 
 export const DEFAULT_FILES = {
   'index.ejs': `<!DOCTYPE html><html>...`, // Your template content
