@@ -4,6 +4,7 @@ import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+
 // 1. Force reload environment
 dotenv.config({ path: path.resolve(__dirname, '../.env'), override: true });
 
@@ -21,3 +22,22 @@ if (!GITHUB_CONFIG.token) {
 
 // 4. Freeze object to prevent modifications
 export default Object.freeze(GITHUB_CONFIG);
+
+
+
+
+export const PATHS = {
+  TEMPLATES_DIR: path.join(__dirname, '../templates'),
+  DEFAULT_TEMPLATE: path.join(__dirname, '../templates/default'),
+  PROJECT_ROOT: path.join(__dirname, '../'),
+  LOCAL_TEMPLATES_DIR: path.join(__dirname, '../templates'),
+  LOCAL_DEFAULT_TEMPLATE: path.join(__dirname, '../templates/default'),
+  THEMES_DIR: path.join(__dirname, '../themes'),
+  DIST_DIR: path.join(__dirname, '../dist')
+};
+
+export const DEFAULT_FILES = {
+  'index.ejs': `<!DOCTYPE html><html>...`, // Your template content
+  'content.md': `# Welcome...`, // Your default content
+  'sidebar.json': `{"menu": [...]}` // Your sidebar config
+};

@@ -1,25 +1,32 @@
-// C:\Users\USER\OneDrive\OpenSource\ReadMe\src\commands\functions.js
+// src/commands/functions.js
 import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import chalk from 'chalk';
-export { generateChangeLog } from './changelog.js';
-import { logSuccess, logError, logInfo } from '../utils/logger.js';
-import { fetchRepoChanges } from '../utils/github.js'; // Correct relative path
-
+import { PATHS } from '../config.js';
+import { logSuccess, logError, logInfo, showVersion } from '../utils/logger.js';
+import { fetchRepoChanges } from '../utils/github.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Get version from package.json
+const packageJsonPath = path.join(__dirname, '../../package.json');
+const packageJson = JSON.parse(await fs.readFile(packageJsonPath, 'utf-8'));
+export const VERSION = packageJson.version;
+export { generateChangelogMD, saveChangelog } from './changelog.js';
+
 
 
 // Ensure templates directory exists
-export async function ensureTemplatesDir(TEMPLATES_DIR) {
+export async function ensureTemplatesDir(templatesDir = PATHS.TEMPLATES_DIR) {
   try {
-    await fs.access(TEMPLATES_DIR);
-  } catch {
-    await fs.mkdir(TEMPLATES_DIR, { recursive: true });
-    await fs.mkdir(path.join(TEMPLATES_DIR, 'default'), { recursive: true });
+    await fs.access(templatesDir);
+    logInfo(`Templates directory exists at ${templatesDir}`);
+    return true;
+  } catch (error) {
+    logInfo(`Creating templates directory at ${templatesDir}`);
+    await fs.mkdir(templatesDir, { recursive: true });
+    await fs.mkdir(path.join(templatesDir, 'default'), { recursive: true });
     
     // Create default template files
     const defaultFiles = {
@@ -48,54 +55,59 @@ export async function ensureTemplatesDir(TEMPLATES_DIR) {
 }`
     };
 
-    await Promise.all(Object.entries(defaultFiles).map(async ([file, content]) => {
-      await fs.writeFile(path.join(TEMPLATES_DIR, 'default', file), content);
-    }));
+    await Promise.all(
+      Object.entries(defaultFiles).map(async ([file, content]) => {
+        await fs.writeFile(path.join(templatesDir, 'default', file), content);
+      })
+    );
 
-    logInfo(`Created default template in ${TEMPLATES_DIR}/default`);
+    logSuccess(`Created default template in ${templatesDir}/default`);
+    return false;
   }
 }
 
-// Command: Create File
+// File operations
 export async function createFile(fileName) {
   if (!fileName) {
     logError('Please provide a file name');
-    return;
+    throw new Error('Filename is required');
   }
 
   const filePath = path.join(process.cwd(), fileName);
   try {
     await fs.writeFile(filePath, '');
     logSuccess(`Created file: ${filePath}`);
+    return filePath;
   } catch (error) {
     logError(`Failed to create file: ${error.message}`);
+    throw error;
   }
 }
 
-// Command: Create Folder
 export async function createFolder(folderName) {
   if (!folderName) {
     logError('Please provide a folder name');
-    return;
+    throw new Error('Folder name is required');
   }
 
   const folderPath = path.join(process.cwd(), folderName);
   try {
     await fs.mkdir(folderPath, { recursive: true });
     logSuccess(`Created folder: ${folderPath}`);
+    return folderPath;
   } catch (error) {
     logError(`Failed to create folder: ${error.message}`);
+    throw error;
   }
 }
 
-// Command: Create Template
-export async function createTemplate(templateName, TEMPLATES_DIR) {
+export async function createTemplate(templateName, templatesDir = PATHS.TEMPLATES_DIR) {
   if (!templateName) {
     logError('Please provide a template name');
-    return;
+    throw new Error('Template name is required');
   }
 
-  const newTemplatePath = path.join(TEMPLATES_DIR, templateName);
+  const newTemplatePath = path.join(templatesDir, templateName);
   try {
     await fs.mkdir(newTemplatePath, { recursive: true });
     
@@ -114,68 +126,18 @@ export async function createTemplate(templateName, TEMPLATES_DIR) {
       'sidebar.json': '{"menu": []}'
     };
 
-    await Promise.all(Object.entries(defaultFiles).map(async ([file, content]) => {
-      await fs.writeFile(path.join(newTemplatePath, file), content);
-    }));
+    await Promise.all(
+      Object.entries(defaultFiles).map(async ([file, content]) => {
+        await fs.writeFile(path.join(newTemplatePath, file), content);
+      })
+    );
     
     logSuccess(`Created template: ${newTemplatePath}`);
     logInfo(`Edit files in ${newTemplatePath} to customize your template`);
+    return newTemplatePath;
   } catch (error) {
     logError(`Failed to create template: ${error.message}`);
-  }
-}
-
-
-// Changelog functions
-export async function generateChangelogMD() {
-  try {
-
-     // Get GitHub credentials from environment
-     const owner = process.env.GITHUB_OWNER;
-     const repo = process.env.GITHUB_REPO;
-     const token = process.env.GITHUB_TOKEN;
- 
-     if (!owner || !repo) {
-       throw new Error('GitHub owner/repo not configured');
-     }
- 
-     const changes = await fetchRepoChanges(owner, repo, token);
-    
-    if (!changes?.length) {
-      return '# Change Log\n\nNo changes recorded yet.';
-    }
-
-    let mdContent = '# Change Log\n\n';
-    mdContent += '| Commit | Author | Message | Date |\n';
-    mdContent += '|--------|--------|---------|------|\n';
-    
-    changes.forEach(change => {
-      mdContent += `| [${change.sha.slice(0,7)}](${change.url}) ` +
-                   `| ${change.author} ` +
-                   `| ${change.message.split('\n')[0]} ` +
-                   `| ${change.date} |\n`;
-    });
-
-    return mdContent;
-  } catch (error) {
-    logError(`Changelog Error: ${error.message}`); // Using the defined logError
-    return '# Change Log\n\nError generating changelog.';
-  }
-}
-
-export async function saveChangelog() {
-  try {
-    const changelogContent = await generateChangelogMD();
-    const changelogPath = path.join(process.cwd(), 'templates/default/changelog.md');
-    
-    await fs.mkdir(path.dirname(changelogPath), { recursive: true });
-    await fs.writeFile(changelogPath, changelogContent);
-    
-    logSuccess('Changelog generated successfully at templates/default/changelog.md');
-    return true;
-  } catch (error) {
-    logError(`Failed to save changelog: ${error.message}`);
-    return false;
+    throw error;
   }
 }
 

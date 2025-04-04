@@ -1,10 +1,14 @@
 {
     "name": "readme-framework",
-    "version": "1.1.6",
+    "version": "1.1.8",
     "type": "module",
+    "imports": {
+      "#utils/*": "./src/utils/*.js"
+    },
     "bin": {
        "readme": "./bin/cli.js"
     },
+    
     "dependencies": {
         "axios": "^1.8.3",
         "chalk": "4",

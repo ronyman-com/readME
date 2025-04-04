@@ -1,175 +1,135 @@
+// src/commands/build.js
 import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { marked } from 'marked';
 import ejs from 'ejs';
+import { marked } from 'marked';
+import { PATHS } from '../config.js';
+import { logSuccess, logError, logInfo, showVersion } from '../utils/logger.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export async function build() {
-  // Define all critical paths
-  const baseDir = path.join(__dirname, '../..');
-  const contentDir = path.join(baseDir, 'content');
-  const templateDir = path.join(baseDir, 'templates');
-  const distPath = path.join(baseDir, 'dist');
-
-  console.log('🚀 Starting build process...');
-  console.log(`📂 Base directory: ${baseDir}`);
-  console.log(`📝 Content directory: ${contentDir}`);
-  console.log(`🎨 Template directory: ${templateDir}`);
-  console.log(`📦 Output directory: ${distPath}`);
-
+  showVersion();
+  
   try {
-    // 1. Verify and prepare directories
-    console.log('\n🔍 Verifying directories...');
-    await verifyOrCreateDir(contentDir, 'content');
-    await verifyOrCreateDir(templateDir, 'templates');
-    
+    // Define paths using central config
+    const { LOCAL_DEFAULT_TEMPLATE, DIST_DIR } = PATHS;
+
+    logInfo('🚀 Starting build process...');
+    logInfo(`📂 Template directory: ${LOCAL_DEFAULT_TEMPLATE}`);
+    logInfo(`📦 Output directory: ${DIST_DIR}`);
+
+    // 1. Verify templates exist
+    logInfo('\n🔍 Verifying templates...');
+    try {
+      await fs.access(LOCAL_DEFAULT_TEMPLATE);
+      logSuccess('✓ Template directory exists');
+    } catch {
+      throw new Error(`Templates not found at ${LOCAL_DEFAULT_TEMPLATE}`);
+    }
+
     // 2. Clean and create dist directory
-    console.log('\n🧹 Cleaning dist directory...');
-    await fs.rm(distPath, { recursive: true, force: true }).catch(() => {});
-    await fs.mkdir(distPath, { recursive: true });
+    logInfo('\n🧹 Preparing output directory...');
+    await fs.rm(DIST_DIR, { recursive: true, force: true }).catch(() => {});
+    await fs.mkdir(DIST_DIR, { recursive: true });
+    logSuccess(`✓ Created clean directory at ${DIST_DIR}`);
 
-    // 3. Process all markdown files
-    console.log('\n📄 Processing markdown files...');
-    const markdownFiles = await findMarkdownFiles(contentDir);
+    // 3. Process template files
+    logInfo('\n📄 Processing template files...');
+    const templateFiles = await fs.readdir(LOCAL_DEFAULT_TEMPLATE);
+
+    // Convert markdown files
+    const markdownFiles = templateFiles.filter(file => file.endsWith('.md'));
+    for (const mdFile of markdownFiles) {
+      const mdPath = path.join(LOCAL_DEFAULT_TEMPLATE, mdFile);
+      const content = await fs.readFile(mdPath, 'utf-8');
+      const htmlContent = marked(content);
+      
+      const outputFile = path.join(DIST_DIR, 
+        mdFile === 'content.md' ? 'index.html' : mdFile.replace('.md', '.html'));
+      
+      await fs.writeFile(outputFile, htmlContent);
+      logSuccess(`✓ Converted ${mdFile} → ${path.basename(outputFile)}`);
+    }
+
+    // 4. Process main template if components exist
+    if (templateFiles.includes('index.ejs') && templateFiles.includes('content.md')) {
+      logInfo('\n🎨 Generating main template...');
+      const [template, content, sidebar] = await Promise.all([
+        fs.readFile(path.join(LOCAL_DEFAULT_TEMPLATE, 'index.ejs'), 'utf-8'),
+        fs.readFile(path.join(LOCAL_DEFAULT_TEMPLATE, 'content.md'), 'utf-8'),
+        fs.readFile(path.join(LOCAL_DEFAULT_TEMPLATE, 'sidebar.json'), 'utf-8')
+          .then(JSON.parse)
+          .catch(() => ({ menu: [] })) // Default empty sidebar
+      ]);
+
+      const html = ejs.render(template, {
+        title: "ReadME Framework",
+        content: marked(content),
+        sidebar: sidebar,
+        version: process.env.npm_package_version
+      });
+      
+      await fs.writeFile(path.join(DIST_DIR, 'index.html'), html);
+      logSuccess('✓ Generated main index.html');
+    }
+
+    // 5. Copy assets if they exist
+    logInfo('\n🖼️  Processing assets...');
+    try {
+      const assetsPath = path.join(LOCAL_DEFAULT_TEMPLATE, 'assets');
+      await fs.access(assetsPath);
+      await fs.cp(assetsPath, path.join(DIST_DIR, 'assets'), { recursive: true });
+      logSuccess('✓ Copied assets directory');
+    } catch {
+      logInfo('No assets directory found - skipping');
+    }
+
+    // 6. Verify output
+    logInfo('\n🔎 Verifying build output...');
+    const outputFiles = await fs.readdir(DIST_DIR);
+    const htmlFiles = outputFiles.filter(f => f.endsWith('.html'));
     
-    if (markdownFiles.length === 0) {
-      console.warn('⚠️  No markdown files found in content directory');
-      await createSampleContent(contentDir);
-      return;
+    if (htmlFiles.length === 0) {
+      throw new Error('No HTML files were generated');
     }
+    
+    logSuccess('✓ Generated files:');
+    htmlFiles.forEach(file => logInfo(`   - ${file}`));
 
-    // 4. Convert markdown to HTML
-    const htmlFiles = [];
-    for (const file of markdownFiles) {
-      const htmlPath = await convertMarkdownToHtml(file, distPath);
-      htmlFiles.push(htmlPath);
-      console.log(`✓ Created ${path.relative(distPath, htmlPath)}`);
-    }
-
-    // 5. Process templates and assets
-    console.log('\n🎨 Processing templates...');
-    await processTemplates(templateDir, distPath, {
-      pages: htmlFiles.map(f => path.basename(f)),
-      content: await getMainContent(markdownFiles)
-    });
-
-    // 6. Final verification
-    console.log('\n🔎 Verifying build output...');
-    await verifyBuildOutput(distPath);
-
-    console.log('\n✅ Build completed successfully!');
-    console.log(`📂 Output directory: ${distPath}`);
+    logSuccess('\n✅ Build completed successfully!');
+    logInfo(`📂 Output available in: ${DIST_DIR}`);
 
   } catch (error) {
-    console.error('\n❌ Build failed:', error.message);
-    console.error('Stack trace:', error.stack);
+    logError('\n❌ Build failed!');
+    logError(error.message);
+    
+    if (error.stack) {
+      logError('Stack trace:', error.stack);
+    }
+    
     process.exit(1);
   }
 }
 
-// Helper Functions
-
-async function verifyOrCreateDir(dirPath, dirName) {
-  try {
-    await fs.access(dirPath);
-    console.log(`✓ ${dirName} directory exists`);
-    return true;
-  } catch {
-    console.warn(`⚠️  ${dirName} directory not found at ${dirPath}`);
-    await fs.mkdir(dirPath, { recursive: true });
-    console.log(`✓ Created ${dirName} directory`);
-    return false;
-  }
-}
-
-async function findMarkdownFiles(contentDir) {
-  try {
-    const files = await fs.readdir(contentDir);
-    return files
-      .filter(file => file.endsWith('.md'))
-      .map(file => path.join(contentDir, file));
-  } catch (error) {
-    console.error('Error reading content directory:', error.message);
-    return [];
-  }
-}
-
-async function convertMarkdownToHtml(markdownPath, distPath) {
-  const content = await fs.readFile(markdownPath, 'utf-8');
-  const htmlContent = marked(content);
-  const outputName = path.basename(markdownPath, '.md') + '.html';
-  const outputPath = path.join(distPath, outputName);
-  await fs.writeFile(outputPath, htmlContent);
-  return outputPath;
-}
-
-async function processTemplates(templateDir, distPath, data) {
-  // Copy assets
-  const assetsPath = path.join(templateDir, 'assets');
-  try {
-    await fs.access(assetsPath);
-    await fs.cp(assetsPath, path.join(distPath, 'assets'), { recursive: true });
-    console.log('✓ Copied assets');
-  } catch {
-    console.warn('⚠️  No assets directory found');
-  }
-
-  // Process main template
-  const templatePath = path.join(templateDir, 'index.ejs');
-  try {
-    const template = await fs.readFile(templatePath, 'utf-8');
-    const html = ejs.render(template, {
-      title: "ReadME Framework",
-      version: "1.0.0",
-      ...data
-    });
-    await fs.writeFile(path.join(distPath, 'index.html'), html);
-    console.log('✓ Generated index.html');
-  } catch (error) {
-    throw new Error(`Template processing failed: ${error.message}`);
-  }
-}
-
-async function getMainContent(markdownFiles) {
-  const indexMd = markdownFiles.find(f => path.basename(f) === 'index.md');
-  if (!indexMd) {
-    console.warn('⚠️  No index.md found - using default content');
-    return marked('# Welcome\n\nCreate an index.md file in your content directory');
-  }
-  const content = await fs.readFile(indexMd, 'utf-8');
-  return marked(content);
-}
-
-async function verifyBuildOutput(distPath) {
-  const files = await fs.readdir(distPath);
-  const htmlFiles = files.filter(f => f.endsWith('.html'));
-  
-  if (htmlFiles.length === 0) {
-    throw new Error('No HTML files were generated in dist directory');
-  }
-  
-  console.log('✓ Generated files:');
-  htmlFiles.forEach(file => console.log(`   - ${file}`));
-}
-
+// Helper function to create sample content if none exists
 async function createSampleContent(contentDir) {
-  console.log('✏️  Creating sample content...');
-  const sampleContent = `# Welcome to ReadME
-
-This is a sample markdown file. You can replace it with your own content.
+  const sampleContent = `# Welcome to ReadME Framework
 
 ## Getting Started
 
-1. Create markdown files in the content directory
-2. Run \`node bin/cli.js build\`
+1. Create markdown files in the templates directory
+2. Run the build command
 3. Your static site will be in the dist directory
+
+### Sample Pages
+- [Home](index.html)
+- [About](about.html)
 `;
 
-  const samplePath = path.join(contentDir, 'index.md');
+  const samplePath = path.join(contentDir, 'sample.md');
   await fs.writeFile(samplePath, sampleContent);
-  console.log(`✓ Created sample content at ${samplePath}`);
-  console.log('\n🔄 Please run the build command again');
+  return samplePath;
 }
