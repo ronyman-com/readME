@@ -1,27 +1,27 @@
 {
     "name": "readme-framework",
-    "version": "1.2.1",
+    "version": "1.2.2",
     "type": "module",
     "imports": {
-      "#utils/*": "./src/utils/*.js"
+        "#utils/*": "./src/utils/*.js"
     },
     "bin": {
-       "readme": "./bin/cli.js"
+        "readme": "./bin/cli.js"
     },
-    
     "dependencies": {
         "axios": "^1.8.3",
         "chalk": "4",
         "commander": "^10.0.1",
         "cross-env": "^7.0.3",
+        "dotenv": "^16.0.0",
         "ejs": "^3.1.10",
         "express": "^4.21.2",
         "fs": "^0.0.1-security",
         "fs-extra": "^11.3.0",
         "marked": "^4.3.0",
+        "npm-seo-optimizer": "^1.0.0",
         "open": "^10.1.0",
         "rimraf": "^5.0.5",
-        "dotenv": "^16.0.0",
         "serve": "^14.2.4"
     },
     "description": "readME is a modern static document generator framework built with Node.js. It provides a Command Line Interface (CLI) to create, manage, and organize website documentation with ease. The framework is designed to streamline the process of generating static websites, folders, and files, while automatically updating the sidebar menu for navigation. It uses the latest CSS and JavaScript practices to ensure a modern and responsive user experience.",
@@ -31,7 +31,8 @@
         "reset": "npm run nuke && npm install",
         "build": "readme build templates",
         "start": "readme start",
-        "serve": "serve dist"
+        "serve": "serve dist",
+        "optimize-seo": "npm-seo-optimize"
     },
     "repository": {
         "type": "git",
