@@ -1,9 +1,9 @@
 # ReadME Framework
 [![npm version](https://img.shields.io/npm/v/readme-framework.svg?style=flat-square)](https://www.npmjs.com/package/readme-framework)
 [![npm downloads](https://img.shields.io/npm/dm/readme-framework.svg?style=flat-square)](https://www.npmjs.com/package/readme-framework)
-[![GitHub stars](https://img.shields.io/github/stars/ronyman-com/readme-framework.svg?style=social)](https://www.npmjs.com/package/readme-framework)
+[![GitHub stars](https://img.shields.io/github/stars/ronyman-com/readme-framework.svg?style=social)](https://github.com/ronyman-com/readME)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![find us on facebook](https://scontent.fmel8-1.fna.fbcdn.net/v/t39.30808-6/492401896_1108479551297909_9183837021616266448_n.jpg?_nc_cat=105&ccb=1-7&_nc_sid=833d8c&_nc_ohc=CdMM79rKP5IQ7kNvwGJzuy1&_nc_oc=AdkMoboGggKwBf5piaLEnwPpb9s1qihD4jHm1o1HXHnvpyogkF3CWr4jWk1vtRmtYZs-aON7ir5y95aU-3td-WT1&_nc_zt=23&_nc_ht=scontent.fmel8-1.fna&_nc_gid=HoMrEe_cuT53mLHjhc0vNA&oh=00_AfE4YFltC8FqkcbezUNsUYBOYA7fyuuXodwfYU0jT1R0og&oe=680B5603)](...)
+[![find us on facebook](https://scontent.fmel8-1.fna.fbcdn.net/v/t39.30808-6/493012003_1110117494467448_8526643025996927499_n.jpg?stp=dst-jpg_p526x296_tt6&_nc_cat=111&ccb=1-7&_nc_sid=127cfc&_nc_ohc=oyLysZMAg6AQ7kNvwHtfP0Z&_nc_oc=AdlpTHPkwrBT6gsNYay3TcGQzKoijEpd-8TRedqzAgucnk4yhQM9pG6R3BLZFfuO3JdJaMBbHrFrtTM8wzUkOwmz&_nc_zt=23&_nc_ht=scontent.fmel8-1.fna&_nc_gid=21PMW11E5e26H2au0HLSSA&oh=00_AfE96cdW2K3kVZuqRXVw67TOxFPzcsS4jIZXfZgPZUud2w&oe=680B5D3C)](...)
 
 
 
