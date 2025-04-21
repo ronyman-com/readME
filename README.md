@@ -1,5 +1,8 @@
 # ReadME Framework
-[![npm version](https://img.shields.io/npm/v/my-pkg.svg)](...)
+[![npm version](https://img.shields.io/npm/v/npm-seo-optimizer.svg?style=flat-square)](https://www.npmjs.com/package/readme-framework)
+[![npm downloads](https://img.shields.io/npm/dm/npm-seo-optimizer.svg?style=flat-square)](https://www.npmjs.com/package/readme-framework)
+[![GitHub stars](https://img.shields.io/github/stars/ronyman-com/npm-seo-optimizer.svg?style=social)](https://www.npmjs.com/package/readme-framework)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![find us on facebook](https://scontent.fmel8-1.fna.fbcdn.net/v/t39.30808-6/492401896_1108479551297909_9183837021616266448_n.jpg?_nc_cat=105&ccb=1-7&_nc_sid=833d8c&_nc_ohc=CdMM79rKP5IQ7kNvwGJzuy1&_nc_oc=AdkMoboGggKwBf5piaLEnwPpb9s1qihD4jHm1o1HXHnvpyogkF3CWr4jWk1vtRmtYZs-aON7ir5y95aU-3td-WT1&_nc_zt=23&_nc_ht=scontent.fmel8-1.fna&_nc_gid=HoMrEe_cuT53mLHjhc0vNA&oh=00_AfE4YFltC8FqkcbezUNsUYBOYA7fyuuXodwfYU0jT1R0og&oe=680B5603)](...)
 
 
