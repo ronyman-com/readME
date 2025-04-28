@@ -37,45 +37,54 @@ To get started, clone the repository and install the dependencies:
 git clone https://github.com/ronyman-com/readME
 cd readME
 npm install
+```
 
 
-ReadMe/\
-├── bin/\
-│   └── readme.js\
-├── src/\
-│   ├── commands/\
-│   │   ├── create.js\
-│   │   ├── addFile.js\
-│   │   ├── addFolder.js\
-│   │   ├── changelog.js\
-│   │   └── theme.js\      
-│   ├── utils/\
-│   │   ├── sidebar.js\
-│   │   ├── github.js\
-│   │   └── theme.js\         
-│   └── index.js\
-├── templates/\
-│   ├── index.md\
-│   ├── README.md\
-│   ├── sidebar.json\
-│   ├── changelog.md\
-│   └── themes/\             
-│       ├── system.json\      
-│       ├── light.json\        
-│       └── custom.json\     
-│   ├── css/\
-│   │   └── themes.css\     
-│   └── js/\
-│       └── themes.js\       
-├── package.json\
-└── README.md
-
-
-
-```bash
+```
+ReadMe/
+├── bin/
+│ └── readme.js # CLI entry point
+├── src/
+│ ├── commands/ # Command implementations
+│ │ ├── create.js # Project creation command
+│ │ ├── addFile.js # Add new file command
+│ │ ├── addFolder.js # Add new folder command
+│ │ ├── changelog.js # Changelog management
+│ │ ├── build.js # Build command
+│ ├── config/
+│ │ ├── env.js # Environment configuration
+│ │ └── config.js # Main configuration
+│ ├── utils/
+│ │ ├── sidebar.js # Sidebar management
+│ │ ├── github.js # GitHub integration
+│ │ ├── helpers.js # Utility functions
+│ │ ├── logger.js # Logging utilities
+│ │ └── paths.js # Path management
+│ └── index.js # Main application entry
+├── templates/
+│ └── default/ # Default template
+│ ├── assets/ # Static assets
+│ ├── css/
+│ │ └── theme.css # Default theme
+│ ├── images/ # Image assets
+│ ├── js/
+│ │ └── sidebar.js # Client-side sidebar logic
+│ ├── index.md # Homepage content
+│ ├── README.md # Template documentation
+│ ├── sidebar.json # Sidebar configuration
+│ ├── changelog.md # Changelog template
+│ └── index.ejs # Main template file
+├── .env # Environment variables
+├── .gitignore # Git ignore rules
+├── server.js # Development server
+├── package.json # Project configuration
+└── README.md # Project documentation
+```
 
 
 ## Custom Templates
+
+```bash
 
 You can override any template file by placing it in your project's `templates/` directory. The build system will prioritize these files over the default ones included in the package.
 
@@ -84,4 +93,4 @@ For example, to customize the main template:
 2. Copy the file you want to modify from `node_modules/readme-framework/templates/` to your local `templates/` directory
 3. Make your modifications
 4. Run the build command - your local version will be used
-
+```
