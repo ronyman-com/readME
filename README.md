@@ -42,42 +42,48 @@ npm install
 
 ```
 ReadMe/
-├── bin/
-│ └── readme.js # CLI entry point
-├── src/
-│ ├── commands/ # Command implementations
-│ │ ├── create.js # Project creation command
-│ │ ├── addFile.js # Add new file command
-│ │ ├── addFolder.js # Add new folder command
-│ │ ├── changelog.js # Changelog management
-│ │ ├── build.js # Build command
-│ ├── config/
-│ │ ├── env.js # Environment configuration
-│ │ └── config.js # Main configuration
-│ ├── utils/
-│ │ ├── sidebar.js # Sidebar management
-│ │ ├── github.js # GitHub integration
-│ │ ├── helpers.js # Utility functions
-│ │ ├── logger.js # Logging utilities
-│ │ └── paths.js # Path management
-│ └── index.js # Main application entry
-├── templates/
-│ └── default/ # Default template
-│ ├── assets/ # Static assets
-│ ├── css/
-│ │ └── theme.css # Default theme
-│ ├── images/ # Image assets
-│ ├── js/
-│ │ └── sidebar.js # Client-side sidebar logic
-│ ├── index.md # Homepage content
-│ ├── README.md # Template documentation
-│ ├── sidebar.json # Sidebar configuration
-│ ├── changelog.md # Changelog template
-│ └── index.ejs # Main template file
+├── bin/ # Command line interface
+│ └── readme.js # Main CLI entry point
+│
+├── src/ # Source code
+│    ├── commands/ # CLI command implementations
+         ├── create.js # Initialize new documentation project
+         ├── addFile.js # Add new documentation file
+         ├── addFolder.js # Add new documentation section
+         ├── changelog.js # Manage project changelog
+         └── build.js # Build static site
+│ 
+│   ├── config/ # Configuration files
+│   ├── env.js # Environment-specific settings
+│   └── config.js # Main application configuration
+│ 
+│   ├── utils/ # Utility functions
+         ├── sidebar.js # Sidebar generation/management
+         ├── github.js # GitHub integration helpers
+         ├── helpers.js # General utility functions
+         ├── logger.js # Logging utilities
+         └── paths.js # Path resolution utilities
+│ 
+│   |── index.js # Main application entry point
+│
+├── templates/ # Documentation templates
+         └── default/ # Default template package
+         ├── assets/ # Static assets
+         │     └── images/ # Image assets
+         ├── css/
+         │     └── theme.css # CSS stylesheet
+         ├── js/
+         │    └── sidebar.js # Client-side sidebar functionality
+         ├── index.md # Main content file
+         ├── README.md # Template documentation
+         ├── sidebar.json # Navigation configuration
+         ├── changelog.md # Changelog template
+         └── index.ejs # Main HTML template
+│
 ├── .env # Environment variables
 ├── .gitignore # Git ignore rules
 ├── server.js # Development server
-├── package.json # Project configuration
+├── package.json # Project metadata and dependencies
 └── README.md # Project documentation
 ```
 
