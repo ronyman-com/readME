@@ -1,6 +1,6 @@
 {
     "name": "readme-framework",
-    "version": "1.2.4",
+    "version": "1.2.5",
     "type": "module",
     "imports": {
         "#utils/*": "./src/utils/*.js"
@@ -19,6 +19,8 @@
         "fs": "^0.0.1-security",
         "fs-extra": "^11.3.0",
         "marked": "^4.3.0",
+        "gray-matter": "^4.0.3",
+        "html-minifier": "^4.0.0",
         "npm-seo-optimizer": "^1.0.0",
         "open": "^10.1.0",
         "rimraf": "^5.0.5",
