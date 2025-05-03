@@ -1,21 +1,14 @@
+// plugins/src/utils/sidebar.js
 import fs from 'fs-extra';
 import path from 'path';
-import { fileURLToPath } from 'url';
-import { getAppPaths } from './paths.js';
+import { PATHS } from '../config.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const PATHS = getAppPaths();
-
-// Default sidebar structure
 const DEFAULT_SIDEBAR = {
   title: "Documentation Navigation",
   menu: [],
   items: []
 };
 
-// Icon mappings
 const ICON_MAP = {
   folder: 'folder',
   file: 'file-alt',
@@ -27,25 +20,18 @@ const ICON_MAP = {
   default: 'file-alt'
 };
 
-/**
- * Load or initialize sidebar configuration
- * @returns {Object} Sidebar configuration
- */
 export function loadSidebar() {
   const templateSidebarPath = path.join(PATHS.DEFAULT_TEMPLATE, 'sidebar.json');
   const rootSidebarPath = path.join(PATHS.ROOT_DIR, 'sidebar.json');
   
   try {
-    // Check in templates/default first
     if (fs.existsSync(templateSidebarPath)) {
       return fs.readJsonSync(templateSidebarPath);
     }
-    // Fall back to root directory
     if (fs.existsSync(rootSidebarPath)) {
       return fs.readJsonSync(rootSidebarPath);
     }
     
-    // Create new sidebar if doesn't exist
     const newSidebar = { ...DEFAULT_SIDEBAR };
     fs.writeJsonSync(rootSidebarPath, newSidebar, { spaces: 2 });
     return newSidebar;
@@ -55,38 +41,6 @@ export function loadSidebar() {
   }
 }
 
-/**
- * Format name for display (kebab-case to Title Case)
- * @param {string} name - The name to format
- * @returns {string} Formatted name
- */
-function formatName(name) {
-  if (!name) return '';
-  return name.split(/[-_]/)
-    .map(part => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(' ');
-}
-
-/**
- * Get appropriate icon for item type
- * @param {string} type - Item type
- * @returns {string} Icon name
- */
-function getDefaultIcon(type) {
-  if (!type) return ICON_MAP.default;
-  return ICON_MAP[type.toLowerCase()] || ICON_MAP.default;
-}
-
-/**
- * Update sidebar with new content
- * @param {string} name - Name of the file/folder
- * @param {string} type - Type ('file' or 'folder')
- * @param {string} [parentPath=''] - Parent path for nested items
- * @param {Object} [options] - Additional options
- * @param {string} [options.sidebarPath] - Custom sidebar path
- * @param {boolean} [options.addChangelog=true] - Whether to add changelog
- * @returns {Object} Updated sidebar
- */
 export function updateSidebar(name, type, parentPath = '', options = {}) {
   const {
     sidebarPath = path.join(PATHS.DEFAULT_TEMPLATE, 'sidebar.json'),
@@ -104,7 +58,7 @@ export function updateSidebar(name, type, parentPath = '', options = {}) {
       path: type === 'file' ? `${itemPath}.md` : itemPath,
       text: formattedName,
       link: `/${itemPath}`,
-      icon: getDefaultIcon(name) // Use name for better icon matching
+      icon: getDefaultIcon(name)
     };
 
     if (type === 'folder') {
@@ -112,7 +66,6 @@ export function updateSidebar(name, type, parentPath = '', options = {}) {
       newItem.items = [];
     }
 
-    // Handle nested structure
     if (parentPath) {
       const pathParts = parentPath.split('/');
       let currentLevel = sidebar.items || sidebar.menu || [];
@@ -140,12 +93,10 @@ export function updateSidebar(name, type, parentPath = '', options = {}) {
       
       currentLevel.push(newItem);
     } else {
-      // Add to root level
       (sidebar.items || []).push(newItem);
       (sidebar.menu || []).push(newItem);
     }
 
-    // Add changelog if not exists
     if (addChangelog) {
       const hasChangelog = [sidebar.menu, sidebar.items].some(arr => 
         arr && arr.some(item => 
@@ -165,7 +116,6 @@ export function updateSidebar(name, type, parentPath = '', options = {}) {
       }
     }
 
-    // Save updated sidebar
     fs.ensureDirSync(path.dirname(sidebarPath));
     fs.writeJsonSync(sidebarPath, sidebar, { spaces: 2 });
     
@@ -176,9 +126,14 @@ export function updateSidebar(name, type, parentPath = '', options = {}) {
   }
 }
 
-export default {
-  loadSidebar,
-  updateSidebar,
-  formatName,
-  getDefaultIcon
-};
+function formatName(name) {
+  if (!name) return '';
+  return name.split(/[-_]/)
+    .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ');
+}
+
+function getDefaultIcon(type) {
+  if (!type) return ICON_MAP.default;
+  return ICON_MAP[type.toLowerCase()] || ICON_MAP.default;
+}

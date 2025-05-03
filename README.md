@@ -63,6 +63,9 @@ ReadMe/
          ├── helpers.js # General utility functions
          ├── logger.js # Logging utilities
          └── paths.js # Path resolution utilities
+
+|___ plugins
+|       |__inndex.js
 │ 
 │   |── index.js # Main application entry point
 │

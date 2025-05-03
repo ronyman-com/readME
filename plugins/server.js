@@ -1,4 +1,4 @@
-// server.js
+// plugins/server.js
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -7,20 +7,23 @@ import { exec } from 'child_process';
 import ejs from 'ejs';
 import marked from 'marked';
 import { PATHS } from './src/config.js';
-import { registerPlugin } from './plugins/server.js';
+import { loadSidebar, updateSidebar } from './src/utils/sidebar.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Import and register plugins
-import marketplacePlugin from './plugins/marketplace.js';
-registerPlugin(marketplacePlugin);
+// Plugin system
+const plugins = [];
+
+export function registerPlugin(plugin) {
+  plugins.push(plugin);
+}
 
 export async function startServer() {
   const port = process.env.PORT || 3000;
   
   try {
-    // 1. Verify dist directory exists or run build
+    // Verify dist directory exists or run build
     try {
       await fs.access(PATHS.DIST_DIR);
     } catch (error) {
@@ -28,10 +31,16 @@ export async function startServer() {
       await runBuild();
     }
 
-    // 2. Create Express server
     const app = express();
 
-    // 3. Configure template engine with proper paths
+    // Initialize all plugins
+    for (const plugin of plugins) {
+      if (plugin.init) {
+        await plugin.init(app, { PATHS, loadSidebar, updateSidebar });
+      }
+    }
+
+    // Configure template engine
     app.set('views', [
       PATHS.LOCAL_DEFAULT_TEMPLATE, 
       PATHS.FRAMEWORK_DEFAULT_TEMPLATE,
@@ -40,18 +49,14 @@ export async function startServer() {
     app.set('view engine', 'ejs');
     app.engine('ejs', ejs.renderFile);
 
-    // 4. Security and performance headers
-    app.use((req, res, next) => {
-      res.set({
-        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
-        'Pragma': 'no-cache',
-        'Expires': '0',
-        'X-Content-Type-Options': 'nosniff'
-      });
-      next();
-    });
+    // Apply plugin middleware
+    for (const plugin of plugins) {
+      if (plugin.middleware) {
+        app.use(plugin.middleware);
+      }
+    }
 
-    // 5. Serve static files from dist with version headers
+    // Serve static files
     app.use(express.static(PATHS.DIST_DIR, {
       etag: false,
       lastModified: false,
@@ -63,13 +68,20 @@ export async function startServer() {
       }
     }));
 
-    // 6. Serve static assets from templates
+    // Serve static assets
     app.use('/assets', express.static(path.join(PATHS.LOCAL_DEFAULT_TEMPLATE, 'public', 'assets')));
 
-    // 7. Enhanced hybrid routing handling with plugin support
+    // Let plugins handle routes
+    for (const plugin of plugins) {
+      if (plugin.routes) {
+        app.use(plugin.routes);
+      }
+    }
+
+    // Default route handler
     app.get('*', async (req, res) => {
       try {
-        // Let plugins handle the request first
+        // Let plugins try to handle the request first
         for (const plugin of plugins) {
           if (plugin.handleRequest) {
             const handled = await plugin.handleRequest(req, res);
@@ -77,10 +89,10 @@ export async function startServer() {
           }
         }
 
+        // Default handling if no plugin handled it
         const urlPath = req.path === '/' ? '/index' : req.path;
-        const basePath = urlPath.split('/')[1] || 'index';
         
-        // First try to serve static files from dist
+        // Check for static files
         const staticPaths = [
           path.join(PATHS.DIST_DIR, urlPath),
           path.join(PATHS.DIST_DIR, `${urlPath}.html`),
@@ -93,59 +105,26 @@ export async function startServer() {
           }
         }
 
-        // Then handle Markdown + EJS templates
+        // Check for markdown content
         const contentPaths = [
           path.join(process.cwd(), 'content', `${urlPath}.md`),
           path.join(PATHS.FRAMEWORK_ROOT, 'content', `${urlPath}.md`)
         ];
 
-        const layoutPaths = [
-          path.join(PATHS.LOCAL_DEFAULT_TEMPLATE, 'base', basePath, 'index.ejs'),
-          path.join(PATHS.FRAMEWORK_DEFAULT_TEMPLATE, 'base', basePath, 'index.ejs'),
-          path.join(PATHS.LOCAL_DEFAULT_TEMPLATE, 'index.ejs'),
-          path.join(PATHS.FRAMEWORK_DEFAULT_TEMPLATE, 'index.ejs')
-        ];
-
-        // Check for content files
         for (const contentPath of contentPaths) {
           if (await fileExists(contentPath)) {
             const markdownContent = await fs.readFile(contentPath, 'utf8');
             const htmlContent = marked(markdownContent);
-
-            // Find the first available layout
-            for (const layoutPath of layoutPaths) {
-              if (await fileExists(layoutPath)) {
-                const relativePath = path.relative(
-                  path.join(PATHS.LOCAL_DEFAULT_TEMPLATE, '..'), 
-                  layoutPath
-                ).replace(/\.ejs$/, '');
-                
-                return res.render(relativePath, {
-                  content: htmlContent,
-                  currentPath: urlPath,
-                  config: { paths: PATHS }
-                });
-              }
-            }
-          }
-        }
-
-        // Handle EJS templates directly (without markdown)
-        for (const layoutPath of layoutPaths) {
-          if (await fileExists(layoutPath)) {
-            const relativePath = path.relative(
-              path.join(PATHS.LOCAL_DEFAULT_TEMPLATE, '..'), 
-              layoutPath
-            ).replace(/\.ejs$/, '');
             
-            return res.render(relativePath, {
+            return renderWithLayout(res, 'default', {
+              content: htmlContent,
               currentPath: urlPath,
               config: { paths: PATHS }
             });
           }
         }
 
-        // Final fallback to SPA routing or 404
+        // Fallback to SPA
         if (await fileExists(path.join(PATHS.DIST_DIR, 'index.html'))) {
           return res.sendFile(path.join(PATHS.DIST_DIR, 'index.html'));
         }
@@ -157,7 +136,7 @@ export async function startServer() {
       }
     });
 
-    // 8. Start the server
+    // Start server
     const server = app.listen(port, () => {
       console.log(`
       🚀 Server running at: http://localhost:${port}
@@ -165,8 +144,8 @@ export async function startServer() {
       🎨 Using templates from: ${PATHS.LOCAL_DEFAULT_TEMPLATE}
       📝 Loading content from: ${path.join(process.cwd(), 'content')}
       `);
-
-      // Notify plugins of server start
+      
+      // Notify plugins
       for (const plugin of plugins) {
         if (plugin.onServerStart) {
           plugin.onServerStart(server);
@@ -174,7 +153,7 @@ export async function startServer() {
       }
     });
 
-    // 9. Handle shutdown gracefully
+    // Graceful shutdown
     const shutdown = () => {
       server.close(() => {
         console.log('Server closed');
@@ -193,7 +172,41 @@ export async function startServer() {
   }
 }
 
-// Helper function to run custom build
+async function renderWithLayout(res, layoutType, data) {
+  const layoutConfig = {
+    default: {
+      template: 'index.ejs',
+      includes: ['base/nav', 'base/left-sidebar', 'base/main']
+    },
+    marketplace: {
+      template: 'base/marketplace/index.ejs',
+      includes: ['base/marketplace/nav']
+    }
+  };
+
+  const templatePath = path.join(
+    PATHS.LOCAL_DEFAULT_TEMPLATE, 
+    layoutConfig[layoutType].template
+  );
+  
+  if (!await fileExists(templatePath)) {
+    throw new Error(`Template not found: ${templatePath}`);
+  }
+
+  const renderData = {
+    ...data,
+    layout: layoutConfig[layoutType],
+    includes: layoutConfig[layoutType].includes || []
+  };
+
+  const relativePath = path.relative(
+    path.join(PATHS.LOCAL_DEFAULT_TEMPLATE, '..'), 
+    templatePath
+  ).replace(/\.ejs$/, '');
+
+  return res.render(relativePath, renderData);
+}
+
 async function runBuild() {
   return new Promise((resolve, reject) => {
     exec('node bin/cli.js build', (error, stdout, stderr) => {
@@ -208,7 +221,6 @@ async function runBuild() {
   });
 }
 
-// Helper function to check file existence
 async function fileExists(filePath) {
   try {
     await fs.access(filePath);
@@ -216,9 +228,4 @@ async function fileExists(filePath) {
   } catch {
     return false;
   }
-}
-
-// Start the server if run directly
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  startServer();
 }
