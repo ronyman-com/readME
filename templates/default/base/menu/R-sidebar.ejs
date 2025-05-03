@@ -1,0 +1,31 @@
+<aside class="sidebar right-sidebar" id="right-sidebar">
+    <div class="sidebar-content">
+      <h3>Quick Links</h3>
+      <nav>
+        <ul>
+          <% if (sidebar.quickLinks) { %>
+            <% sidebar.quickLinks.forEach(item => { %>
+              <li><a href="/<%= item.path %>.html"><%= item.title %></a></li>
+            <% }) %>
+          <% } else { %>
+            <!-- Default quick links if none provided -->
+            <li><a href="/getting-started.html">Getting Started</a></li>
+            <li><a href="/api-reference.html">API Reference</a></li>
+            <li><a href="/examples.html">Examples</a></li>
+            <li><a href="/faq.html">FAQ</a></li>
+          <% } %>
+        </ul>
+      </nav>
+      
+      <% if (pageToc) { %>
+        <h3>On This Page</h3>
+        <nav class="toc">
+          <ul>
+            <% pageToc.forEach(item => { %>
+              <li><a href="#<%= item.id %>"><%= item.text %></a></li>
+            <% }) %>
+          </ul>
+        </nav>
+      <% } %>
+    </div>
+  </aside>

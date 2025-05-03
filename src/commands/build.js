@@ -1,4 +1,3 @@
-// src/commands/build.js
 import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -12,9 +11,8 @@ import { logSuccess, logError, logInfo, showVersion } from '../utils/logger.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const BASE_URL = process.env.BASE_URL || 'http://localhost'; // Can be overridden by env var
+const BASE_URL = process.env.BASE_URL || 'http://localhost';
 
-// HTML minification configuration
 const minifyOptions = {
   collapseWhitespace: true,
   removeComments: true,
@@ -25,7 +23,6 @@ const minifyOptions = {
   removeRedundantAttributes: true
 };
 
-// Default SEO values
 const defaultSEO = {
   title: "My Documentation",
   description: "Documentation for my project",
@@ -44,14 +41,52 @@ async function verifyDirectoryExists(dirPath) {
   }
 }
 
+async function getTemplatePath(filePath, frontmatter, templateDir) {
+  // 1. Check if specific template is requested in frontmatter
+  if (frontmatter.template) {
+    const customPath = path.join(templateDir, frontmatter.template.endsWith('.ejs') 
+      ? frontmatter.template 
+      : `${frontmatter.template}.ejs`);
+    try {
+      await fs.access(customPath);
+      return customPath;
+    } catch {
+      console.warn(`Template ${frontmatter.template} not found, falling back to layout detection`);
+    }
+  }
+
+  // 2. Try layout-specific template
+  const layoutName = path.basename(filePath, path.extname(filePath));
+  const layoutPath = path.join(templateDir, `${layoutName}.ejs`);
+  try {
+    await fs.access(layoutPath);
+    return layoutPath;
+  } catch {
+    // Continue to default detection
+  }
+
+  // 3. Try type-specific template
+  const contentDir = path.join(process.cwd(), 'content');
+  const type = path.relative(contentDir, path.dirname(filePath)).split(path.sep)[0];
+  if (type && type !== '..') { // Check if we got a valid type
+    const typePath = path.join(templateDir, `${type}.ejs`);
+    try {
+      await fs.access(typePath);
+      return typePath;
+    } catch {
+      // Continue to default
+    }
+  }
+
+  // 4. Fall back to default layout
+  return path.join(templateDir, 'layout.ejs');
+}
+
 function getTemplateDir() {
-  // First check project's templates directory
   const localTemplates = path.join(process.cwd(), 'templates/default');
   if (existsSync(localTemplates)) {
     return localTemplates;
   }
-  
-  // Fall back to framework's templates
   return path.join(__dirname, '../../templates/default');
 }
 
@@ -60,14 +95,12 @@ function getDistDir() {
 }
 
 async function copyStaticAssets(templateDir, distDir) {
-  // Copy assets directory
   const assetsPath = path.join(templateDir, 'assets');
   if (await verifyDirectoryExists(assetsPath)) {
     await fs.cp(assetsPath, path.join(distDir, 'assets'), { recursive: true });
     logSuccess('📁 Copied assets directory');
   }
 
-  // Copy other static files
   const staticFiles = ['favicon.ico', 'robots.txt'];
   for (const file of staticFiles) {
     const filePath = path.join(templateDir, file);
@@ -80,63 +113,53 @@ async function copyStaticAssets(templateDir, distDir) {
 
 async function processMarkdownFile(filePath, templateDir, distDir, relativePath, sidebar, pages) {
   const content = await fs.readFile(filePath, 'utf8');
-  const frontmatter = matter(content);
+  const { data: frontmatter, content: markdownContent } = matter(content);
   
-  // Determine template path
-  const templatePath = frontmatter.data.template 
-      ? path.join(templateDir, frontmatter.data.template)
-      : path.join(templateDir, 'index.ejs');
-  
+  const templatePath = await getTemplatePath(filePath, frontmatter, templateDir);
   const template = await fs.readFile(templatePath, 'utf8');
-  
-  // Calculate output path and URL
+
   const outputPath = path.join(
-      distDir,
-      relativePath,
-      path.basename(filePath, '.md') + '.html'
+    distDir,
+    relativePath,
+    path.basename(filePath, '.md') + '.html'
   );
   
   const pageUrl = path.join(
-      relativePath,
-      path.basename(filePath, '.md') + '.html'
+    relativePath,
+    path.basename(filePath, '.md') + '.html'
   ).replace(/\\/g, '/');
   
   await fs.mkdir(path.dirname(outputPath), { recursive: true });
   
-  // Calculate the correct asset prefix based on directory depth
   const depth = relativePath.split(path.sep).filter(Boolean).length;
   const assetPrefix = depth > 0 ? '../'.repeat(depth) : './';
 
-  // Prepare template data with SEO defaults
   const templateData = {
     ...defaultSEO,
-    ...frontmatter.data,
+    ...frontmatter,
     version: process.env.npm_package_version || '1.0.0',
     currentYear: new Date().getFullYear(),
-    content: marked.parse(frontmatter.content),
+    content: marked.parse(markdownContent),
     sidebar: sidebar,
     navItems: sidebar.menu || sidebar.items || [],
     assetPrefix: assetPrefix,
     currentPath: pageUrl,
-    canonicalUrl: frontmatter.data.canonicalUrl || `${BASE_URL}/${pageUrl}`
+    canonicalUrl: frontmatter.canonicalUrl || `${BASE_URL}/${pageUrl}`
   };
 
-  // Add to sitemap pages
   pages.push({
     path: pageUrl,
     lastmod: new Date().toISOString(),
-    priority: frontmatter.data.priority || 0.8,
-    changefreq: frontmatter.data.changefreq || 'weekly'
+    priority: frontmatter.priority || 0.8,
+    changefreq: frontmatter.changefreq || 'weekly'
   });
 
-  // Render the template with proper include resolution
   const html = ejs.render(template, templateData, {
-      filename: templatePath,
-      root: templateDir,
-      views: [templateDir]
+    filename: templatePath,
+    root: templateDir,
+    views: [templateDir]
   });
   
-  // Minify and write HTML
   await fs.writeFile(outputPath, htmlmin.minify(html, minifyOptions));
   logSuccess(`✨ Built: ${pageUrl}`);
 }
@@ -176,7 +199,6 @@ async function processTemplates(templateDir, distDir, sidebar, pages) {
   for (const file of files) {
     const fullPath = path.join(templateDir, file);
     
-    // Skip assets directory (already handled)
     if (file === 'assets') continue;
     
     const stats = await fs.stat(fullPath);
@@ -218,8 +240,6 @@ export async function build() {
     logInfo(`📂 Template directory: ${templateDir}`);
     logInfo(`📦 Output directory: ${distDir}`);
 
-    // 1. Verify and prepare directories
-    logInfo('\n🔍 Verifying directories...');
     if (!await verifyDirectoryExists(templateDir)) {
       throw new Error(`Templates not found at ${templateDir}\nPlease create a 'templates/default' directory in your project.`);
     }
@@ -228,25 +248,20 @@ export async function build() {
     await fs.rm(distDir, { recursive: true, force: true });
     await fs.mkdir(distDir, { recursive: true });
 
-    // 2. Load sidebar data
     logInfo('\n📦 Loading sidebar data...');
     const sidebar = await fs.readFile(path.join(templateDir, 'sidebar.json'), 'utf-8')
       .then(JSON.parse)
-      .catch(() => ({ menu: [] })); // Default empty sidebar
+      .catch(() => ({ menu: [] }));
 
-    // 3. Copy static assets
     logInfo('\n🖼️ Copying static assets...');
     await copyStaticAssets(templateDir, distDir);
 
-    // 4. Process templates
     logInfo('\n📄 Processing templates...');
     await processTemplates(templateDir, distDir, sidebar, pages);
 
-    // 5. Generate sitemap
     logInfo('\n🗺 Generating sitemap...');
     await generateSitemap(distDir, pages);
 
-    // 6. Verify output
     logInfo('\n🔎 Verifying build output...');
     const outputFiles = await fs.readdir(distDir);
     const htmlFiles = outputFiles.filter(f => f.endsWith('.html'));

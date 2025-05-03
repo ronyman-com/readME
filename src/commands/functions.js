@@ -3,34 +3,37 @@ import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { PATHS } from '../config.js';
-import { logSuccess, logError, logInfo, showVersion } from '../utils/logger.js';
-import { fetchRepoChanges } from '../utils/github.js';
+import { logSuccess, logError, logInfo } from '../utils/logger.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Get version from package.json
-const packageJsonPath = path.join(__dirname, '../../package.json');
-const packageJson = JSON.parse(await fs.readFile(packageJsonPath, 'utf-8'));
-export const VERSION = packageJson.version;
-export { generateChangelogMD, saveChangelog } from './changelog.js';
+// Get version from package.json safely
+let VERSION = '0.0.0';
+try {
+  const packageJsonPath = path.join(__dirname, '../../package.json');
+  const packageJson = JSON.parse(await fs.readFile(packageJsonPath, 'utf-8'));
+  VERSION = packageJson.version;
+} catch (err) {
+  logError('Could not read package.json version:', err.message);
+}
+export { VERSION };
 
-
-
-// Ensure templates directory exists
+// Improved ensureTemplatesDir with better error handling
 export async function ensureTemplatesDir(templatesDir = PATHS.TEMPLATES_DIR) {
   try {
     await fs.access(templatesDir);
     logInfo(`Templates directory exists at ${templatesDir}`);
     return true;
   } catch (error) {
-    logInfo(`Creating templates directory at ${templatesDir}`);
-    await fs.mkdir(templatesDir, { recursive: true });
-    await fs.mkdir(path.join(templatesDir, 'default'), { recursive: true });
-    
-    // Create default template files
-    const defaultFiles = {
-      'index.ejs': `<!DOCTYPE html>
+    try {
+      logInfo(`Creating templates directory at ${templatesDir}`);
+      await fs.mkdir(templatesDir, { recursive: true });
+      const defaultDir = path.join(templatesDir, 'default');
+      await fs.mkdir(defaultDir, { recursive: true });
+      
+      const defaultFiles = {
+        'index.ejs': `<!DOCTYPE html>
 <html>
 <head>
   <title><%= title %></title>
@@ -46,35 +49,54 @@ export async function ensureTemplatesDir(templatesDir = PATHS.TEMPLATES_DIR) {
   <%- content %>
 </body>
 </html>`,
-      'content.md': `# Welcome to ReadME Framework\n\nThis is default content.`,
-      'sidebar.json': `{
+        'content.md': `# Welcome to ReadME Framework\n\nThis is default content.`,
+        'sidebar.json': `{
   "menu": [
     { "title": "Home", "path": "index" },
     { "title": "About", "path": "about" }
   ]
 }`
-    };
+      };
 
-    await Promise.all(
-      Object.entries(defaultFiles).map(async ([file, content]) => {
-        await fs.writeFile(path.join(templatesDir, 'default', file), content);
-      })
-    );
+      await Promise.all(
+        Object.entries(defaultFiles).map(async ([file, content]) => {
+          const filePath = path.join(defaultDir, file);
+          await fs.writeFile(filePath, content);
+          logSuccess(`Created ${filePath}`);
+        })
+      );
 
-    logSuccess(`Created default template in ${templatesDir}/default`);
-    return false;
+      return false;
+    } catch (createError) {
+      logError('Failed to create default template:', createError.message);
+      // Attempt cleanup
+      try {
+        await fs.rm(templatesDir, { recursive: true, force: true });
+      } catch (cleanupError) {
+        logError('Cleanup failed:', cleanupError.message);
+      }
+      throw new Error('Template initialization failed');
+    }
   }
 }
 
-// File operations
+// Enhanced file creation with validation
 export async function createFile(fileName) {
-  if (!fileName) {
-    logError('Please provide a file name');
+  if (!fileName?.trim()) {
     throw new Error('Filename is required');
   }
 
   const filePath = path.join(process.cwd(), fileName);
+  
   try {
+    // Check if file exists
+    try {
+      await fs.access(filePath);
+      throw new Error(`File already exists: ${filePath}`);
+    } catch (existsError) {
+      if (existsError.code !== 'ENOENT') throw existsError;
+    }
+
     await fs.writeFile(filePath, '');
     logSuccess(`Created file: ${filePath}`);
     return filePath;
@@ -84,14 +106,25 @@ export async function createFile(fileName) {
   }
 }
 
+// Enhanced folder creation
 export async function createFolder(folderName) {
-  if (!folderName) {
-    logError('Please provide a folder name');
+  if (!folderName?.trim()) {
     throw new Error('Folder name is required');
   }
 
   const folderPath = path.join(process.cwd(), folderName);
+  
   try {
+    // Check if folder exists
+    try {
+      const stats = await fs.stat(folderPath);
+      if (stats.isDirectory()) {
+        throw new Error(`Directory already exists: ${folderPath}`);
+      }
+    } catch (existsError) {
+      if (existsError.code !== 'ENOENT') throw existsError;
+    }
+
     await fs.mkdir(folderPath, { recursive: true });
     logSuccess(`Created folder: ${folderPath}`);
     return folderPath;
@@ -101,14 +134,27 @@ export async function createFolder(folderName) {
   }
 }
 
+// Enhanced template creation
 export async function createTemplate(templateName, templatesDir = PATHS.TEMPLATES_DIR) {
-  if (!templateName) {
-    logError('Please provide a template name');
+  if (!templateName?.trim()) {
     throw new Error('Template name is required');
   }
 
+  if (!/^[a-zA-Z0-9_-]+$/.test(templateName)) {
+    throw new Error('Template name can only contain letters, numbers, underscores and hyphens');
+  }
+
   const newTemplatePath = path.join(templatesDir, templateName);
+  
   try {
+    // Check if template exists
+    try {
+      await fs.access(newTemplatePath);
+      throw new Error(`Template already exists: ${newTemplatePath}`);
+    } catch (existsError) {
+      if (existsError.code !== 'ENOENT') throw existsError;
+    }
+
     await fs.mkdir(newTemplatePath, { recursive: true });
     
     const defaultFiles = {
@@ -128,15 +174,25 @@ export async function createTemplate(templateName, templatesDir = PATHS.TEMPLATE
 
     await Promise.all(
       Object.entries(defaultFiles).map(async ([file, content]) => {
-        await fs.writeFile(path.join(newTemplatePath, file), content);
+        const filePath = path.join(newTemplatePath, file);
+        await fs.writeFile(filePath, content);
+        logSuccess(`Created ${filePath}`);
       })
     );
     
-    logSuccess(`Created template: ${newTemplatePath}`);
-    logInfo(`Edit files in ${newTemplatePath} to customize your template`);
     return newTemplatePath;
   } catch (error) {
     logError(`Failed to create template: ${error.message}`);
+    
+    // Attempt cleanup
+    try {
+      await fs.rm(newTemplatePath, { recursive: true, force: true });
+    } catch (cleanupError) {
+      logError('Cleanup failed:', cleanupError.message);
+    }
+    
     throw error;
   }
 }
+
+export { generateChangelogMD, saveChangelog } from './changelog.js';

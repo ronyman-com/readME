@@ -41,6 +41,8 @@ export function loadSidebar() {
   }
 }
 
+
+
 export function updateSidebar(name, type, parentPath = '', options = {}) {
   const {
     sidebarPath = path.join(PATHS.DEFAULT_TEMPLATE, 'sidebar.json'),
@@ -136,4 +138,69 @@ function formatName(name) {
 function getDefaultIcon(type) {
   if (!type) return ICON_MAP.default;
   return ICON_MAP[type.toLowerCase()] || ICON_MAP.default;
+}
+
+
+
+
+
+import fs from 'fs/promises';
+import path from 'path';
+import matter from 'gray-matter';
+import { PATHS } from '../config.js';
+
+export async function getRightSidebarContent(currentPath) {
+  try {
+    // Check for page-specific right sidebar config
+    const contentPath = path.join(PATHS.CONTENT_DIR, `${currentPath}.md`);
+    
+    if (await fileExists(contentPath)) {
+      const fileContent = await fs.readFile(contentPath, 'utf8');
+      const { data: frontmatter } = matter(fileContent);
+      
+      if (frontmatter.rightSidebar !== undefined) {
+        return {
+          enabled: frontmatter.rightSidebar,
+          quickLinks: frontmatter.quickLinks || [],
+          pageToc: frontmatter.toc || []
+        };
+      }
+    }
+    
+    // Fallback to global right sidebar config
+    const globalConfigPath = path.join(PATHS.CONTENT_DIR, '_config.yml');
+    if (await fileExists(globalConfigPath)) {
+      const configContent = await fs.readFile(globalConfigPath, 'utf8');
+      const { data: config } = matter(configContent);
+      
+      return {
+        enabled: config.rightSidebar || false,
+        quickLinks: config.quickLinks || [],
+        pageToc: []
+      };
+    }
+    
+    // Default configuration
+    return {
+      enabled: false,
+      quickLinks: [],
+      pageToc: []
+    };
+  } catch (err) {
+    console.error('Error loading right sidebar config:', err);
+    return {
+      enabled: false,
+      quickLinks: [],
+      pageToc: []
+    };
+  }
+}
+
+async function fileExists(filePath) {
+  try {
+    await fs.access(filePath);
+    return true;
+  } catch {
+    return false;
+  }
 }

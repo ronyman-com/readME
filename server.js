@@ -1,46 +1,127 @@
-// server.js
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs/promises';
 import { exec } from 'child_process';
-import ejs from 'ejs';
-import marked from 'marked';
-import { PATHS } from './src/config.js';
-import { registerPlugin } from './plugins/server.js';
+import { getAppPaths } from './src/utils/paths.js';
+import { loadSidebar } from './src/utils/sidebar.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Import and register plugins
-import marketplacePlugin from './plugins/marketplace.js';
-registerPlugin(marketplacePlugin);
+// Enhanced plugin system with template resolution
+async function loadPlugins() {
+  const plugins = {
+    server: {},
+    build: {},
+    utils: {
+      paths: { getAppPaths },
+      sidebar: { loadSidebar },
+      templates: {
+        resolveTemplate: async (contentPath, templateDir) => {
+          try {
+            const templateFiles = await fs.readdir(templateDir);
+            const templates = templateFiles
+              .filter(file => file.endsWith('.ejs'))
+              .map(file => path.basename(file, '.ejs'));
+
+            const content = await fs.readFile(contentPath, 'utf8');
+            const { data: frontmatter } = matter(content);
+            if (frontmatter.template && templates.includes(frontmatter.template)) {
+              return path.join(templateDir, `${frontmatter.template}.ejs`);
+            }
+
+            const contentRelPath = path.relative(path.join(process.cwd(), 'content'), contentPath);
+            const pathParts = contentRelPath.split(path.sep);
+            
+            if (pathParts.length > 1 && templates.includes(pathParts[0])) {
+              return path.join(templateDir, `${pathParts[0]}.ejs`);
+            }
+
+            return path.join(templateDir, 'layout.ejs');
+          } catch (err) {
+            console.error('Template resolution error:', err);
+            return path.join(templateDir, 'layout.ejs');
+          }
+        }
+      }
+    }
+  };
+
+  try {
+    const serverPluginsPath = path.join(__dirname, 'plugins', 'server.js');
+    if (await fileExists(serverPluginsPath)) {
+      const serverPlugins = await import(serverPluginsPath);
+      plugins.server = {
+        ...(serverPlugins.default || serverPlugins),
+        utils: {
+          ...plugins.utils,
+          ...(serverPlugins.utils || {})
+        }
+      };
+    }
+
+    const buildPluginsPath = path.join(__dirname, 'plugins', 'build', 'function.js');
+    if (await fileExists(buildPluginsPath)) {
+      const buildPlugins = await import(buildPluginsPath);
+      plugins.build = {
+        ...buildPlugins.default || buildPlugins,
+        utils: plugins.utils
+      };
+    }
+  } catch (err) {
+    console.error('Error loading plugins:', err);
+  }
+
+  return plugins;
+}
+
+// Safe browser opening function
+async function openBrowser(url) {
+  const { exec } = await import('child_process');
+  const { promisify } = await import('util');
+  const execAsync = promisify(exec);
+
+  try {
+    const command = process.platform === 'win32' 
+      ? `start "" "${url}"`
+      : process.platform === 'darwin'
+        ? `open "${url}"`
+        : `xdg-open "${url}"`;
+    
+    await execAsync(command);
+    return true;
+  } catch (err) {
+    console.error('Failed to open browser:', err.message);
+    return false;
+  }
+}
 
 export async function startServer() {
   const port = process.env.PORT || 3000;
+  const paths = getAppPaths();
+  const distDir = paths.DIST_DIR;
+  const templateDir = paths.DEFAULT_TEMPLATE;
   
   try {
-    // 1. Verify dist directory exists or run build
+    const plugins = await loadPlugins();
+    const sidebar = plugins.utils.sidebar.loadSidebar 
+      ? await plugins.utils.sidebar.loadSidebar()
+      : loadSidebar();
+
     try {
-      await fs.access(PATHS.DIST_DIR);
+      await fs.access(distDir);
     } catch (error) {
       console.log('\n🔨 dist directory not found, running build process...');
-      await runBuild();
+      await runBuild(plugins.build, { sidebar, templateDir });
     }
 
-    // 2. Create Express server
     const app = express();
+    
+    if (plugins.server.middleware) {
+      app.use(plugins.server.middleware);
+    }
 
-    // 3. Configure template engine with proper paths
-    app.set('views', [
-      PATHS.LOCAL_DEFAULT_TEMPLATE, 
-      PATHS.FRAMEWORK_DEFAULT_TEMPLATE,
-      path.join(PATHS.LOCAL_DEFAULT_TEMPLATE, 'base')
-    ]);
-    app.set('view engine', 'ejs');
-    app.engine('ejs', ejs.renderFile);
-
-    // 4. Security and performance headers
     app.use((req, res, next) => {
       res.set({
         'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
@@ -51,164 +132,133 @@ export async function startServer() {
       next();
     });
 
-    // 5. Serve static files from dist with version headers
-    app.use(express.static(PATHS.DIST_DIR, {
+    app.use(express.static(distDir, {
       etag: false,
       lastModified: false,
       extensions: ['html'],
-      index: 'index.html',
+      index: false,
       setHeaders: (res, filePath) => {
-        const fileHash = fs.statSync(filePath).mtimeMs;
-        res.set('x-file-version', fileHash.toString());
+        res.set('x-file-version', fs.statSync(filePath).mtimeMs.toString());
       }
     }));
 
-    // 6. Serve static assets from templates
-    app.use('/assets', express.static(path.join(PATHS.LOCAL_DEFAULT_TEMPLATE, 'public', 'assets')));
+    if (plugins.server.routes) {
+      app.use(plugins.server.routes);
+    }
 
-    // 7. Enhanced hybrid routing handling with plugin support
     app.get('*', async (req, res) => {
       try {
-        // Let plugins handle the request first
-        for (const plugin of plugins) {
-          if (plugin.handleRequest) {
-            const handled = await plugin.handleRequest(req, res);
-            if (handled) return;
-          }
-        }
-
-        const urlPath = req.path === '/' ? '/index' : req.path;
-        const basePath = urlPath.split('/')[1] || 'index';
+        let filePath = path.join(distDir, req.path);
         
-        // First try to serve static files from dist
-        const staticPaths = [
-          path.join(PATHS.DIST_DIR, urlPath),
-          path.join(PATHS.DIST_DIR, `${urlPath}.html`),
-          path.join(PATHS.DIST_DIR, urlPath, 'index.html')
-        ];
-        
-        for (const staticPath of staticPaths) {
-          if (await fileExists(staticPath)) {
-            return res.sendFile(staticPath);
-          }
-        }
-
-        // Then handle Markdown + EJS templates
-        const contentPaths = [
-          path.join(process.cwd(), 'content', `${urlPath}.md`),
-          path.join(PATHS.FRAMEWORK_ROOT, 'content', `${urlPath}.md`)
-        ];
-
-        const layoutPaths = [
-          path.join(PATHS.LOCAL_DEFAULT_TEMPLATE, 'base', basePath, 'index.ejs'),
-          path.join(PATHS.FRAMEWORK_DEFAULT_TEMPLATE, 'base', basePath, 'index.ejs'),
-          path.join(PATHS.LOCAL_DEFAULT_TEMPLATE, 'index.ejs'),
-          path.join(PATHS.FRAMEWORK_DEFAULT_TEMPLATE, 'index.ejs')
-        ];
-
-        // Check for content files
-        for (const contentPath of contentPaths) {
-          if (await fileExists(contentPath)) {
-            const markdownContent = await fs.readFile(contentPath, 'utf8');
-            const htmlContent = marked(markdownContent);
-
-            // Find the first available layout
-            for (const layoutPath of layoutPaths) {
-              if (await fileExists(layoutPath)) {
-                const relativePath = path.relative(
-                  path.join(PATHS.LOCAL_DEFAULT_TEMPLATE, '..'), 
-                  layoutPath
-                ).replace(/\.ejs$/, '');
-                
-                return res.render(relativePath, {
-                  content: htmlContent,
-                  currentPath: urlPath,
-                  config: { paths: PATHS }
-                });
-              }
-            }
-          }
-        }
-
-        // Handle EJS templates directly (without markdown)
-        for (const layoutPath of layoutPaths) {
-          if (await fileExists(layoutPath)) {
-            const relativePath = path.relative(
-              path.join(PATHS.LOCAL_DEFAULT_TEMPLATE, '..'), 
-              layoutPath
-            ).replace(/\.ejs$/, '');
-            
-            return res.render(relativePath, {
-              currentPath: urlPath,
-              config: { paths: PATHS }
-            });
-          }
-        }
-
-        // Final fallback to SPA routing or 404
-        if (await fileExists(path.join(PATHS.DIST_DIR, 'index.html'))) {
-          return res.sendFile(path.join(PATHS.DIST_DIR, 'index.html'));
+        if (!path.extname(filePath)) {
+          const htmlPath = `${filePath}.html`;
+          if (await fileExists(htmlPath)) return res.sendFile(htmlPath);
+          
+          const indexPath = path.join(filePath, 'index.html');
+          if (await fileExists(indexPath)) return res.sendFile(indexPath);
         }
         
+        if (await fileExists(path.join(distDir, 'index.html'))) {
+          return res.sendFile(path.join(distDir, 'index.html'));
+        }
         res.status(404).send('Page not found');
       } catch (err) {
-        console.error('Error serving request:', err);
+        console.error('Error serving file:', err);
         res.status(500).send('Internal Server Error');
       }
     });
 
-    // 8. Start the server
-    const server = app.listen(port, () => {
+    const server = app.listen(port, async () => {
+      const localURL = `http://localhost:${port}`;
       console.log(`
-      🚀 Server running at: http://localhost:${port}
-      📂 Serving static files from: ${PATHS.DIST_DIR}
-      🎨 Using templates from: ${PATHS.LOCAL_DEFAULT_TEMPLATE}
-      📝 Loading content from: ${path.join(process.cwd(), 'content')}
+      🚀 Server running at: ${localURL}
+      📂 Serving from: ${distDir}
+      🎨 Using templates from: ${templateDir}
       `);
+      
+      try {
+        await openBrowser(localURL);
+      } catch (err) {
+        console.log('Could not automatically open browser');
+      }
 
-      // Notify plugins of server start
-      for (const plugin of plugins) {
-        if (plugin.onServerStart) {
-          plugin.onServerStart(server);
+      if (plugins.server.onServerStart) {
+        try {
+          await plugins.server.onServerStart({ 
+            app, 
+            server, 
+            port, 
+            distDir,
+            templateDir,
+            sidebar,
+            utils: plugins.utils
+          });
+        } catch (err) {
+          console.error('Plugin startup error:', err);
         }
       }
     });
 
-    // 9. Handle shutdown gracefully
-    const shutdown = () => {
-      server.close(() => {
+    const shutdown = async () => {
+      try {
+        if (plugins.server.onServerStop) {
+          await plugins.server.onServerStop();
+        }
+
+        await new Promise((resolve, reject) => {
+          server.close(err => {
+            if (err) reject(err);
+            else resolve();
+          });
+        });
+        
         console.log('Server closed');
         process.exit(0);
-      });
+      } catch (err) {
+        console.error('Error during shutdown:', err);
+        process.exit(1);
+      }
     };
 
     process.on('SIGTERM', shutdown);
     process.on('SIGINT', shutdown);
 
     return server;
-
   } catch (err) {
     console.error('Failed to start server:', err);
     process.exit(1);
   }
 }
 
-// Helper function to run custom build
-async function runBuild() {
+async function runBuild(buildPlugins = {}, { sidebar, templateDir }) {
   return new Promise((resolve, reject) => {
-    exec('node bin/cli.js build', (error, stdout, stderr) => {
+    if (buildPlugins.preBuild) {
+      buildPlugins.preBuild({ sidebar, templateDir });
+    }
+
+    const buildProcess = exec('node bin/cli.js build', (error, stdout, stderr) => {
       if (error) {
         console.error('Build failed:', stderr);
+        if (buildPlugins.buildFailed) {
+          buildPlugins.buildFailed(error, { templateDir });
+        }
         reject(error);
         return;
       }
+      
       console.log(stdout);
+      if (buildPlugins.postBuild) {
+        buildPlugins.postBuild({ sidebar, templateDir });
+      }
       resolve();
     });
+
+    if (buildPlugins.buildProcess) {
+      buildPlugins.buildProcess(buildProcess, { sidebar, templateDir });
+    }
   });
 }
 
-// Helper function to check file existence
 async function fileExists(filePath) {
   try {
     await fs.access(filePath);
@@ -218,7 +268,18 @@ async function fileExists(filePath) {
   }
 }
 
-// Start the server if run directly
+function matter(content) {
+  const match = content.match(/^---\n([\s\S]+?)\n---\n([\s\S]*)$/);
+  return match ? { 
+    data: match[1].split('\n').reduce((acc, line) => {
+      const [key, ...value] = line.split(':');
+      if (key) acc[key.trim()] = value.join(':').trim();
+      return acc;
+    }, {}),
+    content: match[2] 
+  } : { data: {}, content };
+}
+
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   startServer();
 }

@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('base/header/nav', { title, description }); %>
+</head>
+<body>
+  <%- include('base/header/head'); %>
+  
+  <main class="content">
+    <%- typeof content === 'string' ? content : '' %>
+  </main>
+
+  <%- include('base/footer/footer'); %>
+  
+  <script src="/assets/js/main.js?v=<%= version %>"></script>
+</body>
+</html>

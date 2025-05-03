@@ -1,12 +1,9 @@
 import fs from 'fs-extra';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { getAppPaths } from './paths.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-const PATHS = getAppPaths();
 
 // Default sidebar structure
 const DEFAULT_SIDEBAR = {
@@ -15,25 +12,13 @@ const DEFAULT_SIDEBAR = {
   items: []
 };
 
-// Icon mappings
-const ICON_MAP = {
-  folder: 'folder',
-  file: 'file-alt',
-  about: 'info-circle',
-  news: 'newspaper',
-  programs: 'project-diagram',
-  contact: 'envelope',
-  changelog: 'history',
-  default: 'file-alt'
-};
-
 /**
  * Load or initialize sidebar configuration
  * @returns {Object} Sidebar configuration
  */
 export function loadSidebar() {
-  const templateSidebarPath = path.join(PATHS.DEFAULT_TEMPLATE, 'sidebar.json');
-  const rootSidebarPath = path.join(PATHS.ROOT_DIR, 'sidebar.json');
+  const templateSidebarPath = path.join(process.cwd(), 'templates/default/sidebar.json');
+  const rootSidebarPath = path.join(process.cwd(), 'sidebar.json');
   
   try {
     // Check in templates/default first
@@ -61,10 +46,9 @@ export function loadSidebar() {
  * @returns {string} Formatted name
  */
 function formatName(name) {
-  if (!name) return '';
-  return name.split(/[-_]/)
-    .map(part => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(' ');
+  return name.split(/[-_]/).map(part => 
+    part.charAt(0).toUpperCase() + part.slice(1)
+  ).join(' ');
 }
 
 /**
@@ -73,8 +57,16 @@ function formatName(name) {
  * @returns {string} Icon name
  */
 function getDefaultIcon(type) {
-  if (!type) return ICON_MAP.default;
-  return ICON_MAP[type.toLowerCase()] || ICON_MAP.default;
+  const icons = {
+    folder: 'folder',
+    file: 'file-alt',
+    about: 'info-circle',
+    news: 'newspaper',
+    programs: 'project-diagram',
+    contact: 'envelope',
+    changelog: 'history'
+  };
+  return icons[type.toLowerCase()] || icons.file;
 }
 
 /**
@@ -85,11 +77,10 @@ function getDefaultIcon(type) {
  * @param {Object} [options] - Additional options
  * @param {string} [options.sidebarPath] - Custom sidebar path
  * @param {boolean} [options.addChangelog=true] - Whether to add changelog
- * @returns {Object} Updated sidebar
  */
 export function updateSidebar(name, type, parentPath = '', options = {}) {
   const {
-    sidebarPath = path.join(PATHS.DEFAULT_TEMPLATE, 'sidebar.json'),
+    sidebarPath = path.join(process.cwd(), 'templates/default/sidebar.json'),
     addChangelog = true
   } = options;
 
@@ -99,12 +90,16 @@ export function updateSidebar(name, type, parentPath = '', options = {}) {
     const formattedName = formatName(name);
     const itemPath = parentPath ? `${parentPath}/${name}` : name;
 
+    // Create new item
     const newItem = {
+      // Version 1 compatible properties
       title: formattedName,
       path: type === 'file' ? `${itemPath}.md` : itemPath,
+      
+      // Version 2 compatible properties
       text: formattedName,
       link: `/${itemPath}`,
-      icon: getDefaultIcon(name) // Use name for better icon matching
+      icon: getDefaultIcon(type)
     };
 
     if (type === 'folder') {
@@ -141,17 +136,20 @@ export function updateSidebar(name, type, parentPath = '', options = {}) {
       currentLevel.push(newItem);
     } else {
       // Add to root level
-      (sidebar.items || []).push(newItem);
-      (sidebar.menu || []).push(newItem);
+      if (sidebar.items) {
+        sidebar.items.push(newItem);
+      }
+      if (sidebar.menu) {
+        sidebar.menu.push(newItem);
+      }
     }
 
     // Add changelog if not exists
     if (addChangelog) {
-      const hasChangelog = [sidebar.menu, sidebar.items].some(arr => 
-        arr && arr.some(item => 
-          item.path === 'changelog.md' || item.link === '/changelog'));
+      const changelogExists = (sidebar.menu || sidebar.items).some(item => 
+        item.path === 'changelog.md' || item.link === '/changelog');
       
-      if (!hasChangelog) {
+      if (!changelogExists) {
         const changelogItem = {
           title: 'Change Log',
           path: 'changelog.md',
@@ -166,8 +164,8 @@ export function updateSidebar(name, type, parentPath = '', options = {}) {
     }
 
     // Save updated sidebar
-    fs.ensureDirSync(path.dirname(sidebarPath));
     fs.writeJsonSync(sidebarPath, sidebar, { spaces: 2 });
+    console.log(`✅ Added ${type} "${name}" to sidebar at ${sidebarPath}`);
     
     return sidebar;
   } catch (error) {
@@ -176,7 +174,8 @@ export function updateSidebar(name, type, parentPath = '', options = {}) {
   }
 }
 
-export default {
+// Export for CommonJS compatibility
+export const sidebarUtils = {
   loadSidebar,
   updateSidebar,
   formatName,

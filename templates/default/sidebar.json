@@ -31,6 +31,10 @@
     {
       "title": "Change Log",
       "path": "changelog"
+    },
+    {
+      "title": "Change Log",
+      "link": "/example/plugin"
     }
   ]
 }

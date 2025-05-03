@@ -1,0 +1,23 @@
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-resizer" id="sidebar-resizer"></div>
+    <nav>
+      <ul>
+        <% sidebar.menu.forEach(item => { %>
+          <% if (item.children) { %>
+            <li class="folder">
+              <details>
+                <summary><%= item.title %></summary>
+                <ul>
+                  <% item.children.forEach(child => { %>
+                    <li><a href="/<%= child.path %>.html"><%= child.title %></a></li>
+                  <% }) %>
+                </ul>
+              </details>
+            </li>
+          <% } else { %>
+            <li><a href="/<%= item.path %>.html"><%= item.title %></a></li>
+          <% } %>
+        <% }) %>
+      </ul>
+    </nav>
+  </aside>
