@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('./base/head') %>
+</head>
+<body>
+    <!-- Header -->
+    <%- include('./base/header', { assetPrefix: typeof assetPrefix !== 'undefined' ? assetPrefix : '/' }) %>
+    
+    <!-- Main Content -->
+    <main class="container">
+        <% if (typeof content !== 'undefined') { %>
+            <%- content %>
+        <% } else if (typeof html !== 'undefined') { %>
+            <%- html %>
+        <% } else { %>
+            <!-- Default content when neither variable exists -->
+            <h1>Welcome to KDO</h1>
+            <p></p>
+        <% } %>
+    </main>
+    
+    <!-- Footer -->
+    <%- include('./base/footer', { assetPrefix: typeof assetPrefix !== 'undefined' ? assetPrefix : '/' }) %>
+</body>
+</html>

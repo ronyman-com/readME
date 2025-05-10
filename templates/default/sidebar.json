@@ -1,40 +1,17 @@
 {
-  "menu": [
+  "title": "My Documentation",
+  "items": [
     {
-      "title": "Index",
-      "path": "index"
+      "text": "Base",
+      "link": "/base",
+      "icon": "folder",
+      "items": []
     },
     {
-      "title": "README",
-      "path": "README"
-    },
-    {
-      "title": "Getting Started",
-      "path": "getting-started"
-    },
-    {
-      "title": "Features",
-      "path": "features"
-    },
-    {
-      "title": "CLI",
-      "path": "cli"
-    },
-    {
-      "title": "Distribution",
-      "path": "distribute"
-    },
-    {
-      "title": "Install From NPM",
-      "path": "npm"
-    },
-    {
-      "title": "Change Log",
-      "path": "changelog"
-    },
-    {
-      "title": "Change Log",
-      "link": "/example/plugin"
+      "text": "Home",
+      "link": "/",
+      "icon": "home"
     }
-  ]
+  ],
+  "generatedAt": "2025-05-10T08:47:36.978Z"
 }

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/assets/css/styles.css">
+</head>
+<body>
+  <%- content %>
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/assets/css/styles.css">
+  <style>
+    /* Maintenance alert styles */
+    #maintenance-alert {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background-color: #ff9800;
+      color: white;
+      text-align: center;
+      padding: 12px;
+      z-index: 1000;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      animation: slideDown 0.5s ease-out;
+      font-family: Arial, sans-serif;
+      font-weight: bold;
+    }
+    
+    #maintenance-alert .close-btn {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: transparent;
+      border: none;
+      color: white;
+      font-size: 18px;
+      cursor: pointer;
+    }
+    
+    @keyframes slideDown {
+      from { transform: translateY(-100%); }
+      to { transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <!-- Maintenance Alert - will be hidden by default and shown via JavaScript -->
+  <div id="maintenance-alert" style="display: none;">
+    ⚠️ Scheduled maintenance on December 28th-29th from 2:00 AM to 5:00 AM UTC. System may be unavailable during this period.
+    <button class="close-btn" onclick="this.parentElement.style.display='none'">×</button>
+  </div>
+
+  <%- content %>
+
+  <script>
+    'use strict';
+    
+    // Maintenance alert configuration
+    const maintenanceConfig = {
+      showAlert: true, // Set to false to disable completely
+      displayDuration: 5000, // 5 seconds (set to 0 to stay until manually closed)
+      // Only show if current time is within 48 hours before maintenance
+      maintenanceStart: new Date('2025-04-28T02:00:00Z').getTime(),
+      maintenanceEnd: new Date('2025-04-28T05:00:00Z').getTime()
+    };
+
+    document.addEventListener('DOMContentLoaded', function() {
+      const now = Date.now();
+      const alertElement = document.getElementById('maintenance-alert');
+      
+      // Only show alert if:
+      // 1. It's enabled in config
+      // 2. Maintenance is in the future
+      // 3. We're within 48 hours before maintenance starts
+      if (maintenanceConfig.showAlert && 
+          now < maintenanceConfig.maintenanceStart && 
+          (maintenanceConfig.maintenanceStart - now) < (48 * 60 * 60 * 1000)) {
+        
+        alertElement.style.display = 'block';
+        
+        // Auto-hide after duration if configured
+        if (maintenanceConfig.displayDuration > 0) {
+          setTimeout(() => {
+            alertElement.style.display = 'none';
+          }, maintenanceConfig.displayDuration);
+        }
+      }
+    });
+  </script>
+</body>
+</html>

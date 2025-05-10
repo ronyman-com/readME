@@ -1,0 +1,85 @@
+<footer>
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-column">
+                <h3>About KDO</h3>
+                <p>The Khmer Democracy Organization is committed to promoting democratic values and human rights in Cambodia.</p>
+                <div class="footer-social">
+                    <a href="https://www.facebook.com/democracy.khmer.org" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                    <a href="https://x.com/KdoAustralia" target="_blank"><i class="fab fa-twitter"></i></a>
+                    <a href="https://www.youtube.com/@khmer-democracy" target="_blank"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+            
+            <div class="footer-column">
+                <h3>Quick Links</h3>
+
+                <% 
+                var navSource = (typeof sidebar !== 'undefined' && sidebar && Array.isArray(sidebar.items)) ? sidebar.items : [];
+        
+                function flattenNavItems(items) {
+                  let flatItems = [];
+                  items.forEach(item => {
+                    if (item.link) {
+                      flatItems.push({
+                        text: item.text || item.title || item.label || '',
+                        link: item.link
+                      });
+                    }
+                    if (item.items) {
+                      flatItems = flatItems.concat(flattenNavItems(item.items));
+                    }
+                  });
+                  return flatItems;
+                }
+        
+                var flatLinks = flattenNavItems(navSource);
+              %>
+              <ul>
+                <% if (flatLinks.length) { %>
+                  <% flatLinks.forEach(function(link) { %>
+                    <li><a href="<%= link.link %>"><%= link.text %></a></li>
+                  <% }); %>
+                <% } else { %>
+                  <li><a href="/">Home</a></li>
+                <% } %>
+              </ul>
+            </div>
+            
+            <div class="footer-column">
+                <h3>Contact Info</h3>
+                <div class="footer-contact">
+                    <p><i class="fas fa-map-marker-alt"></i> Melbourne, Australia</p>
+                    <p><i class="fas fa-envelope"></i> info@kdo.org.au / kdo.official@outlook.com</p>
+                    <p><i class="fas fa-phone"></i> +61 395 444 950  </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+          <p>&copy; <%= new Date().getFullYear() %> Khmer Democracy Organization (KDO). All Rights Reserved.</p>
+          <p>This website is built with <a href="https://readme-framework.org/" class="readme-credit">ReadME</a></p>
+        </div>
+        
+        <style>
+        
+        .readme-credit {
+          font-weight: bold;
+          color: #f1c40f;
+          background: rgba(0,0,0,0.2);
+          padding: 0.2rem 0.5rem;
+          border-radius: 4px;
+          text-decoration: none;
+          transition: all 0.3s ease;
+        }
+        
+        .readme-credit:hover {
+          background: rgba(231, 126, 5, 0.4);
+          color: #fff;
+          text-decoration: underline;
+        }
+        </style>
+    </div>
+</footer>
+
+<script src="<%= assetPrefix %>assets/js/main.js"></script>

@@ -5,9 +5,33 @@ import fs from 'fs/promises';
 import { exec } from 'child_process';
 import { getAppPaths } from './src/utils/paths.js';
 import { loadSidebar } from './src/utils/sidebar.js';
+// In server.js, update the imports:
+import { generateSidebar, watchSidebarChanges } from './src/utils/sidebar-generator.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// Update the startServer function:
+export async function startServer() {
+  const port = process.env.PORT || 3000;
+  const paths = getAppPaths();
+  const distDir = paths.DIST_DIR;
+  const templateDir = paths.DEFAULT_TEMPLATE;
+  
+  try {
+    const plugins = await loadPlugins();
+    
+    // Generate sidebar first
+    const sidebar = await generateSidebar();
+    
+    // Then proceed with server setup
+    try {
+      await fs.access(distDir);
+    } catch (error) {
+      console.log('\n🔨 dist directory not found, running build process...');
+      await runBuild(plugins.build, { sidebar, templateDir });
+    }
+  
+  } catch (err) {
+    console.error('Error plugins:', err);
+  }
 
 // Enhanced plugin system with template resolution
 async function loadPlugins() {

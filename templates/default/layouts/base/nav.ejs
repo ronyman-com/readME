@@ -1,0 +1,32 @@
+<nav>
+    <div class="mobile-menu-btn">
+      <i class="fas fa-bars"></i>
+    </div>
+    <ul class="nav-links">
+      <% 
+        var nav = (typeof navItems !== 'undefined' && Array.isArray(navItems)) ? navItems : [];
+        nav.forEach(item => { 
+      %>
+        <li class="<%= item.items ? 'dropdown' : '' %>">
+          <a href="<%= item.link %>" 
+             class="<%= currentPath === item.link ? 'active' : '' %> <%= item.items ? 'has-dropdown' : '' %>">
+            <%= item.text %>
+            <% if (item.items) { %><i class="fas fa-chevron-down"></i><% } %>
+          </a>
+          <% if (item.items) { %>
+            <div class="dropdown-content">
+              <% item.items.forEach(subItem => { %>
+                <a href="<%= subItem.link %>" 
+                   class="<%= currentPath === subItem.link ? 'active' : '' %>">
+                  <%= subItem.text %>
+                </a>
+              <% }); %>
+            </div>
+          <% } %>
+        </li>
+      <% }); %>
+      <% if (nav.length === 0) { %>
+        <li><a href="/">Home</a></li>
+      <% } %>
+    </ul>
+  </nav>

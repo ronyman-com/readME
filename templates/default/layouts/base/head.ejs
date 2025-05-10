@@ -1,0 +1,31 @@
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="icon" href="/assets/images/favicon.ico" />
+<title><%= typeof title !== 'undefined' ? title : "KDO - Khmer Democracy Organization" %></title>
+<meta name="description" content="<%= typeof description !== 'undefined' ? description : 'Promoting democracy and human rights in Cambodia' %>">
+<meta name="keywords" content="<%= typeof keywords !== 'undefined' ? keywords : 'Cambodia democracy, Khmer politics, human rights' %>">
+
+<!-- Open Graph / Facebook -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="<%= typeof canonicalUrl !== 'undefined' ? canonicalUrl : 'https://kdo.org.au/' + (typeof currentPath !== 'undefined' ? currentPath : '') %>">
+<meta property="og:title" content="<%= typeof title !== 'undefined' ? title : 'KDO - Khmer Democracy Organization' %>">
+<meta property="og:description" content="<%= typeof description !== 'undefined' ? description : 'Promoting democracy and human rights in Cambodia' %>">
+<meta property="og:image" content="<%= typeof imageUrl !== 'undefined' ? imageUrl : 'https://kdo.org.au/assets/images/social-share.png' %>">
+
+<!-- Twitter -->
+<meta property="twitter:card" content="summary_large_image">
+<meta property="twitter:url" content="<%= typeof canonicalUrl !== 'undefined' ? canonicalUrl : 'https://kdo.org.au/' + (typeof currentPath !== 'undefined' ? currentPath : '') %>">
+<meta property="twitter:title" content="<%= typeof title !== 'undefined' ? title : 'KDO - Khmer Democracy Organization' %>">
+<meta property="twitter:description" content="<%= typeof description !== 'undefined' ? description : 'Promoting democracy and human rights in Cambodia' %>">
+<meta property="twitter:image" content="<%= typeof imageUrl !== 'undefined' ? imageUrl : 'https://kdo.org/assets/images/social-share.png' %>">
+
+<!-- Canonical URL -->
+<link rel="canonical" href="<%= typeof canonicalUrl !== 'undefined' ? canonicalUrl : 'https://kdo.org.au/' + (typeof currentPath !== 'undefined' ? currentPath : '') %>">
+
+<!-- Stylesheets -->
+<link rel="stylesheet" href="<%= typeof assetPrefix !== 'undefined' ? assetPrefix : './' %>assets/css/styles.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<!-- Preload critical resources -->
+<link rel="preload" href="<%= typeof assetPrefix !== 'undefined' ? assetPrefix : './' %>assets/css/styles.css" as="style">
+<link rel="preload" href="<%= typeof assetPrefix !== 'undefined' ? assetPrefix : './' %>assets/js/main.js" as="script">

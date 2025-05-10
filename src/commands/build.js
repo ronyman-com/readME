@@ -9,6 +9,36 @@ import htmlmin from 'html-minifier';
 import { PATHS } from '../config.js';
 import { logSuccess, logError, logInfo, showVersion } from '../utils/logger.js';
 
+
+/// for plugins build system/// import area.
+//import { updateSidebar } from './plugins/readme-urls/menu.js';
+/////////////////////////////////////
+
+
+
+
+
+
+/////implement area
+async function runAsCLI() {
+  try {
+    const success = await updateSidebar();
+    process.exit(success ? 0 : 1);
+  } catch (error) {
+    console.error('Failed to generate sidebar:', error);
+    process.exit(1);
+  }
+}
+
+// Only run if called directly
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  runAsCLI();
+}
+
+//////////// end of plugins buid
+
+
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const BASE_URL = process.env.BASE_URL || 'http://localhost';
@@ -87,7 +117,7 @@ function getTemplateDir() {
   if (existsSync(localTemplates)) {
     return localTemplates;
   }
-  return path.join(__dirname, '../../templates/default');
+  return path.join(__dirname, '../../../../templates/default');
 }
 
 function getDistDir() {

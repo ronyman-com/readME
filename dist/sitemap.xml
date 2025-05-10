@@ -3,84 +3,91 @@
   
     <url>
       <loc>http://localhost/base/index.html</loc>
-      <lastmod>2025-05-03T07:27:09.054Z</lastmod>
+      <lastmod>2025-05-09T23:18:37.226Z</lastmod>
+      <changefreq>weekly</changefreq>
+      <priority>0.8</priority>
+    </url>
+  
+    <url>
+      <loc>http://localhost/base/pages/index.html</loc>
+      <lastmod>2025-05-09T23:18:37.269Z</lastmod>
       <changefreq>weekly</changefreq>
       <priority>0.8</priority>
     </url>
   
     <url>
       <loc>http://localhost/changelog.html</loc>
-      <lastmod>2025-05-03T07:27:09.104Z</lastmod>
+      <lastmod>2025-05-09T23:18:37.290Z</lastmod>
       <changefreq>weekly</changefreq>
       <priority>0.8</priority>
     </url>
   
     <url>
       <loc>http://localhost/cli.html</loc>
-      <lastmod>2025-05-03T07:27:09.124Z</lastmod>
+      <lastmod>2025-05-09T23:18:37.312Z</lastmod>
       <changefreq>weekly</changefreq>
       <priority>0.8</priority>
     </url>
   
     <url>
       <loc>http://localhost/distribute.html</loc>
-      <lastmod>2025-05-03T07:27:09.138Z</lastmod>
+      <lastmod>2025-05-09T23:18:37.327Z</lastmod>
       <changefreq>weekly</changefreq>
       <priority>0.8</priority>
     </url>
   
     <url>
       <loc>http://localhost/features.html</loc>
-      <lastmod>2025-05-03T07:27:09.158Z</lastmod>
+      <lastmod>2025-05-09T23:18:37.352Z</lastmod>
       <changefreq>weekly</changefreq>
       <priority>0.8</priority>
     </url>
   
     <url>
       <loc>http://localhost/getting-started.html</loc>
-      <lastmod>2025-05-03T07:27:09.175Z</lastmod>
+      <lastmod>2025-05-09T23:18:37.368Z</lastmod>
       <changefreq>weekly</changefreq>
       <priority>0.8</priority>
     </url>
   
     <url>
       <loc>http://localhost/index.html</loc>
-      <lastmod>2025-05-03T07:27:09.187Z</lastmod>
+      <lastmod>2025-05-09T23:18:37.384Z</lastmod>
       <changefreq>weekly</changefreq>
       <priority>0.8</priority>
     </url>
   
     <url>
       <loc>http://localhost/layout.html</loc>
-      <lastmod>2025-05-03T07:27:09.205Z</lastmod>
+      <lastmod>2025-05-09T23:18:37.400Z</lastmod>
       <changefreq>weekly</changefreq>
       <priority>0.8</priority>
     </url>
   
     <url>
       <loc>http://localhost/npm.html</loc>
-      <lastmod>2025-05-03T07:27:09.213Z</lastmod>
+      <lastmod>2025-05-09T23:18:37.413Z</lastmod>
       <changefreq>weekly</changefreq>
       <priority>0.8</priority>
     </url>
   
     <url>
       <loc>http://localhost/public/index.html</loc>
-      <lastmod>2025-05-03T07:27:09.226Z</lastmod>
+      <lastmod>2025-05-09T23:18:37.425Z</lastmod>
       <changefreq>weekly</changefreq>
       <priority>0.8</priority>
     </url>
   
     <url>
       <loc>http://localhost/README.html</loc>
-      <lastmod>2025-05-03T07:27:09.245Z</lastmod>
+      <lastmod>2025-05-09T23:18:37.438Z</lastmod>
       <changefreq>weekly</changefreq>
       <priority>0.8</priority>
     </url>
   
     <url>
       <loc>http://localhost/team.html</loc>
-      <lastmod>2025-05-03T07:27:09.257Z</lastmod>
+      <lastmod>2025-05-09T23:18:37.450Z</lastmod>
       <changefreq>weekly</changefreq>
       <priority>0.8</priority>
     </url>
