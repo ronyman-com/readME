@@ -1,6 +1,6 @@
 {
     "name": "readme-framework",
-    "version": "1.3.1",
+    "version": "1.3.2",
     "type": "module",
     "imports": {
         "#utils/*": "./src/utils/*.js"

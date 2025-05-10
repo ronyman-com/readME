@@ -7,9 +7,11 @@ import chalk from 'chalk';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const PROJECT_ROOT = path.join(__dirname, '../../../');
-const PLUGINS_DIR = path.join(PROJECT_ROOT, 'plugins');
-const NODE_MODULES_DIR = path.join(PROJECT_ROOT, 'node_modules');
+
+// Get current working directory (where the command is run)
+const CURRENT_DIR = process.cwd();
+const PLUGINS_DIR = path.join(CURRENT_DIR, 'plugins');
+const NODE_MODULES_DIR = path.join(CURRENT_DIR, 'node_modules');
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -23,70 +25,41 @@ const log = {
   warn: (msg) => console.log(chalk.yellow(`⚠ ${msg}`))
 };
 
-async function findPluginMainFile(pluginPath) {
-  // Check possible locations for the main plugin file
+async function findPlugin(pluginName) {
+  // Check possible locations relative to current directory
   const possiblePaths = [
-    // Standard locations
-    'menu.js',
-    'index.js',
-    'main.js',
-    'src/menu.js',
-    'src/index.js',
-    'dist/menu.js',
-    'dist/index.js',
-    'lib/menu.js',
-    'lib/index.js',
-    // Plugin-specific locations
-    'plugins/menu.js',
-    'plugins/readme-urls/menu.js',
-    'src/plugins/menu.js'
+    path.join(NODE_MODULES_DIR, pluginName),
+    path.join(NODE_MODULES_DIR, `@reade/${pluginName}`),
+    path.join(NODE_MODULES_DIR, `@reade-web/${pluginName}`),
+    path.join(CURRENT_DIR, pluginName) // Also check current directory
   ];
 
-  for (const filePath of possiblePaths) {
-    const fullPath = path.join(pluginPath, filePath);
+  for (const pluginPath of possiblePaths) {
     try {
-      await fs.access(fullPath);
-      log.info(`Found plugin file at: ${fullPath}`);
-      return fullPath;
+      await fs.access(pluginPath);
+      log.info(`Found plugin at: ${pluginPath}`);
+      return pluginPath;
     } catch {
       continue;
     }
   }
-  throw new Error(`Could not find main plugin file in ${pluginPath}`);
-}
-
-async function validatePlugin(pluginPath) {
-  try {
-    // 1. Check package.json exists
-    const pkgPath = path.join(pluginPath, 'package.json');
-    await fs.access(pkgPath);
-    const pkg = JSON.parse(await fs.readFile(pkgPath, 'utf8'));
-    
-    // 2. Find the main plugin file
-    const mainFilePath = await findPluginMainFile(pluginPath);
-    log.info(`Validated plugin structure with main file: ${mainFilePath}`);
-    
-    return true;
-  } catch (err) {
-    throw new Error(`Invalid plugin structure: ${err.message}`);
-  }
+  throw new Error(`Plugin not found in:\n${possiblePaths.map(p => `- ${p}`).join('\n')}`);
 }
 
 async function installPlugin(pluginName) {
   try {
-    const pluginSrc = path.join(NODE_MODULES_DIR, pluginName);
+    // 1. Locate the plugin in current project
+    const pluginSrc = await findPlugin(pluginName);
     
-    // 1. Validate plugin exists
-    try {
-      await fs.access(pluginSrc);
-    } catch {
-      throw new Error(`Plugin "${pluginName}" not found in node_modules. Try "npm install ${pluginName}" first.`);
+    // 2. Verify plugin structure
+    const pkgPath = path.join(pluginSrc, 'package.json');
+    const pkg = JSON.parse(await fs.readFile(pkgPath, 'utf8'));
+    
+    if (!pkg.name) {
+      throw new Error('package.json missing "name" field');
     }
-
-    // 2. Validate plugin structure
-    await validatePlugin(pluginSrc);
-
-    // 3. Prepare destination path
+    
+    // 3. Prepare destination in current project's plugins dir
     const pluginDest = path.join(PLUGINS_DIR, pluginName);
     const exists = await fs.access(pluginDest).then(() => true).catch(() => false);
 
@@ -97,10 +70,9 @@ async function installPlugin(pluginName) {
       await fs.rm(pluginDest, { recursive: true, force: true });
     }
 
-    // 4. Copy files
-    log.info(`Installing ${pluginName}...`);
+    // 4. Copy files to current project
+    log.info(`Installing ${pluginName} to project plugins...`);
     await fs.cp(pluginSrc, pluginDest, { recursive: true });
-    
     log.success(`Successfully installed to: ${pluginDest}`);
     return true;
 
@@ -110,6 +82,14 @@ async function installPlugin(pluginName) {
   } finally {
     rl.close();
   }
+}
+
+async function promptConfirm(message) {
+  return new Promise((resolve) => {
+    rl.question(chalk.yellow(`? ${message} (y/N) `), (answer) => {
+      resolve(answer.toLowerCase() === 'y');
+    });
+  });
 }
 
 // Run from CLI
