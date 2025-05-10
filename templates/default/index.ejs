@@ -1,24 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <%- include('base/header/head') %>
+  <%- include('./base/header/head') %>
 </head>
 <body class="<%= typeof rightSidebar !== 'undefined' && rightSidebar ? 'has-right-sidebar' : '' %>">
   <!-- Top Navigation -->
-  <%- include('base/menu/top') %>
+  <%- include('./base/menu/top') %>
 
   <!-- Mobile Sidebar -->
   <aside class="mobile-sidebar" id="mobile-sidebar">
-    <%- include('base/menu/L-sidebar') %>
+ 
   </aside>
 
   <!-- Left Sidebar -->
-  <%- include('base/menu/L-sidebar') %>
+
 
   <!-- Right Sidebar (conditionally included) -->
-  <% if (typeof rightSidebar !== 'undefined' && rightSidebar) { %>
-    <%- include('base/menu/R-sidebar') %>
-  <% } %>
+
 
   <!-- Main Content -->
   <main class="content" id="content">
@@ -27,7 +25,7 @@
 
   <!-- Footer -->
   <footer class="footer">
-    <%- include('base/footer/footer') %>
+  
   </footer>
 
   <!-- JavaScript -->

@@ -10,6 +10,7 @@ import { openBrowser, getIPAddress } from '../utils/helpers.js';
 import { build } from './build.js';
 
 
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -20,7 +21,7 @@ export async function startServer() {
   try {
     // 1. Generate sidebar and force fresh build
     logInfo('\n🔨 Building fresh version...');
-    await generateSidebar();
+    //await generateSidebar();
     await build();
     
     // 2. Setup server with common middleware
@@ -32,7 +33,7 @@ export async function startServer() {
     
     // 4. Setup file watcher in development
     if (process.env.NODE_ENV !== 'production') {
-      watchSidebarChanges();
+      //watchSidebarChanges();
     }
     
     return server;
