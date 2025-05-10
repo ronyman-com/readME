@@ -1,0 +1,20 @@
+
+MIT ©ronyman.com
+
+
+This README includes:
+
+1. Clear installation instructions for both NPM and local plugin usage
+2. Multiple usage examples (CLI and programmatic)
+3. Configuration options with examples
+4. Expected file structure
+5. Customization guide for icons and text
+6. Development workflow tips
+7. Troubleshooting section
+8. Clean formatting with emojis for better readability
+
+You may want to customize:
+- The license information at the bottom
+- Any specific requirements for your project
+- Additional configuration options unique to your implementation
+- Links to more detailed documentation if available

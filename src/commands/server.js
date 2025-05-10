@@ -1,4 +1,4 @@
-// src/commands/server.js
+#!/usr/bin/env node
 import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -8,8 +8,7 @@ import { PATHS } from '../config.js';
 import { logSuccess, logError, logInfo, showVersion } from '../utils/logger.js';
 import { openBrowser, getIPAddress } from '../utils/helpers.js';
 import { build } from './build.js';
-
-
+import fsSync from 'fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -19,23 +18,13 @@ export async function startServer() {
   const port = process.env.PORT || 3000;
   
   try {
-    // 1. Generate sidebar and force fresh build
     logInfo('\n🔨 Building fresh version...');
-    //await generateSidebar();
     await build();
     
-    // 2. Setup server with common middleware
     const app = express();
     setupServerMiddleware(app);
     
-    // 3. Start server with enhanced logging
     const server = await createServer(app, port);
-    
-    // 4. Setup file watcher in development
-    if (process.env.NODE_ENV !== 'production') {
-      //watchSidebarChanges();
-    }
-    
     return server;
   } catch (error) {
     handleServerError(error);
@@ -61,17 +50,23 @@ function setupServerMiddleware(app) {
     extensions: ['html'],
     index: 'index.html',
     setHeaders: (res, filePath) => {
-      res.set('x-file-version', fs.statSync(filePath).mtimeMs.toString());
+      try {
+        const stats = fsSync.statSync(filePath);
+        res.set('x-file-version', stats.mtimeMs.toString());
+      } catch (err) {
+        logError(`Error getting file stats: ${err.message}`);
+      }
     }
   }));
 
-  // Dynamic route handling
+  // Handle SPA routing
   app.get('*', async (req, res) => {
     try {
       const filePath = await resolveRequestPath(req.path);
-      const content = await fs.readFile(filePath);
-      res.type(getContentType(filePath)).send(content);
-    } catch (error) {
+      const contentType = getContentType(filePath);
+      res.set('Content-Type', contentType);
+      res.sendFile(filePath);
+    } catch (err) {
       send404Response(res, req.path);
     }
   });
@@ -178,4 +173,9 @@ async function fileExists(filePath) {
   } catch {
     return false;
   }
+}
+
+// Run server if executed directly
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  startServer().catch(handleServerError);
 }

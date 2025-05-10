@@ -22,6 +22,8 @@ import {
   ENV_COMMENTS,
   MAIN_COMMENTS 
 } from '../src/utils/comments.js';
+import { listPlugins, runPlugin } from '../src/commands/plugins.js';
+import pluginManager from '../src/commands/plugins/init.js';
 
 // Load environment variables
 dotenv.config({ path: resolvePath(import.meta.url, '../.env') });
@@ -80,6 +82,68 @@ async function main() {
         const success = await installPlugin(plugin);
         process.exit(success ? 0 : 1);
       });
+
+
+
+
+    // Add this to your main() function, with other commands:
+      program
+        .command('plugins [name]')
+        .description('Manage or run plugins')
+        .option('-l, --list', 'List all installed plugins')
+        .action(async (name, options) => {
+          if (options.list) {
+            const plugins = await listPlugins();
+            if (plugins.length === 0) {
+              logInfo('No plugins installed');
+              return;
+            }
+            console.log(chalk.bold('\nInstalled Plugins:'));
+            plugins.forEach(plugin => {
+              console.log(
+                `\n${chalk.blue(plugin.name)} v${plugin.version}\n` +
+                `${chalk.dim(plugin.description)}`
+              );
+            });
+          } else if (name) {
+            const success = await runPlugin(name);
+            process.exit(success ? 0 : 1);
+          } else {
+            logError('Please specify a plugin name or use --list');
+            process.exit(1);
+          }
+        });
+
+   
+        //////////////////////////////
+        // Add to your command setup:
+        //# Update plugin list
+        //node src/commands/plugins/init.js update
+        //# Enable a plugin
+        //node src/commands/plugins/init.js enable readme-urls
+        //# Get plugin info
+        //node src/commands/plugins/init.js info readme-urls
+        /////////////////////////////////
+        program
+          .command('plugins <cmd> [name]')
+          .description('Manage plugins')
+          .action(async (cmd, name) => {
+            switch (cmd) {
+              case 'update':
+                await pluginManager.updatePluginsList();
+                break;
+              case 'enable':
+                await pluginManager.togglePlugin(name, true);
+                break;
+              // ... other cases
+              default:
+                console.log('Invalid plugin command');
+            }
+          });
+
+        //// FOR PLUGINS CLI FUNCTION
+
+
 
     // Info commands
     program

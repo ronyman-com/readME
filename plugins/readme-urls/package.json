@@ -1,0 +1,32 @@
+{
+  "name": "readme-urls",
+  "version": "1.0.6",
+  "description": "readME menu and sidebar generator",
+  "main": "menu.js",
+  "type": "module",
+  "scripts": {
+    "gen": "node plugins/readme-urls/menu.js"
+  },
+  "bin": {
+    "readme-urls": "node plugins/readme-urls/menu.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ronyman-com/readme-urls.git"
+  },
+  "keywords": [
+    "readme-urls",
+    "sidebar",
+    "menu"
+  ],
+  "author": "Rony MAN",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ronyman-com/readme-urls/issues"
+  },
+  "homepage": "https://github.com/ronyman-com/readme-urls#readme",
+  "dependencies": {
+    "fs.promises": "^0.1.2",
+    "readme-framework": "^1.2.9"
+  }
+}

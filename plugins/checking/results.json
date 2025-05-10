@@ -1,0 +1,53 @@
+{
+  "timestamp": "2025-05-10T22:42:57.090Z",
+  "generatedBy": "readme-plugin-validator",
+  "stats": {
+    "totalPlugins": 1,
+    "validPlugins": 0,
+    "invalidPlugins": 1
+  },
+  "plugins": [
+    {
+      "name": "readme-urls",
+      "path": "C:\\Users\\USER\\OneDrive\\Desktop\\OpenSource\\ReadMe\\plugins\\readme-urls",
+      "isValid": false,
+      "jsFiles": [],
+      "errors": [
+        "No JavaScript files found in plugin root"
+      ],
+      "checks": [
+        {
+          "type": "file",
+          "pattern": "*.js",
+          "path": "C:\\Users\\USER\\OneDrive\\Desktop\\OpenSource\\ReadMe\\plugins\\readme-urls",
+          "exists": false
+        },
+        {
+          "type": "file",
+          "name": "License",
+          "path": "C:\\Users\\USER\\OneDrive\\Desktop\\OpenSource\\ReadMe\\plugins\\readme-urls\\License",
+          "exists": true
+        },
+        {
+          "type": "file",
+          "name": "package.json",
+          "path": "C:\\Users\\USER\\OneDrive\\Desktop\\OpenSource\\ReadMe\\plugins\\readme-urls\\package.json",
+          "exists": true
+        },
+        {
+          "type": "file",
+          "name": "README.md",
+          "path": "C:\\Users\\USER\\OneDrive\\Desktop\\OpenSource\\ReadMe\\plugins\\readme-urls\\README.md",
+          "exists": true
+        },
+        {
+          "type": "directory",
+          "name": "templates",
+          "path": "C:\\Users\\USER\\OneDrive\\Desktop\\OpenSource\\ReadMe\\plugins\\readme-urls\\templates\\default\\layouts",
+          "exists": true,
+          "hasContent": true
+        }
+      ]
+    }
+  ]
+}

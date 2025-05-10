@@ -120,7 +120,7 @@ async function openBrowser(url) {
     return false;
   }
 }
-
+}
 export async function startServer() {
   const port = process.env.PORT || 3000;
   const paths = getAppPaths();

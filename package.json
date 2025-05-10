@@ -1,6 +1,6 @@
 {
     "name": "readme-framework",
-    "version": "1.3.3",
+    "version": "1.3.4",
     "type": "module",
     "imports": {
         "#utils/*": "./src/utils/*.js"
@@ -36,7 +36,9 @@
         "start": "readme start",
         "serve": "serve dist",
         "optimize-seo": "npm-seo-optimize",
-        "gen-menu": "node plugins/readme-urls/plugins/readme-urls/menu.js"
+        "gen-menu": "readme plugins readme-urls",
+        "plugins-update": "node src/commands/plugins/init.js update",
+        "plugins-security": "node plugins/manager.js"
     },
     "repository": {
         "type": "git",
