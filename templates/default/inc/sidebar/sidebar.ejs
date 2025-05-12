@@ -1,0 +1,247 @@
+<%
+// Auto-generated sidebar - do not edit directly
+const sidebar = {
+  'title': 'My Documentation',
+  'items': [
+    {
+      'text': 'Changelog',
+      'link': '/changelog',
+      'icon': 'file'
+    },
+    {
+      'text': 'Create Changeolog',
+      'link': '/create-changeolog',
+      'icon': 'file'
+    },
+    {
+      'text': 'Env',
+      'link': '/env',
+      'icon': 'file'
+    },
+    {
+      'text': 'Example',
+      'link': '/example',
+      'icon': 'file'
+    },
+    {
+      'text': 'Features',
+      'link': '/features',
+      'icon': 'file'
+    },
+    {
+      'text': 'Getting Started',
+      'link': '/getting-started',
+      'icon': 'file'
+    },
+    {
+      'text': 'Github',
+      'link': '/github',
+      'icon': 'file'
+    },
+    {
+      'text': 'Home',
+      'link': '/',
+      'icon': 'home'
+    },
+    {
+      'text': 'Index',
+      'link': '//index',
+      'icon': 'file'
+    },
+    {
+      'text': 'Index Ejs',
+      'link': '/index-ejs',
+      'icon': 'file'
+    },
+    {
+      'text': 'Layouts',
+      'link': '/layouts',
+      'icon': 'folder',
+      'items': [
+        {
+          'text': 'Base',
+          'link': '/layouts/base/index',
+          'icon': 'folder',
+          'items': [
+            {
+              'text': 'Index',
+              'link': '/layouts/base/index',
+              'icon': 'file'
+            }
+          ]
+        },
+        {
+          'text': 'Build',
+          'link': '/layouts/build/index',
+          'icon': 'folder',
+          'items': [
+            {
+              'text': 'Index',
+              'link': '/layouts/build/index',
+              'icon': 'file'
+            }
+          ]
+        },
+        {
+          'text': 'Cli',
+          'link': '/layouts/cli/index',
+          'icon': 'folder',
+          'items': [
+            {
+              'text': 'Index',
+              'link': '/layouts/cli/index',
+              'icon': 'file'
+            }
+          ]
+        },
+        {
+          'text': 'Github',
+          'link': '/layouts/github/index',
+          'icon': 'folder',
+          'items': [
+            {
+              'text': 'Index',
+              'link': '/layouts/github/index',
+              'icon': 'file'
+            }
+          ]
+        },
+        {
+          'text': 'Pages',
+          'link': '/layouts/pages/index',
+          'icon': 'folder',
+          'items': [
+            {
+              'text': 'Index',
+              'link': '/layouts/pages/index',
+              'icon': 'file'
+            }
+          ]
+        },
+        {
+          'text': 'Plugins',
+          'link': '/layouts/plugins/index',
+          'icon': 'folder',
+          'items': [
+            {
+              'text': 'Awesome',
+              'link': '/layouts/plugins/awesome/index',
+              'icon': 'folder',
+              'items': [
+                {
+                  'text': 'Index',
+                  'link': '/layouts/plugins/awesome/index',
+                  'icon': 'file'
+                }
+              ]
+            },
+            {
+              'text': 'Index',
+              'link': '/layouts/plugins/index',
+              'icon': 'file'
+            },
+            {
+              'text': 'Readme Urls',
+              'link': '/layouts/plugins/readme-urls/index',
+              'icon': 'folder',
+              'items': [
+                {
+                  'text': 'Index',
+                  'link': '/layouts/plugins/readme-urls/index',
+                  'icon': 'file'
+                }
+              ]
+            },
+            {
+              'text': 'Security',
+              'link': '/layouts/plugins/security/index',
+              'icon': 'folder',
+              'items': [
+                {
+                  'text': 'Index',
+                  'link': '/layouts/plugins/security/index',
+                  'icon': 'file'
+                }
+              ]
+            },
+            {
+              'text': 'Uploads',
+              'link': '/layouts/plugins/uploads/index',
+              'icon': 'folder',
+              'items': [
+                {
+                  'text': 'Index',
+                  'link': '/layouts/plugins/uploads/index',
+                  'icon': 'file'
+                }
+              ]
+            }
+          ]
+        },
+        {
+          'text': 'Sidebar',
+          'link': '/layouts/sidebar/index',
+          'icon': 'folder',
+          'items': [
+            {
+              'text': 'Index',
+              'link': '/layouts/sidebar/index',
+              'icon': 'file'
+            }
+          ]
+        }
+      ]
+    },
+    {
+      'text': 'Npm',
+      'link': '/npm',
+      'icon': 'file'
+    },
+    {
+      'text': 'Reade Web',
+      'link': '/reade-web',
+      'icon': 'file'
+    },
+    {
+      'text': 'README',
+      'link': '//index',
+      'icon': 'file'
+    }
+  ],
+  'generatedAt': '2025-05-12T20:49:21.540Z'
+};
+const currentPath = locals.currentPath || '/';
+
+function isActive(link, current) {
+  return current === link || (link !== '/' && current.startsWith(link));
+}
+%>
+
+<div class="sidebar-nav">
+  <ul>
+    <% sidebar.items.forEach(item => { %>
+      <li class="<%= isActive(item.link, currentPath) ? 'active' : '' %>">
+        <a href="<%= item.link %>">
+          <% if (item.icon) { %>
+            <i class="icon-<%= item.icon %>"></i>
+          <% } %>
+          <%= item.text %>
+        </a>
+        <% if (item.items && item.items.length) { %>
+          <ul>
+            <% item.items.forEach(subItem => { %>
+              <li class="<%= isActive(subItem.link, currentPath) ? 'active' : '' %>">
+                <a href="<%= subItem.link %>">
+                  <% if (subItem.icon) { %>
+                    <i class="icon-<%= subItem.icon %>"></i>
+                  <% } %>
+                  <%= subItem.text %>
+                </a>
+              </li>
+            <% }); %>
+          </ul>
+        <% } %>
+      </li>
+    <% }); %>
+  </ul>
+</div>

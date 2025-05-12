@@ -1,6 +1,6 @@
 {
   "name": "readme-urls",
-  "version": "1.0.6",
+  "version": "1.0.8",
   "description": "readME menu and sidebar generator",
   "main": "menu.js",
   "type": "module",

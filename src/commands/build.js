@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -6,38 +7,8 @@ import { marked } from 'marked';
 import { existsSync } from 'fs';
 import matter from 'gray-matter';
 import htmlmin from 'html-minifier';
-import { PATHS } from '../config.js';
+import { PATHS } from './../config.js';
 import { logSuccess, logError, logInfo, showVersion } from '../utils/logger.js';
-
-
-/// for plugins build system/// import area.
-//import { updateSidebar } from './plugins/readme-urls/menu.js';
-/////////////////////////////////////
-
-
-
-
-
-
-/////implement area
-async function runAsCLI() {
-  try {
-    const success = await updateSidebar();
-    process.exit(success ? 0 : 1);
-  } catch (error) {
-    console.error('Failed to generate sidebar:', error);
-    process.exit(1);
-  }
-}
-
-// Only run if called directly
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  runAsCLI();
-}
-
-//////////// end of plugins buid
-
-
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -72,7 +43,6 @@ async function verifyDirectoryExists(dirPath) {
 }
 
 async function getTemplatePath(filePath, frontmatter, templateDir) {
-  // 1. Check if specific template is requested in frontmatter
   if (frontmatter.template) {
     const customPath = path.join(templateDir, frontmatter.template.endsWith('.ejs') 
       ? frontmatter.template 
@@ -85,39 +55,24 @@ async function getTemplatePath(filePath, frontmatter, templateDir) {
     }
   }
 
-  // 2. Try layout-specific template
   const layoutName = path.basename(filePath, path.extname(filePath));
   const layoutPath = path.join(templateDir, `${layoutName}.ejs`);
-  try {
-    await fs.access(layoutPath);
-    return layoutPath;
-  } catch {
-    // Continue to default detection
-  }
+  if (await verifyDirectoryExists(layoutPath)) return layoutPath;
 
-  // 3. Try type-specific template
   const contentDir = path.join(process.cwd(), 'content');
   const type = path.relative(contentDir, path.dirname(filePath)).split(path.sep)[0];
-  if (type && type !== '..') { // Check if we got a valid type
+  if (type && type !== '..') {
     const typePath = path.join(templateDir, `${type}.ejs`);
-    try {
-      await fs.access(typePath);
-      return typePath;
-    } catch {
-      // Continue to default
-    }
+    if (await verifyDirectoryExists(typePath)) return typePath;
   }
 
-  // 4. Fall back to default layout
   return path.join(templateDir, 'layout.ejs');
 }
 
 function getTemplateDir() {
   const localTemplates = path.join(process.cwd(), 'templates/default');
-  if (existsSync(localTemplates)) {
-    return localTemplates;
-  }
-  return path.join(__dirname, '../../../../templates/default');
+  if (existsSync(localTemplates)) return localTemplates;
+  return path.join(__dirname, '../../templates/default');
 }
 
 function getDistDir() {
@@ -125,18 +80,44 @@ function getDistDir() {
 }
 
 async function copyStaticAssets(templateDir, distDir) {
+  // Copy assets directory
   const assetsPath = path.join(templateDir, 'assets');
   if (await verifyDirectoryExists(assetsPath)) {
     await fs.cp(assetsPath, path.join(distDir, 'assets'), { recursive: true });
     logSuccess('📁 Copied assets directory');
   }
 
+  // Copy public directory (new addition)
+  const publicPath = path.join(process.cwd(), 'public');
+  if (await verifyDirectoryExists(publicPath)) {
+    await fs.cp(publicPath, distDir, { recursive: true });
+    logSuccess('📁 Copied public directory');
+  }
+
+  // Copy individual static files
   const staticFiles = ['favicon.ico', 'robots.txt'];
   for (const file of staticFiles) {
     const filePath = path.join(templateDir, file);
     if (existsSync(filePath)) {
       await fs.copyFile(filePath, path.join(distDir, file));
       logSuccess(`📄 Copied ${file}`);
+    }
+  }
+
+  // Copy from templateDir to distDir if different from public
+  if (templateDir !== publicPath) {
+    const templateStaticFiles = await fs.readdir(templateDir);
+    for (const file of templateStaticFiles) {
+      const filePath = path.join(templateDir, file);
+      const stats = await fs.stat(filePath);
+      
+      // Skip directories (already handled) and special files
+      if (stats.isFile() && 
+          !file.startsWith('.') && 
+          !['.ejs', '.md'].some(ext => file.endsWith(ext))) {
+        await fs.copyFile(filePath, path.join(distDir, file));
+        logSuccess(`📄 Copied ${file} from templates`);
+      }
     }
   }
 }
@@ -258,7 +239,13 @@ async function generateSitemap(distDir, pages) {
   logSuccess('🗺 Generated sitemap.xml');
 }
 
+
+
+
+// Build Export.
+
 export async function build() {
+  const startTime = Date.now();
   showVersion();
   
   try {
@@ -267,53 +254,75 @@ export async function build() {
     const pages = [];
     
     logInfo('🚀 Starting build process...');
-    logInfo(`📂 Template directory: ${templateDir}`);
-    logInfo(`📦 Output directory: ${distDir}`);
-
+    
+    // 1. Verify and prepare directories
     if (!await verifyDirectoryExists(templateDir)) {
-      throw new Error(`Templates not found at ${templateDir}\nPlease create a 'templates/default' directory in your project.`);
+      throw new Error(`Templates not found at ${templateDir}`);
     }
 
-    logInfo('🧹 Cleaning dist directory...');
     await fs.rm(distDir, { recursive: true, force: true });
     await fs.mkdir(distDir, { recursive: true });
 
-    logInfo('\n📦 Loading sidebar data...');
+    // 2. Load sidebar data
     const sidebar = await fs.readFile(path.join(templateDir, 'sidebar.json'), 'utf-8')
       .then(JSON.parse)
       .catch(() => ({ menu: [] }));
 
-    logInfo('\n🖼️ Copying static assets...');
+    // 3. Process everything
     await copyStaticAssets(templateDir, distDir);
-
-    logInfo('\n📄 Processing templates...');
     await processTemplates(templateDir, distDir, sidebar, pages);
-
-    logInfo('\n🗺 Generating sitemap...');
     await generateSitemap(distDir, pages);
 
-    logInfo('\n🔎 Verifying build output...');
+    // 4. Verify output
     const outputFiles = await fs.readdir(distDir);
     const htmlFiles = outputFiles.filter(f => f.endsWith('.html'));
     
     if (htmlFiles.length === 0) {
       throw new Error('No HTML files were generated');
     }
+
+    const duration = (Date.now() - startTime) / 1000;
+    logSuccess(`\n✅ Build completed in ${duration.toFixed(2)} seconds`);
     
-    logSuccess('✓ Generated files:');
-    htmlFiles.forEach(file => logInfo(`   - ${file}`));
-
-    logSuccess('\n✅ Build completed successfully!');
-    logInfo(`📂 Output available in: ${distDir}`);
-
+    // Add this line to ensure all file operations are complete
+    await fs.access(path.join(getDistDir(), 'index.html'));
+    
+    return true;
+    
   } catch (error) {
-    logError('\n❌ Build failed!');
+    const duration = (Date.now() - startTime) / 1000;
+    logError(`\n❌ Build failed after ${duration.toFixed(2)} seconds`);
     logError(error.message);
-    
-    if (error.stack) {
-      logError('Stack trace:', error.stack);
-    }
-    
-    process.exit(1);
+    throw error;
   }
+}
+
+
+// Modify your existing CLI block to this:
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  ensureExit(); // Add this line
+  
+  build()
+    .then(() => process.exit(0))
+    .catch((err) => {
+      console.error(err);
+      process.exit(1);
+    });
+}
+
+// Enhanced CLI Execution Handler
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  (async () => {
+    try {
+      await build();
+      // Add small delay to ensure all output is flushed
+      await new Promise(resolve => setTimeout(resolve, 100));
+      process.exit(0);
+    } catch (error) {
+      console.error(error);
+      // Add small delay to ensure error output is flushed
+      await new Promise(resolve => setTimeout(resolve, 100));
+      process.exit(1);
+    }
+  })();
 }

@@ -1,43 +1,4 @@
-<%
-// Safely extract with defaults at every level
-const sidebar = locals.sidebarData || {};
-const title = sidebar.title || 'Documentation';
-const items = Array.isArray(sidebar.items) ? sidebar.items : [
-  { text: 'Home', link: '/', icon: 'home' }
-];
-const currentPath = locals.currentPath || '/';
-
-function isActive(link, current) {
-  return link === current || (link !== '/' && current.startsWith(link));
-}
-%>
-
-<div class="sidebar-header">
-  <h1><%= title %></h1>
-</div>
-
-<nav class="sidebar-nav">
-  <ul>
-    <% items.forEach(item => { %>
-      <li class="sidebar-item">
-        <a href="<%= item.link || '#' %>"
-           class="sidebar-link <%= isActive(item.link, currentPath) ? 'active' : '' %>">
-          <% if (item.icon) { %>
-            <i class="icon icon-<%= item.icon %>"></i>
-          <% } %>
-          <%= item.text %>
-        </a>
-        <% if (item.items) { %>
-          <ul class="sidebar-submenu">
-            <% item.items.forEach(subItem => { %>
-              <!-- Same safe handling for subitems -->
-            <% }); %>
-          </ul>
-        <% } %>
-      </li>
-    <% }); %>
-  </ul>
-</nav>
+<%- include ('sidebar.ejs') %>
 
 <script>
   // Initialize sidebar interactivity

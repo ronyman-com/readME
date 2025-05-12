@@ -1,4 +1,5 @@
-import { PATHS } from '../config.js';
+
+import { PATHS } from './../config.js';
 import fs from 'fs/promises';
 
 export async function showVersion() {

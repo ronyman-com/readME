@@ -2,18 +2,16 @@
 import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import readline from 'readline'; // Added for user prompts
+import readline from 'readline';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Create CLI interface for prompts
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout
 });
 
-// Add prompt confirmation function
 async function promptConfirm(message) {
   return new Promise((resolve) => {
     rl.question(`${message} (y/N) `, (answer) => {
@@ -22,10 +20,9 @@ async function promptConfirm(message) {
   });
 }
 
-// Configuration
 const CONFIG = {
   title: "My Documentation",
-  sourceDir: path.join(__dirname, '../../../../templates/default/layouts'),
+  sourceDir: path.join(__dirname, '../../../../templates/default/'),
   outputFile: path.join(__dirname, '../../../../templates/default/sidebar.json'),
   exclude: ['_partials', 'components', 'assets', '.DS_Store'],
   defaultItems: [
@@ -37,11 +34,66 @@ const CONFIG = {
   ]
 };
 
+
+// Convert from json to .ejs
+
+async function convertToEjs(sidebarData, outputPath) {
+  try {
+    const ejsTemplate = `<%
+// Auto-generated sidebar - do not edit directly
+const sidebar = ${JSON.stringify(sidebarData, null, 2).replace(/"/g, "'")};
+const currentPath = locals.currentPath || '/';
+
+function isActive(link, current) {
+  return current === link || (link !== '/' && current.startsWith(link));
+}
+%>
+
+<div class="sidebar-nav">
+  <ul>
+    <% sidebar.items.forEach(item => { %>
+      <li class="<%= isActive(item.link, currentPath) ? 'active' : '' %>">
+        <a href="<%= item.link %>">
+          <% if (item.icon) { %>
+            <i class="icon-<%= item.icon %>"></i>
+          <% } %>
+          <%= item.text %>
+        </a>
+        <% if (item.items && item.items.length) { %>
+          <ul>
+            <% item.items.forEach(subItem => { %>
+              <li class="<%= isActive(subItem.link, currentPath) ? 'active' : '' %>">
+                <a href="<%= subItem.link %>">
+                  <% if (subItem.icon) { %>
+                    <i class="icon-<%= subItem.icon %>"></i>
+                  <% } %>
+                  <%= subItem.text %>
+                </a>
+              </li>
+            <% }); %>
+          </ul>
+        <% } %>
+      </li>
+    <% }); %>
+  </ul>
+</div>`;
+
+    await fs.mkdir(path.dirname(outputPath), { recursive: true });
+    await fs.writeFile(outputPath, ejsTemplate);
+    console.log('✅ Successfully generated sidebar.ejs');
+  } catch (error) {
+    console.error('❌ Failed to generate EJS template:', error.message);
+    throw error;
+  }
+}
+
+
+
+//// Generate Sidebar
 async function generateSidebar() {
   console.log('Starting sidebar generation...');
   
   try {
-    // Check if source directory exists
     try {
       await fs.access(CONFIG.sourceDir);
     } catch {
@@ -64,7 +116,6 @@ async function generateSidebar() {
       await processDirectory(CONFIG.sourceDir, sidebar.items, '');
     }
 
-    // Check before overwriting
     try {
       await fs.access(CONFIG.outputFile);
       const overwrite = await promptConfirm('Sidebar.json already exists. Overwrite?');
@@ -72,20 +123,29 @@ async function generateSidebar() {
         console.log('Generation canceled');
         process.exit(0);
       }
-    } catch {} // File doesn't exist, proceed
+    } catch {}
 
     await fs.mkdir(path.dirname(CONFIG.outputFile), { recursive: true });
     await fs.writeFile(CONFIG.outputFile, JSON.stringify(sidebar, null, 2));
     console.log('✅ Successfully generated sidebar');
+
+    // Add EJS conversion
+    const ejsOutputPath = path.join(__dirname, '../../../../templates/default/inc/sidebar/sidebar.ejs');
+    await convertToEjs(sidebar, ejsOutputPath);
     
     return sidebar;
   } catch (error) {
     console.error('❌ Generation failed:', error.message);
     throw error;
   } finally {
-    rl.close(); // Close the readline interface
+    rl.close();
   }
 }
+
+
+//////
+
+
 
 async function processDirectory(currentDir, parentItems, currentPath) {
   try {
@@ -98,12 +158,13 @@ async function processDirectory(currentDir, parentItems, currentPath) {
 
       const itemPath = path.join(currentDir, item.name);
       const baseName = item.name.replace(/\.md$/, '');
-      const relativePath = path.join(currentPath, baseName);
+      // Convert path to use forward slashes
+      const relativePath = path.join(currentPath, baseName).replace(/\\/g, '/');
 
       if (item.isDirectory()) {
         const newItem = {
           text: formatName(item.name),
-          link: `/${relativePath}`,
+          link: `/${relativePath}${await hasIndexFile(itemPath) ? '/index' : ''}`,
           icon: 'folder',
           items: []
         };
@@ -115,7 +176,15 @@ async function processDirectory(currentDir, parentItems, currentPath) {
         }
       } 
       else if (item.isFile() && item.name.endsWith('.md')) {
-        if (isIndexFile(item.name)) continue;
+        // For index files, we now include them but with '/index' path
+        if (isIndexFile(item.name)) {
+          parentItems.push({
+            text: formatName(baseName),
+            link: `/${currentPath.replace(/\\/g, '/')}/index`,
+            icon: 'file'
+          });
+          continue;
+        }
         parentItems.push({
           text: formatName(baseName),
           link: `/${relativePath}`,
@@ -130,12 +199,30 @@ async function processDirectory(currentDir, parentItems, currentPath) {
   }
 }
 
-// Helper functions remain the same
-async function hasIndexFile(dirPath) { /* ... */ }
-function isIndexFile(filename) { /* ... */ }
-function formatName(name) { /* ... */ }
+async function hasIndexFile(dirPath) {
+  try {
+    const files = await fs.readdir(dirPath);
+    return files.some(file => isIndexFile(file));
+  } catch {
+    return false;
+  }
+}
 
-// Execution
+function isIndexFile(filename) {
+  return filename.toLowerCase() === 'index.md' || filename.toLowerCase() === 'readme.md';
+}
+
+function formatName(name) {
+  return name
+    .replace(/-/g, ' ')
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, l => l.toUpperCase());
+}
+
+
+
+
+
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   generateSidebar()
     .then(() => process.exit(0))
@@ -144,5 +231,5 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
 
 export default {
   generateSidebar,
-  promptConfirm // Export if needed elsewhere
+  promptConfirm
 };

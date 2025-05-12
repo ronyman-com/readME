@@ -33,12 +33,3 @@ your-projec/
 └       | ── sidebar.config.js # Optional configuration
 
 ```
-
-
-readme-{anyname}
-    |__plugins/readme-{anyname}/
-                        |__file.js
-                        |__templates/default/layouts/{folder}/file
-                        |__License
-                        |__package.json
-                        |__README.md

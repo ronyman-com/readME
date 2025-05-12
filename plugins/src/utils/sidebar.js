@@ -1,7 +1,10 @@
 // plugins/src/utils/sidebar.js
+import path from 'path';
 import fs from 'fs-extra';
+import fs from 'fs/promises';
 import path from 'path';
 import { PATHS } from '../config.js';
+import matter from 'gray-matter';
 
 const DEFAULT_SIDEBAR = {
   title: "Documentation Navigation",
@@ -141,13 +144,6 @@ function getDefaultIcon(type) {
 }
 
 
-
-
-
-import fs from 'fs/promises';
-import path from 'path';
-import matter from 'gray-matter';
-import { PATHS } from '../config.js';
 
 export async function getRightSidebarContent(currentPath) {
   try {

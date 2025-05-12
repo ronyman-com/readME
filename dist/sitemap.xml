@@ -3,168 +3,168 @@
   
     <url>
       <loc>http://localhost/changelog.html</loc>
-      <lastmod>2025-05-12T11:25:23.111Z</lastmod>
+      <lastmod>2025-05-12T21:11:52.820Z</lastmod>
       <changefreq>weekly</changefreq>
       <priority>0.8</priority>
     </url>
   
     <url>
       <loc>http://localhost/create-changeolog.html</loc>
-      <lastmod>2025-05-12T11:25:23.131Z</lastmod>
+      <lastmod>2025-05-12T21:11:52.835Z</lastmod>
       <changefreq>weekly</changefreq>
       <priority>0.8</priority>
     </url>
   
     <url>
       <loc>http://localhost/env.html</loc>
-      <lastmod>2025-05-12T11:25:23.137Z</lastmod>
+      <lastmod>2025-05-12T21:11:52.840Z</lastmod>
       <changefreq>weekly</changefreq>
       <priority>0.8</priority>
     </url>
   
     <url>
       <loc>http://localhost/example.html</loc>
-      <lastmod>2025-05-12T11:25:23.147Z</lastmod>
+      <lastmod>2025-05-12T21:11:52.851Z</lastmod>
       <changefreq>weekly</changefreq>
       <priority>0.8</priority>
     </url>
   
     <url>
       <loc>http://localhost/features.html</loc>
-      <lastmod>2025-05-12T11:25:23.161Z</lastmod>
+      <lastmod>2025-05-12T21:11:52.862Z</lastmod>
       <changefreq>weekly</changefreq>
       <priority>0.8</priority>
     </url>
   
     <url>
       <loc>http://localhost/getting-started.html</loc>
-      <lastmod>2025-05-12T11:25:23.167Z</lastmod>
+      <lastmod>2025-05-12T21:11:52.866Z</lastmod>
       <changefreq>weekly</changefreq>
       <priority>0.8</priority>
     </url>
   
     <url>
       <loc>http://localhost/github.html</loc>
-      <lastmod>2025-05-12T11:25:23.175Z</lastmod>
+      <lastmod>2025-05-12T21:11:52.874Z</lastmod>
       <changefreq>weekly</changefreq>
       <priority>0.8</priority>
     </url>
   
     <url>
       <loc>http://localhost/index-ejs.html</loc>
-      <lastmod>2025-05-12T11:25:23.184Z</lastmod>
+      <lastmod>2025-05-12T21:11:52.880Z</lastmod>
       <changefreq>weekly</changefreq>
       <priority>0.8</priority>
     </url>
   
     <url>
       <loc>http://localhost/index.html</loc>
-      <lastmod>2025-05-12T11:25:23.192Z</lastmod>
+      <lastmod>2025-05-12T21:11:52.888Z</lastmod>
       <changefreq>weekly</changefreq>
       <priority>0.8</priority>
     </url>
   
     <url>
       <loc>http://localhost/layouts/assets/index.html</loc>
-      <lastmod>2025-05-12T11:25:23.369Z</lastmod>
+      <lastmod>2025-05-12T21:11:53.065Z</lastmod>
       <changefreq>weekly</changefreq>
       <priority>0.8</priority>
     </url>
   
     <url>
       <loc>http://localhost/layouts/base/index.html</loc>
-      <lastmod>2025-05-12T11:25:23.465Z</lastmod>
+      <lastmod>2025-05-12T21:11:53.163Z</lastmod>
       <changefreq>weekly</changefreq>
       <priority>0.8</priority>
     </url>
   
     <url>
       <loc>http://localhost/layouts/build/index.html</loc>
-      <lastmod>2025-05-12T11:25:23.549Z</lastmod>
+      <lastmod>2025-05-12T21:11:53.244Z</lastmod>
       <changefreq>weekly</changefreq>
       <priority>0.8</priority>
     </url>
   
     <url>
       <loc>http://localhost/layouts/cli/index.html</loc>
-      <lastmod>2025-05-12T11:25:23.662Z</lastmod>
+      <lastmod>2025-05-12T21:11:53.350Z</lastmod>
       <changefreq>weekly</changefreq>
       <priority>0.8</priority>
     </url>
   
     <url>
       <loc>http://localhost/layouts/github/index.html</loc>
-      <lastmod>2025-05-12T11:25:23.738Z</lastmod>
+      <lastmod>2025-05-12T21:11:53.436Z</lastmod>
       <changefreq>weekly</changefreq>
       <priority>0.8</priority>
     </url>
   
     <url>
       <loc>http://localhost/layouts/pages/index.html</loc>
-      <lastmod>2025-05-12T11:25:23.808Z</lastmod>
+      <lastmod>2025-05-12T21:11:53.508Z</lastmod>
       <changefreq>weekly</changefreq>
       <priority>0.8</priority>
     </url>
   
     <url>
       <loc>http://localhost/layouts/plugins/awesome/index.html</loc>
-      <lastmod>2025-05-12T11:25:23.890Z</lastmod>
+      <lastmod>2025-05-12T21:11:53.574Z</lastmod>
       <changefreq>weekly</changefreq>
       <priority>0.8</priority>
     </url>
   
     <url>
       <loc>http://localhost/layouts/plugins/index.html</loc>
-      <lastmod>2025-05-12T11:25:23.959Z</lastmod>
+      <lastmod>2025-05-12T21:11:53.652Z</lastmod>
       <changefreq>weekly</changefreq>
       <priority>0.8</priority>
     </url>
   
     <url>
       <loc>http://localhost/layouts/plugins/readme-urls/index.html</loc>
-      <lastmod>2025-05-12T11:25:24.055Z</lastmod>
+      <lastmod>2025-05-12T21:11:53.715Z</lastmod>
       <changefreq>weekly</changefreq>
       <priority>0.8</priority>
     </url>
   
     <url>
       <loc>http://localhost/layouts/plugins/security/index.html</loc>
-      <lastmod>2025-05-12T11:25:24.129Z</lastmod>
+      <lastmod>2025-05-12T21:11:53.774Z</lastmod>
       <changefreq>weekly</changefreq>
       <priority>0.8</priority>
     </url>
   
     <url>
       <loc>http://localhost/layouts/plugins/uploads/index.html</loc>
-      <lastmod>2025-05-12T11:25:24.206Z</lastmod>
+      <lastmod>2025-05-12T21:11:53.841Z</lastmod>
       <changefreq>weekly</changefreq>
       <priority>0.8</priority>
     </url>
   
     <url>
       <loc>http://localhost/layouts/sidebar/index.html</loc>
-      <lastmod>2025-05-12T11:25:24.266Z</lastmod>
+      <lastmod>2025-05-12T21:11:53.919Z</lastmod>
       <changefreq>weekly</changefreq>
       <priority>0.8</priority>
     </url>
   
     <url>
       <loc>http://localhost/npm.html</loc>
-      <lastmod>2025-05-12T11:25:24.355Z</lastmod>
+      <lastmod>2025-05-12T21:11:53.985Z</lastmod>
       <changefreq>weekly</changefreq>
       <priority>0.8</priority>
     </url>
   
     <url>
       <loc>http://localhost/reade-web.html</loc>
-      <lastmod>2025-05-12T11:25:24.360Z</lastmod>
+      <lastmod>2025-05-12T21:11:54.001Z</lastmod>
       <changefreq>weekly</changefreq>
       <priority>0.8</priority>
     </url>
   
     <url>
       <loc>http://localhost/README.html</loc>
-      <lastmod>2025-05-12T11:25:24.368Z</lastmod>
+      <lastmod>2025-05-12T21:11:54.005Z</lastmod>
       <changefreq>weekly</changefreq>
       <priority>0.8</priority>
     </url>
