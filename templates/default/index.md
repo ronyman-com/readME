@@ -1,88 +1,41 @@
-# Welcome to the ReadME Document Page Builder! 🎉
+# Welcome to ReadME Framework 🎉
 
-Thank you for using the **ReadME Document Page Builder**! This tool is designed to help you create beautiful, organized, and responsive documentation pages with ease. Whether you're building a project wiki, API documentation, or a personal knowledge base, this tool has got you covered.
+**ReadME Framework** is a modern documentation builder that transforms Markdown into beautiful, responsive, and navigable docs—perfect for APIs, wikis, and knowledge bases.
 
-## What Can You Do?
+## Why Choose ReadME?
 
-- **Create Documentation**: Quickly generate documentation pages from Markdown files.
-- **Customize Themes**: Choose from light, dark, or system themes for your documentation.
-- **Dynamic Sidebar**: Automatically generate a sidebar for easy navigation.
-- **Responsive Design**: Your documentation will look great on all devices, from desktops to mobiles.
+✨ **Key Features:**
+- **Markdown to Docs**: Convert `.md` files into polished documentation instantly
+- **Smart Navigation**: Auto-generated sidebar with deep linking
+- **Theme Ready**: Light/dark mode with system preference detection
+- **Zero-Config Start**: Get running with minimal setup
+- **Extensible**: Add custom layouts, components, and styles
 
-## Getting Started
+# Navigation Menu
 
-To get started, follow these simple steps:
+## Main Documentation Sections
 
-1. **Install the Tool**: Clone the repository and install the dependencies.
-   ```bash
-   git clone https://github.com/ronyman-com/readME
-   cd readME
-   npm install
+- [🏠 Home](index)
+- [🚀 Getting Started](getting-started)
+- [📖 README](README)
+- [✨ Features](features)
+- [💻 CLI Reference](cli)
 
+## Setup Guides
 
+- [📦 Install From NPM](npm)
+- [🔑 Add .env Configuration](env)
+- [🐙 GitHub Integration](github)
 
-   
----
+## Content Creation
 
-### **Key Elements of the Welcome Message**
-1. **Friendly Tone**:
-   - Use emojis and a warm tone to make the message inviting.
+- [📄 Create Index Page](index-ejs)
+- [🗂 Create Sidebar](sidebar)
+- [📝 Create Pages](page)
+- [🔄 Create Changelog](create-changelog)
+- [📋 View Example](example)
 
-2. **Clear Introduction**:
-   - Explain what the tool is and its purpose.
+## Additional Resources
 
-3. **Getting Started Guide**:
-   - Provide a quick guide to help users set up and use the tool.
-
-4. **Links to Key Resources**:
-   - Include links to the getting started guide, features page, and source code.
-
-5. **Support Information**:
-   - Let users know how they can get help if they encounter issues.
-
----
-
-### **How to Use This in Your Project**
-1. Save the above content as `index.md` in your `templates/` directory.
-2. Ensure your build process converts `index.md` into `index.html`.
-3. Update the links (e.g., `/getting-started.html`, `/features.html`) to match your project’s structure.
-
----
-
-### **Final Output**
-When the `index.md` is rendered, users will see a welcoming and informative page that guides them through using the **ReadME Document Page Builder**. Here’s how it will look:
-
----
-
-### **Welcome to the ReadME Document Page Builder! 🎉**
-
-Thank you for using the **ReadME Document Page Builder**! This tool is designed to help you create beautiful, organized, and responsive documentation pages with ease. Whether you're building a project wiki, API documentation, or a personal knowledge base, this tool has got you covered.
-
----
-
-### **What Can You Do?**
-
-- **Create Documentation**: Quickly generate documentation pages from Markdown files.
-- **Customize Themes**: Choose from light, dark, or system themes for your documentation.
-- **Dynamic Sidebar**: Automatically generate a sidebar for easy navigation.
-- **Responsive Design**: Your documentation will look great on all devices, from desktops to mobiles.
-
----
-
-### **Getting Started**
-
-To get started, follow these simple steps:
-
-1. **Install the Tool**: Clone the repository and install the dependencies.
-   ```bash
-    git clone https://github.com/ronyman-com/readME
-   cd readME
-   npm install
-
-   ```
-
-
-
-
-
----
+- [🌟 Awesome ReadME](awes-readme)
+- [🔄 Change Log](changelog)

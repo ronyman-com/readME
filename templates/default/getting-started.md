@@ -1,38 +1,53 @@
-# Getting Started
+# Getting Started with ReadME Framework
 
-## Install readME from npm
+## Prerequisites
 
-```bash
-mkdir Mydoc
-cd Mydoc
-npm init
-```
+- Node.js 16.x or later
+- npm 8.x or later
+- Git (for GitHub installation method)
+
+## Installation Options
+
+### Option 1: Install via npm (Recommended)
+
+1. Create your project directory:
+   ```bash
+   mkdir my-docs && cd my-docs
+   npm init -y
 
 
-## Install readME from npm
+
+Install ReadME Framework globally:
 
 ```bash
 npm install -g readme-framework
-
 ```
-## Install readME from GitHub.
-To get started, clone the repository and install the dependencies:
+
+
+Option 2: Install from [GitHub](https://github.com/ronyman-com/readME)
+
 
 ```bash
-git clone https://github.com/ronyman-com/readME
+git clone https://github.com/ronyman-com/readME.git
 cd readME
+Install dependencies:
 npm install
 ```
 
-## Build and Start Server.
+Initialize Your Documentation
+Create your first template (if needed):
 
 ```bash
-readme build templates
-readme start
+readme init
+Build your documentation:
 ```
 
 
 
-
-
----
+```bash
+readme build
+```
+Running the Development Server
+Start the local development server with hot-reloading:
+```bash
+readme start

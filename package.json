@@ -35,10 +35,19 @@
         "build": "readme build templates",
         "start": "readme start",
         "serve": "serve dist",
-        "optimize-seo": "npm-seo-optimize",
-        "gen-menu": "readme plugins readme-urls",
         "plugins-update": "node src/commands/plugins/init.js update",
-        "plugins-security": "node plugins/manager.js"
+        "gen-theme": "node themes/config/generate.js",
+        "build-themes": "node themes/config/build.js",
+        "themes-manager": "node themes/config/manager.js",
+        "gen-themes": "node themes/config/generate.js",
+        "gen-menu": "node ./plugins/readme-urls/plugins/readme-urls/menu.js",
+        "optimize-seo": "npm-seo-optimize",
+        "plugins-security": "readme plugins-security",
+        "check-plugins": "node skeleton/controllers/plugins.js",
+        "check-templates": "node skeleton/controllers/templates.js",
+        "check-themes": "node skeleton/controllers/themes.js",
+        "skeleton-report": "node skeleton/print.js",
+        "check-system":"node system/errors.js"
     },
     "repository": {
         "type": "git",

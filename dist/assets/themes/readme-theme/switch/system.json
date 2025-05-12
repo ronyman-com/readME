@@ -1,0 +1,30 @@
+{
+  "$schema": "./theme.schema.json",
+  "meta": {
+    "name": "System",
+    "identifier": "system",
+    "description": "System preference-based theme for Readme Framework",
+    "version": "1.0.0",
+    "author": "Readme Framework Team"
+  },
+  "properties": {
+    "isDark": false,
+    "baseTheme": "default",
+    "behavior": {
+      "syncWithOS": true,
+      "fallbackTheme": "light",
+      "transition": {
+        "enable": true,
+        "duration": "200ms"
+      }
+    },
+    "detection": {
+      "prefersColorScheme": true,
+      "prefersContrast": false,
+      "prefersReducedMotion": true
+    }
+  },
+  "extensions": {
+    "adaptiveComponents": true
+  }
+}

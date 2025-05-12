@@ -1,0 +1,45 @@
+{
+  "$schema": "./theme.schema.json",
+  "meta": {
+    "name": "Light",
+    "identifier": "light",
+    "description": "Default light theme for Readme Framework",
+    "version": "1.0.0",
+    "author": "Readme Framework Team"
+  },
+  "properties": {
+    "isDark": false,
+    "baseTheme": "default",
+    "colorScheme": {
+      "primary": "#4361ee",
+      "secondary": "#3a0ca3",
+      "background": "#f8f9fa",
+      "surface": "#ffffff",
+      "error": "#ef233c",
+      "success": "#4cc9f0",
+      "warning": "#f8961e",
+      "text": {
+        "primary": "rgba(0, 0, 0, 0.87)",
+        "secondary": "rgba(0, 0, 0, 0.6)",
+        "disabled": "rgba(0, 0, 0, 0.38)"
+      }
+    },
+    "typography": {
+      "fontFamily": "'Inter', system-ui, sans-serif",
+      "fontScale": 1.0
+    },
+    "elevation": {
+      "levels": 8,
+      "opacity": 0.08
+    },
+    "roundedCorners": true,
+    "animation": {
+      "duration": "250ms",
+      "easing": "cubic-bezier(0.4, 0, 0.2, 1)"
+    }
+  },
+  "extensions": {
+    "syntaxHighlighting": "github",
+    "iconVariant": "outlined"
+  }
+}

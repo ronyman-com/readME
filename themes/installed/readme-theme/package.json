@@ -1,0 +1,35 @@
+{
+  "name": "readme-theme",
+  "version": "1.0.0",
+  "description": "Default theme for readme-framework",
+  "main": "theme.js",
+  "$schema": "./theme.schema.json",
+  "scripts": {
+    "generate-theme": "node themes/config/generate.js",
+    "build-themes": "node themes/config/build.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ronyman-com/readme-theme.git"
+  },
+  
+  "keywords": [
+    "readme-theme",
+    "readme-framework",
+    "ronyman",
+    "readme"
+  ],
+  "author": "Rony MAN",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ronyman-com/readme-theme/issues"
+  },
+  "homepage": "https://github.com/ronyman-com/readme-theme#readme",
+  "dependencies": {
+    "npm-seo-optimizer": "^1.0.0",
+    "cssnano": "^5.1.14",
+    "fs-extra": "^10.1.0",
+    "postcss": "^8.4.21",
+    "terser": "^5.16.1"
+  }
+}

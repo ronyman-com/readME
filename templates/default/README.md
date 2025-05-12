@@ -44,12 +44,12 @@ ReadMe/\
 │   │   ├── github.js\
 │   │   └── theme.js\         
 │   └── index.js\
-├── templates/\
+├── templates/default\
 │   ├── index.md\
 │   ├── README.md\
 │   ├── sidebar.json\
 │   ├── changelog.md\
-│   └── themes/\             
+│   └── themes/ not function yet\             
 │       ├── system.json\      
 │       ├── light.json\        
 │       └── custom.json\     

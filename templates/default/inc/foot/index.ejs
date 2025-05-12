@@ -1,0 +1,110 @@
+<!-- Footer -->
+<footer class="footer">
+  <div class="footer-content">
+    <div class="footer-left">
+      <img src="/assets/images/logo.jpg" alt="ReadME Logo" class="footer-logo">
+      <span>Built with <a href="https://readme-framework.org" target="_blank" rel="noopener noreferrer">ReadME</a></span>
+    </div>
+    
+    <div class="footer-right">
+      <p>&copy; <%= new Date().getFullYear() %> ReadME Framework. All rights reserved.</p>
+      <a class="project-owner" href="https://www.ronyman.com/" target="_blank" rel="noopener noreferrer">
+        Project owned by: Rony MAN
+      </a>
+    </div>
+  </div>
+</footer>
+
+<!-- GitHub Buttons Script -->
+<script async defer src="https://buttons.github.io/buttons.js"></script>
+
+<script>
+  // Version Management
+  const CURRENT_VERSION = '<%= new Date().getFullYear() %><%= new Date().getMonth() + 1 %><%= new Date().getDate() %>';
+  if (localStorage.templateVersion !== CURRENT_VERSION) {
+    localStorage.setItem('templateVersion', CURRENT_VERSION);
+    window.location.reload(true);
+  }
+
+  // Copy-to-Clipboard Functionality
+  document.addEventListener('DOMContentLoaded', () => {
+    // Add copy buttons to code blocks
+    document.querySelectorAll('pre[class*="language-"]').forEach((codeBlock) => {
+      if (!codeBlock.querySelector('.copy-button')) {
+        const button = document.createElement('button');
+        button.className = 'copy-button';
+        button.textContent = 'Copy';
+        button.addEventListener('click', async () => {
+          const code = codeBlock.textContent;
+          try {
+            await navigator.clipboard.writeText(code);
+            button.textContent = 'Copied!';
+            setTimeout(() => button.textContent = 'Copy', 2000);
+          } catch (err) {
+            console.error('Failed to copy:', err);
+          }
+        });
+        codeBlock.appendChild(button);
+      }
+    });
+
+    // Version Check
+    const checkVersion = async () => {
+      try {
+        const response = await fetch('https://registry.npmjs.org/readme-framework/latest');
+        if (response.ok) {
+          const data = await response.json();
+          const versionElement = document.getElementById('readme-version');
+          if (versionElement) versionElement.textContent = `v${data.version}`;
+        }
+      } catch (error) {
+        console.error('Version check failed:', error);
+      }
+    };
+
+    // Mobile Responsiveness
+    const handleResponsiveElements = () => {
+      const mobileBreakpoint = 768;
+      const sidebar = document.querySelector('.sidebar');
+      const mobileSidebar = document.querySelector('.mobile-sidebar');
+      const toggleButton = document.querySelector('.mobile-sidebar-toggle');
+
+      if (window.innerWidth <= mobileBreakpoint) {
+        if (sidebar) sidebar.classList.add('mobile-hidden');
+        if (mobileSidebar) mobileSidebar.classList.remove('mobile-hidden');
+        if (toggleButton) toggleButton.style.display = 'block';
+      } else {
+        if (sidebar) sidebar.classList.remove('mobile-hidden');
+        if (mobileSidebar) mobileSidebar.classList.add('mobile-hidden');
+        if (toggleButton) toggleButton.style.display = 'none';
+      }
+    };
+
+    // Initialize
+    checkVersion();
+    handleResponsiveElements();
+    window.addEventListener('resize', handleResponsiveElements);
+
+    // Mobile Sidebar Toggle
+    document.querySelector('.mobile-sidebar-toggle')?.addEventListener('click', () => {
+      document.querySelector('.mobile-sidebar')?.classList.toggle('active');
+      document.querySelector('.mobile-sidebar-overlay')?.classList.toggle('active');
+    });
+
+    // Close mobile sidebar when clicking outside
+    document.querySelector('.mobile-sidebar-overlay')?.addEventListener('click', () => {
+      document.querySelector('.mobile-sidebar')?.classList.remove('active');
+      document.querySelector('.mobile-sidebar-overlay')?.classList.remove('active');
+    });
+  });
+
+  // Cache busting for CDN assets
+  document.querySelectorAll('link[href*="cdn"], script[src*="cdn"]').forEach(el => {
+    const url = new URL(el.href || el.src);
+    if (!url.searchParams.has('v')) {
+      url.searchParams.set('v', CURRENT_VERSION);
+      if (el.href) el.href = url.toString();
+      if (el.src) el.src = url.toString();
+    }
+  });
+</script>

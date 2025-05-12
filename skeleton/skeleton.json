@@ -1,0 +1,31 @@
+{
+  "generatedAt": "2025-05-11T20:54:45.615Z",
+  "checks": {
+    "plugins": {
+      "exists": true,
+      "plugins": [
+        "readme-urls"
+      ],
+      "status": "ok"
+    },
+    "templates": {
+      "exists": true,
+      "templates": [
+        "default"
+      ],
+      "status": "ok"
+    },
+    "themes": {
+      "exists": true,
+      "themes": [
+        "readme-theme"
+      ],
+      "status": "ok"
+    }
+  },
+  "security": {
+    "status": "error",
+    "vulnerabilities": [],
+    "error": "Cannot find module '../../../package-lock.json'\nRequire stack:\n- C:\\Users\\USER\\OneDrive\\Desktop\\OpenSource\\reade-web\\skeleton\\print.js"
+  }
+}

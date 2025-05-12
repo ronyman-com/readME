@@ -1,0 +1,245 @@
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="<%= (locals.theme && locals.theme.color) || '#3498db' %>">
+  
+  <!-- Favicon -->
+  <link rel="icon" href="/assets/images/favicon.ico">
+  
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <!-- SEO Meta Tags -->
+  <title><%= locals.title || 'readME Framework' %></title>
+  <meta name="description" content="ReadME Document Page Builder! Create beautiful, organized documentation with ease.">
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="ronyman.com | readME Framework">
+  <meta property="og:description" content="ReadME Document Page Builder for creating beautiful documentation.">
+  <meta property="og:url" content="https://readme-framework.org/">
+  <meta property="og:image" content="https://readme-framework.org/assets/images/og-image.jpg">
+  <meta property="og:site_name" content="readME Framework">
+  
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@ronymancom">
+  <meta name="twitter:title" content="readME Framework">
+  <meta name="twitter:description" content="Documentation page builder tool">
+  <meta name="twitter:image" content="https://readme-framework.org/assets/images/twitter-card.jpg">
+  
+  <!-- Google AdSense -->
+  <meta name="google-adsense-account" content="ca-pub-1930350912157340">
+  
+  <!-- Theme CSS -->
+  <link rel="stylesheet" href="/assets/css/theme.css">
+  
+  <!-- GitHub Buttons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-buttons/2.21.0/buttons.min.css">
+  
+  <!-- Prism.js Syntax Highlighting -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-<%= (locals.theme && locals.theme.mode === 'dark') ? 'tomorrow' : 'okaidia' %>.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  
+  <!-- Base Styles -->
+  <style>
+    :root {
+      --navbar-height: 60px;
+      --sidebar-width: 280px;
+      --footer-height: 60px;
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 0;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+    
+    /* Theme toggle button */
+    .theme-toggle {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    [data-theme="dark"] .theme-icon-light,
+    [data-theme="light"] .theme-icon-dark {
+      display: none;
+    }
+    
+    /* Navbar styles */
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 1rem;
+      background-color: var(--primary-color);
+      color: white;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: var(--navbar-height);
+      z-index: 1100;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    
+    .navbar-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 600;
+    }
+    
+    .navbar-brand img {
+      height: 40px;
+    }
+    
+    #readme-version {
+      font-size: 0.8em;
+      margin-left: 0.3em;
+    }
+    
+    .github-buttons {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .source-code-link {
+      padding: 8px 16px;
+      background-color: #24292e;
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      transition: background-color 0.3s ease;
+    }
+    
+    .source-code-link:hover {
+      background-color: #1c1f23;
+    }
+    
+    /* Mobile sidebar toggle */
+    .mobile-sidebar-toggle {
+      display: none;
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.5rem;
+      cursor: pointer;
+      margin-right: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <header class="navbar">
+    <button class="mobile-sidebar-toggle" id="mobile-sidebar-toggle">
+      ☰
+    </button>
+    
+    <div class="navbar-brand">
+      <img src="/assets/images/logo.jpg" alt="ReadME Logo">
+      <span>ReadME Framework <span id="readme-version" style="color: rgb(249, 253, 13);">v<%= locals.version || '1.0' %></span></span>
+    </div>
+    
+    <div class="github-buttons">
+      <!-- GitHub Star Button -->
+      <a class="github-button" href="https://github.com/ronyman-com/readME"
+         data-icon="octicon-star" data-size="large" data-show-count="true"
+         aria-label="Star ronyman-com/readME on GitHub">Star</a>
+      
+      <!-- Source Code Link -->
+      <a href="https://github.com/ronyman-com/readME" class="source-code-link"
+         target="_blank" rel="noopener noreferrer">
+        Source Code
+      </a>
+    </div>
+  </header>
+
+  <!-- Mobile Sidebar -->
+  <aside class="mobile-sidebar" id="mobile-sidebar">
+    <nav>
+      <ul>
+        <% if (locals.sidebar && locals.sidebar.items) { %>
+          <% locals.sidebar.items.forEach(item => { %>
+            <li>
+              <a href="<%= item.link %>" class="<%= (locals.currentPath === item.link) ? 'active' : '' %>">
+                <% if (item.icon) { %>
+                  <i class="icon-<%= item.icon %>"></i>
+                <% } %>
+                <%= item.text %>
+              </a>
+              
+              <% if (item.items && item.items.length) { %>
+                <ul>
+                  <% item.items.forEach(subItem => { %>
+                    <li>
+                      <a href="<%= subItem.link %>" class="<%= (locals.currentPath === subItem.link) ? 'active' : '' %>">
+                        <% if (subItem.icon) { %>
+                          <i class="icon-<%= subItem.icon %>"></i>
+                        <% } %>
+                        <%= subItem.text %>
+                      </a>
+                    </li>
+                  <% }); %>
+                </ul>
+              <% } %>
+            </li>
+          <% }); %>
+        <% } else { %>
+          <li><a href="/">Home</a></li>
+        <% } %>
+      </ul>
+    </nav>
+  </aside>
+
+  <!-- Mobile Sidebar Overlay -->
+  <div class="mobile-sidebar-overlay" id="mobile-sidebar-overlay"></div>
+
+  <script>
+    // Mobile sidebar toggle functionality
+    document.addEventListener('DOMContentLoaded', () => {
+      const toggleBtn = document.getElementById('mobile-sidebar-toggle');
+      const sidebar = document.getElementById('mobile-sidebar');
+      const overlay = document.getElementById('mobile-sidebar-overlay');
+      
+      if (toggleBtn && sidebar) {
+        toggleBtn.addEventListener('click', () => {
+          sidebar.classList.toggle('active');
+          overlay.classList.toggle('active');
+        });
+        
+        overlay.addEventListener('click', () => {
+          sidebar.classList.remove('active');
+          overlay.classList.remove('active');
+        });
+      }
+      
+      // Initialize GitHub buttons if they don't load automatically
+      if (typeof GitHubButtons === 'undefined' && document.querySelector('.github-button')) {
+        const script = document.createElement('script');
+        script.src = 'https://buttons.github.io/buttons.js';
+        script.async = true;
+        document.body.appendChild(script);
+      }
+    });
+  </script>

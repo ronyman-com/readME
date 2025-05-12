@@ -3,15 +3,146 @@
   "items": [
     {
       "text": "Base",
-      "link": "/base",
+      "link": "/base/index",
       "icon": "folder",
-      "items": []
+      "items": [
+        {
+          "text": "Index",
+          "link": "/base/index",
+          "icon": "file"
+        }
+      ]
+    },
+    {
+      "text": "Build",
+      "link": "/build/index",
+      "icon": "folder",
+      "items": [
+        {
+          "text": "Index",
+          "link": "/build/index",
+          "icon": "file"
+        }
+      ]
+    },
+    {
+      "text": "Cli",
+      "link": "/cli/index",
+      "icon": "folder",
+      "items": [
+        {
+          "text": "Index",
+          "link": "/cli/index",
+          "icon": "file"
+        }
+      ]
+    },
+    {
+      "text": "Github",
+      "link": "/github/index",
+      "icon": "folder",
+      "items": [
+        {
+          "text": "Index",
+          "link": "/github/index",
+          "icon": "file"
+        }
+      ]
     },
     {
       "text": "Home",
       "link": "/",
       "icon": "home"
+    },
+    {
+      "text": "Index",
+      "link": "//index",
+      "icon": "file"
+    },
+    {
+      "text": "Pages",
+      "link": "/pages/index",
+      "icon": "folder",
+      "items": [
+        {
+          "text": "Index",
+          "link": "/pages/index",
+          "icon": "file"
+        }
+      ]
+    },
+    {
+      "text": "Plugins",
+      "link": "/plugins/index",
+      "icon": "folder",
+      "items": [
+        {
+          "text": "Awesome",
+          "link": "/plugins/awesome/index",
+          "icon": "folder",
+          "items": [
+            {
+              "text": "Index",
+              "link": "/plugins/awesome/index",
+              "icon": "file"
+            }
+          ]
+        },
+        {
+          "text": "Index",
+          "link": "/plugins/index",
+          "icon": "file"
+        },
+        {
+          "text": "Readme Urls",
+          "link": "/plugins/readme-urls/index",
+          "icon": "folder",
+          "items": [
+            {
+              "text": "Index",
+              "link": "/plugins/readme-urls/index",
+              "icon": "file"
+            }
+          ]
+        },
+        {
+          "text": "Security",
+          "link": "/plugins/security/index",
+          "icon": "folder",
+          "items": [
+            {
+              "text": "Index",
+              "link": "/plugins/security/index",
+              "icon": "file"
+            }
+          ]
+        },
+        {
+          "text": "Uploads",
+          "link": "/plugins/uploads/index",
+          "icon": "folder",
+          "items": [
+            {
+              "text": "Index",
+              "link": "/plugins/uploads/index",
+              "icon": "file"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "text": "Sidebar",
+      "link": "/sidebar/index",
+      "icon": "folder",
+      "items": [
+        {
+          "text": "Index",
+          "link": "/sidebar/index",
+          "icon": "file"
+        }
+      ]
     }
   ],
-  "generatedAt": "2025-05-10T08:47:36.978Z"
+  "generatedAt": "2025-05-11T21:47:01.127Z"
 }

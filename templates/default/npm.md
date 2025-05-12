@@ -11,5 +11,6 @@ npm install -g readme-framework
 npm install freadme-framork --last
 
 ```
+# or
 
-
+To install directly from NPM website, go [here](https://www.npmjs.com/package/readme-framework).

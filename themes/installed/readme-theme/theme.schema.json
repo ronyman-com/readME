@@ -1,0 +1,113 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Readme Framework Theme Configuration",
+  "description": "Schema for theme configuration files",
+  "type": "object",
+  "required": ["meta", "properties"],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Path to the JSON schema"
+    },
+    "meta": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "identifier": { "type": "string" },
+        "description": { "type": "string" },
+        "version": { "type": "string" },
+        "author": { "type": "string" }
+      },
+      "required": ["name", "identifier"]
+    },
+    "properties": {
+      "type": "object",
+      "properties": {
+        "isDark": { "type": "boolean" },
+        "baseTheme": { "type": "string" },
+        "colorScheme": { "$ref": "#/definitions/colorScheme" },
+        "typography": { "$ref": "#/definitions/typography" },
+        "elevation": { "$ref": "#/definitions/elevation" },
+        "roundedCorners": { "type": "boolean" },
+        "animation": { "$ref": "#/definitions/animation" },
+        "behavior": { "$ref": "#/definitions/behavior" },
+        "detection": { "$ref": "#/definitions/detection" }
+      },
+      "required": ["isDark", "baseTheme"]
+    },
+    "extensions": {
+      "type": "object",
+      "properties": {
+        "syntaxHighlighting": { "type": "string" },
+        "iconVariant": { "type": "string" },
+        "adaptiveComponents": { "type": "boolean" }
+      }
+    }
+  },
+  "definitions": {
+    "colorScheme": {
+      "type": "object",
+      "properties": {
+        "primary": { "type": "string" },
+        "secondary": { "type": "string" },
+        "background": { "type": "string" },
+        "surface": { "type": "string" },
+        "error": { "type": "string" },
+        "success": { "type": "string" },
+        "warning": { "type": "string" },
+        "text": {
+          "type": "object",
+          "properties": {
+            "primary": { "type": "string" },
+            "secondary": { "type": "string" },
+            "disabled": { "type": "string" }
+          }
+        }
+      },
+      "required": ["primary", "background", "surface"]
+    },
+    "typography": {
+      "type": "object",
+      "properties": {
+        "fontFamily": { "type": "string" },
+        "fontScale": { "type": "number" }
+      }
+    },
+    "elevation": {
+      "type": "object",
+      "properties": {
+        "levels": { "type": "number" },
+        "opacity": { "type": "number" }
+      }
+    },
+    "animation": {
+      "type": "object",
+      "properties": {
+        "duration": { "type": "string" },
+        "easing": { "type": "string" }
+      }
+    },
+    "behavior": {
+      "type": "object",
+      "properties": {
+        "syncWithOS": { "type": "boolean" },
+        "fallbackTheme": { "type": "string" },
+        "transition": {
+          "type": "object",
+          "properties": {
+            "enable": { "type": "boolean" },
+            "duration": { "type": "string" }
+          }
+        }
+      }
+    },
+    "detection": {
+      "type": "object",
+      "properties": {
+        "prefersColorScheme": { "type": "boolean" },
+        "prefersContrast": { "type": "boolean" },
+        "prefersReducedMotion": { "type": "boolean" }
+      }
+    }
+  }
+}

@@ -9,7 +9,7 @@ lerna-debug.log*
 
 
 # here to skip git for all plugins
-src/plugins/readme-urls
+plugins/readme-urls
 #####################
 
 

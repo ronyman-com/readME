@@ -1,41 +1,122 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="<%= (locals.theme && locals.theme.mode) || 'system' %>">
 <head>
-  <%- include('./base/header/head') %>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="<%= (locals.theme && locals.theme.color) || '#3498db' %>">
+  <title><%= locals.title || 'Readme Framework' %></title>
+  
+  <!-- Preload critical assets -->
+  <link rel="preload" href="/assets/themes/readme-theme/assets/css/theme.css" as="style">
+  
+  <!-- Theme CSS -->
+  <link rel="stylesheet" href="/assets/themes/readme-theme/assets/css/theme.css">
+  
+  <!-- Head partial with meta tags and additional styles -->
+  <%- include('./inc/head/index.ejs') %>
+  
+  <!-- Dynamic theme variables -->
+  <style>
+    :root {
+      --theme-primary: <%= (locals.theme && locals.theme.primaryColor) || '#3498db' %>;
+      --theme-secondary: <%= (locals.theme && locals.theme.secondaryColor) || '#2980b9' %>;
+      --theme-primary-rgb: <%= (locals.theme && locals.theme.primaryRgb) || '52, 152, 219' %>;
+    }
+  </style>
 </head>
-<body class="<%= typeof rightSidebar !== 'undefined' && rightSidebar ? 'has-right-sidebar' : '' %>">
-  <!-- Top Navigation -->
-  <%- include('./base/menu/top') %>
+<body>
+  <!-- Navbar -->
+  <header class="navbar">
+    <button class="mobile-sidebar-toggle" aria-label="Toggle sidebar">
+      ☰
+    </button>
+    
+    <div class="navbar-brand">
+      <img src="/assets/images/logo.jpg" alt="ReadME Logo">
+      <span>ReadME Framework <span class="version-badge">v<%= locals.version || '1.0' %></span></span>
+    </div>
+    
+    <div class="github-buttons">
+      <a class="github-button" href="https://github.com/ronyman-com/readME"
+         data-icon="octicon-star" data-size="large" data-show-count="true"
+         aria-label="Star ronyman-com/readME on GitHub">Star</a>
+      <a href="https://github.com/ronyman-com/readME" class="source-code-link"
+         target="_blank" rel="noopener noreferrer">Source Code</a>
+    </div>
+  </header>
 
-  <!-- Mobile Sidebar -->
-  <aside class="mobile-sidebar" id="mobile-sidebar">
- 
-  </aside>
+  <!-- Mobile Sidebar Overlay -->
+  <div class="mobile-sidebar-overlay"></div>
 
-  <!-- Left Sidebar -->
+  <div class="page-wrapper">
+    <!-- Sidebar -->
+<aside class="sidebar">
+  <%- include('./inc/sidebar/index.ejs', { 
+    sidebarData: locals.sidebarData, // No fallback needed since we always provide it
+    currentPath: locals.currentPath || '/' 
+  }) %>
+</aside>
 
-
-  <!-- Right Sidebar (conditionally included) -->
-
-
-  <!-- Main Content -->
-  <main class="content" id="content">
-    <%- content %>
-  </main>
+    <!-- Main Content -->
+    <main class="content">
+      <article class="documentation-content">
+        <% if (typeof content !== 'undefined') { %>
+          <%- content %>
+        <% } else if (locals.markdownContent) { %>
+          <%- markdown.render(locals.markdownContent) %>
+        <% } else { %>
+          <div class="empty-state">
+            <h2>No Content Available</h2>
+            <p>This page doesn't have any content yet.</p>
+          </div>
+        <% } %>
+      </article>
+    </main>
+  </div>
 
   <!-- Footer -->
   <footer class="footer">
-  
+    <%- include('./inc/foot/index.ejs') %>
   </footer>
 
-  <!-- JavaScript -->
-  <script src="/assets/js/sidebar.js"></script>
-  <script src="/assets/js/top-nav.js"></script>
-  <script src="/assets/js/theme.js"></script>
-  
-  <!-- GitHub Buttons Script -->
-  <script async defer src="https://buttons.github.io/buttons.js"></script>
+  <!-- Theme toggle button -->
+  <button class="theme-toggle" aria-label="Toggle theme" data-theme-toggle>
+    <span class="theme-icon-light">☀️</span>
+    <span class="theme-icon-dark">🌙</span>
+  </button>
 
-  <!-- Rest of your scripts... -->
+  <!-- Theme JS -->
+  <script type="module">
+    import { initTheme, switchTheme } from '/assets/themes/readme-theme/assets/js/theme.js';
+    
+    // Initialize theme
+    document.addEventListener('DOMContentLoaded', () => {
+      initTheme('<%= (locals.theme && locals.theme.mode) || "system" %>');
+      
+      // Mobile sidebar toggle
+      const mobileToggle = document.querySelector('.mobile-sidebar-toggle');
+      const sidebar = document.querySelector('.sidebar');
+      const overlay = document.querySelector('.mobile-sidebar-overlay');
+      
+      if (mobileToggle && sidebar) {
+        mobileToggle.addEventListener('click', () => {
+          sidebar.classList.toggle('active');
+          overlay.classList.toggle('active');
+        });
+        
+        overlay.addEventListener('click', () => {
+          sidebar.classList.remove('active');
+          overlay.classList.remove('active');
+        });
+      }
+      
+      // Load GitHub buttons if not already loaded
+      if (!window.GitHubButtons && document.querySelector('.github-button')) {
+        const script = document.createElement('script');
+        script.src = 'https://buttons.github.io/buttons.js';
+        document.body.appendChild(script);
+      }
+    });
+  </script>
 </body>
 </html>
