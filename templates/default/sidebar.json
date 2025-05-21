@@ -43,7 +43,7 @@
     },
     {
       "text": "Index",
-      "link": "//index",
+      "link": "/index",
       "icon": "file"
     },
     {
@@ -63,7 +63,7 @@
           "items": [
             {
               "text": "Index",
-              "link": "/layouts/base/index",
+              "link": "/layouts/baseindex",
               "icon": "file"
             }
           ]
@@ -75,7 +75,7 @@
           "items": [
             {
               "text": "Index",
-              "link": "/layouts/build/index",
+              "link": "/layouts/buildindex",
               "icon": "file"
             }
           ]
@@ -87,7 +87,7 @@
           "items": [
             {
               "text": "Index",
-              "link": "/layouts/cli/index",
+              "link": "/layouts/cliindex",
               "icon": "file"
             }
           ]
@@ -99,19 +99,19 @@
           "items": [
             {
               "text": "Index",
-              "link": "/layouts/github/index",
+              "link": "/layouts/githubindex",
               "icon": "file"
             }
           ]
         },
         {
           "text": "Pages",
-          "link": "/layouts/pages/index",
+          "link": "/layouts/pages",
           "icon": "folder",
           "items": [
             {
-              "text": "Index",
-              "link": "/layouts/pages/index",
+              "text": "Test",
+              "link": "/layouts/pages/test",
               "icon": "file"
             }
           ]
@@ -128,14 +128,14 @@
               "items": [
                 {
                   "text": "Index",
-                  "link": "/layouts/plugins/awesome/index",
+                  "link": "/layouts/plugins/awesomeindex",
                   "icon": "file"
                 }
               ]
             },
             {
               "text": "Index",
-              "link": "/layouts/plugins/index",
+              "link": "/layouts/pluginsindex",
               "icon": "file"
             },
             {
@@ -145,7 +145,7 @@
               "items": [
                 {
                   "text": "Index",
-                  "link": "/layouts/plugins/readme-urls/index",
+                  "link": "/layouts/plugins/readme-urlsindex",
                   "icon": "file"
                 }
               ]
@@ -157,7 +157,7 @@
               "items": [
                 {
                   "text": "Index",
-                  "link": "/layouts/plugins/security/index",
+                  "link": "/layouts/plugins/securityindex",
                   "icon": "file"
                 }
               ]
@@ -169,7 +169,7 @@
               "items": [
                 {
                   "text": "Index",
-                  "link": "/layouts/plugins/uploads/index",
+                  "link": "/layouts/plugins/uploadsindex",
                   "icon": "file"
                 }
               ]
@@ -183,7 +183,19 @@
           "items": [
             {
               "text": "Index",
-              "link": "/layouts/sidebar/index",
+              "link": "/layouts/sidebarindex",
+              "icon": "file"
+            }
+          ]
+        },
+        {
+          "text": "Test",
+          "link": "/layouts/test/index",
+          "icon": "folder",
+          "items": [
+            {
+              "text": "Index",
+              "link": "/layouts/testindex",
               "icon": "file"
             }
           ]
@@ -202,9 +214,9 @@
     },
     {
       "text": "README",
-      "link": "//index",
+      "link": "/index",
       "icon": "file"
     }
   ],
-  "generatedAt": "2025-05-12T20:49:21.540Z"
+  "generatedAt": "2025-05-21T01:07:24.661Z"
 }

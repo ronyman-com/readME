@@ -180,7 +180,7 @@ async function processDirectory(currentDir, parentItems, currentPath) {
         if (isIndexFile(item.name)) {
           parentItems.push({
             text: formatName(baseName),
-            link: `/${currentPath.replace(/\\/g, '/')}/index`,
+            link: `/${currentPath.replace(/\\/g, '/')}index`,
             icon: 'file'
           });
           continue;

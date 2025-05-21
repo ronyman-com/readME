@@ -104,73 +104,110 @@ async function copyStaticAssets(templateDir, distDir) {
     }
   }
 
-  // Copy from templateDir to distDir if different from public
-  if (templateDir !== publicPath) {
-    const templateStaticFiles = await fs.readdir(templateDir);
-    for (const file of templateStaticFiles) {
+  // 3. Copy all .txt files from templates/default to dist/
+  try {
+    const files = await fs.readdir(templateDir);
+    const txtFiles = files.filter(file => path.extname(file) === '.txt');
+    
+    for (const file of txtFiles) {
+      const sourcePath = path.join(templateDir, file);
+      const destPath = path.join(distDir, file);
+      
+      // Verify it's actually a file (not directory)
+      const stats = await fs.stat(sourcePath);
+      if (stats.isFile()) {
+        await fs.copyFile(sourcePath, destPath);
+        logSuccess(`📄 Copied text file: ${file}`);
+      }
+    }
+  } catch (error) {
+    logError(`❌ Error copying text files: ${error.message}`);
+  }
+
+  // 4. Copy other static files (non-template, non-md files)
+  try {
+    const templateFiles = await fs.readdir(templateDir);
+    for (const file of templateFiles) {
       const filePath = path.join(templateDir, file);
       const stats = await fs.stat(filePath);
       
-      // Skip directories (already handled) and special files
+      // Skip directories, hidden files, and template files
       if (stats.isFile() && 
           !file.startsWith('.') && 
           !['.ejs', '.md'].some(ext => file.endsWith(ext))) {
-        await fs.copyFile(filePath, path.join(distDir, file));
-        logSuccess(`📄 Copied ${file} from templates`);
+        // Skip if already copied as .txt file
+        if (path.extname(file) !== '.txt') {
+          await fs.copyFile(filePath, path.join(distDir, file));
+          logSuccess(`📄 Copied ${file} from templates`);
+        }
       }
     }
+  } catch (error) {
+    logError(`❌ Error copying static files: ${error.message}`);
   }
 }
 
+
+
 async function processMarkdownFile(filePath, templateDir, distDir, relativePath, sidebar, pages) {
   const content = await fs.readFile(filePath, 'utf8');
-  const { data: frontmatter, content: markdownContent } = matter(content);
+  const frontmatter = matter(content);
   
-  const templatePath = await getTemplatePath(filePath, frontmatter, templateDir);
+  // Determine template path
+  const templatePath = frontmatter.data.template 
+      ? path.join(templateDir, frontmatter.data.template)
+      : path.join(templateDir, 'index.ejs');
+  
   const template = await fs.readFile(templatePath, 'utf8');
-
+  
+  // Calculate output path and URL
   const outputPath = path.join(
-    distDir,
-    relativePath,
-    path.basename(filePath, '.md') + '.html'
+      distDir,
+      relativePath,
+      path.basename(filePath, '.md') + '.html'
   );
   
   const pageUrl = path.join(
-    relativePath,
-    path.basename(filePath, '.md') + '.html'
+      relativePath,
+      path.basename(filePath, '.md') + '.html'
   ).replace(/\\/g, '/');
   
   await fs.mkdir(path.dirname(outputPath), { recursive: true });
   
+  // Calculate the correct asset prefix based on directory depth
   const depth = relativePath.split(path.sep).filter(Boolean).length;
   const assetPrefix = depth > 0 ? '../'.repeat(depth) : './';
 
+  // Prepare template data with SEO defaults
   const templateData = {
     ...defaultSEO,
-    ...frontmatter,
+    ...frontmatter.data,
     version: process.env.npm_package_version || '1.0.0',
     currentYear: new Date().getFullYear(),
-    content: marked.parse(markdownContent),
+    content: marked.parse(frontmatter.content),
     sidebar: sidebar,
     navItems: sidebar.menu || sidebar.items || [],
     assetPrefix: assetPrefix,
     currentPath: pageUrl,
-    canonicalUrl: frontmatter.canonicalUrl || `${BASE_URL}/${pageUrl}`
+    canonicalUrl: frontmatter.data.canonicalUrl || `${BASE_URL}/${pageUrl}`
   };
 
+  // Add to sitemap pages
   pages.push({
     path: pageUrl,
     lastmod: new Date().toISOString(),
-    priority: frontmatter.priority || 0.8,
-    changefreq: frontmatter.changefreq || 'weekly'
+    priority: frontmatter.data.priority || 0.8,
+    changefreq: frontmatter.data.changefreq || 'weekly'
   });
 
+  // Render the template with proper include resolution
   const html = ejs.render(template, templateData, {
-    filename: templatePath,
-    root: templateDir,
-    views: [templateDir]
+      filename: templatePath,
+      root: templateDir,
+      views: [templateDir]
   });
   
+  // Minify and write HTML
   await fs.writeFile(outputPath, htmlmin.minify(html, minifyOptions));
   logSuccess(`✨ Built: ${pageUrl}`);
 }
@@ -240,8 +277,6 @@ async function generateSitemap(distDir, pages) {
 }
 
 
-
-
 // Build Export.
 
 export async function build() {
@@ -298,30 +333,42 @@ export async function build() {
 }
 
 
-// Modify your existing CLI block to this:
+// Robust CLI execution with resource tracking
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  ensureExit(); // Add this line
-  
-  build()
-    .then(() => process.exit(0))
-    .catch((err) => {
-      console.error(err);
-      process.exit(1);
-    });
-}
+  const startResources = {
+    handles: process._getActiveHandles().length,
+    requests: process._getActiveRequests().length
+  };
 
-// Enhanced CLI Execution Handler
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
   (async () => {
     try {
       await build();
-      // Add small delay to ensure all output is flushed
-      await new Promise(resolve => setTimeout(resolve, 100));
-      process.exit(0);
+      
+      // Check for resource leaks
+      const endResources = {
+        handles: process._getActiveHandles().length,
+        requests: process._getActiveRequests().length
+      };
+
+      if (endResources.handles > startResources.handles || 
+          endResources.requests > startResources.requests) {
+        console.warn(`Resource leak detected - Handles: ${startResources.handles}=>${endResources.handles}, ` +
+                    `Requests: ${startResources.requests}=>${endResources.requests}`);
+      }
+
+      // Force exit if hanging
+      setTimeout(() => {
+        console.error('Forcing exit due to timeout');
+        process.exit(0);
+      }, 2000).unref();
+
+      // Immediate exit if clean
+      if (endResources.handles <= startResources.handles && 
+          endResources.requests <= startResources.requests) {
+        process.exit(0);
+      }
     } catch (error) {
-      console.error(error);
-      // Add small delay to ensure error output is flushed
-      await new Promise(resolve => setTimeout(resolve, 100));
+      console.error('Build failed:', error);
       process.exit(1);
     }
   })();
